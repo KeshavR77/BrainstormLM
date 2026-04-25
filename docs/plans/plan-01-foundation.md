@@ -1,6 +1,6 @@
 # Plan 01 — Foundation
 
-_Parent plan: `~/.claude/plans/come-up-with-a-magical-wren.md` (Phase 1, Sub-plan 1.1)._
+_Parent plan: [`./master-plan.md`](./master-plan.md) (Phase 1, Sub-plan 1.1)._
 _Authored: 2026-04-24._
 
 ## Context
