@@ -1,0 +1,1 @@
+Follow "DRY" coding principles, gest git practices, always use the CLI to interface with any external servers, apis, etc.
