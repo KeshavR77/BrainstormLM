@@ -19,7 +19,9 @@ brainstorm = "brainstormlm.cli:app"
 dev = [
     "pytest",
     "pytest-asyncio",
+    "pytest-cov",
     "ruff",
+    "tqdm",
 ]
 
 [build-system]

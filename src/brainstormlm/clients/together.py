@@ -23,12 +23,12 @@ def complete(
     top_p: float = 0.95,
     *,
     use_cache: bool = True,
-) -> str:
+) -> tuple[str, bool]:
     key = cache_key("together", model, system, messages, max_tokens, temperature, top_p)
     if use_cache:
         cached = read_cache(key)
         if cached is not None:
-            return cached
+            return cached, True
 
     payload = list(messages)
     if system is not None:
@@ -43,4 +43,4 @@ def complete(
     )
     text = response.choices[0].message.content
     write_cache(key, text)
-    return text
+    return text, False

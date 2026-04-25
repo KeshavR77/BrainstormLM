@@ -19,6 +19,13 @@ class Settings(BaseSettings):
     default_max_tokens: int = 1024
     default_top_p: float = 0.95
 
+    prompter_model: str = "gpt-4o-mini"
+    evaluator_model: str = "gpt-4o-mini"
+    trajectories_path: Path = Field(
+        default=Path("./data/trajectories.jsonl"),
+        alias="BRAINSTORMLM_TRAJECTORIES_PATH",
+    )
+
 
 @lru_cache
 def get_settings() -> Settings:

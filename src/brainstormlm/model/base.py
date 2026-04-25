@@ -19,6 +19,24 @@ class TogetherGenerator:
         max_tokens: int = 1024,
         use_cache: bool = True,
     ) -> str:
+        text, _ = self.generate_with_meta(
+            prompt,
+            system=system,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            use_cache=use_cache,
+        )
+        return text
+
+    def generate_with_meta(
+        self,
+        prompt: str,
+        *,
+        system: str | None = None,
+        temperature: float = 1.0,
+        max_tokens: int = 1024,
+        use_cache: bool = True,
+    ) -> tuple[str, bool]:
         return together_client.complete(
             system=system,
             messages=[{"role": "user", "content": prompt}],
