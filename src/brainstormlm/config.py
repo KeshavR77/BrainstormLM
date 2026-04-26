@@ -26,6 +26,14 @@ class Settings(BaseSettings):
         alias="BRAINSTORMLM_TRAJECTORIES_PATH",
     )
 
+    embedding_model: str = "text-embedding-3-small"
+    lesson_extractor_model: str = "gpt-4o-mini"
+    memory_dir: Path = Field(default=Path("./data/memory"), alias="BRAINSTORMLM_MEMORY_DIR")
+    lessons_path: Path = Field(
+        default=Path("./data/memory/lessons.jsonl"),
+        alias="BRAINSTORMLM_LESSONS_PATH",
+    )
+
 
 @lru_cache
 def get_settings() -> Settings:

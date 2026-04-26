@@ -31,3 +31,15 @@ def test_estimate_run_cost_scales_linearly():
 def test_prices_table_covers_required_models():
     for model in ("gpt-4o-mini", "gpt-4o", "Qwen/Qwen2.5-7B-Instruct-Turbo"):
         assert model in pricing.PRICES
+
+
+def test_estimate_extraction_cost_for_200_under_25_cents():
+    # Plan-03 budget guard: re-extracting lessons from 200 trajectories should
+    # land well under $0.25 with gpt-4o-mini.
+    assert pricing.estimate_extraction_cost(200) < 0.25
+
+
+def test_estimate_extraction_cost_scales_linearly():
+    one = pricing.estimate_extraction_cost(1)
+    fifty = pricing.estimate_extraction_cost(50)
+    assert fifty == pytest.approx(one * 50)

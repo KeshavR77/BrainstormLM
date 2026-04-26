@@ -10,6 +10,7 @@ _TOKEN_BUDGET = {
     "prompter": (300, 80),
     "generator": (100, 500),
     "evaluator": (1200, 250),
+    "extractor": (1500, 300),
 }
 
 
@@ -34,3 +35,9 @@ def estimate_run_cost(
         + cost_of(evaluator_model, e_in, e_out)
     )
     return per_trial * n
+
+
+def estimate_extraction_cost(n: int, *, extractor_model: str = "gpt-4o-mini") -> float:
+    """Pre-flight estimate for n trajectories through the lesson extractor."""
+    e_in, e_out = _TOKEN_BUDGET["extractor"]
+    return cost_of(extractor_model, e_in, e_out) * n

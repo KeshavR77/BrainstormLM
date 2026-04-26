@@ -1,6 +1,7 @@
 import json
 from dataclasses import dataclass
 
+import numpy as np
 import openai
 
 from brainstormlm.clients.cache import cache_key, read_cache, write_cache
@@ -106,3 +107,49 @@ def complete_json(
     )
     write_cache(key, _encode(text, usage))
     return json.loads(text), usage
+
+
+def embed(
+    texts: list[str],
+    *,
+    model: str | None = None,
+    use_cache: bool = True,
+) -> tuple[np.ndarray, Usage]:
+    """Return (N, D) float32 L2-normalized embeddings, cached per (model, text)."""
+    model = model or get_settings().embedding_model
+    if not texts:
+        return np.zeros((0, 0), dtype=np.float32), Usage(0, 0, cached=True)
+
+    keys = [cache_key("openai_embed", model, t) for t in texts]
+    cached_vectors: dict[int, np.ndarray] = {}
+    miss_indices: list[int] = []
+    if use_cache:
+        for i, k in enumerate(keys):
+            blob = read_cache(k)
+            if blob is None:
+                miss_indices.append(i)
+                continue
+            cached_vectors[i] = np.asarray(json.loads(blob)["embedding"], dtype=np.float32)
+    else:
+        miss_indices = list(range(len(texts)))
+
+    prompt_tokens = 0
+    if miss_indices:
+        miss_texts = [texts[i] for i in miss_indices]
+        response = _get_client().embeddings.create(model=model, input=miss_texts)
+        prompt_tokens = response.usage.prompt_tokens
+        for i, datum in zip(miss_indices, response.data, strict=True):
+            vec = np.asarray(datum.embedding, dtype=np.float32)
+            cached_vectors[i] = vec
+            write_cache(keys[i], json.dumps({"embedding": vec.tolist()}))
+
+    dim = next(iter(cached_vectors.values())).shape[0]
+    matrix = np.empty((len(texts), dim), dtype=np.float32)
+    for i in range(len(texts)):
+        matrix[i] = cached_vectors[i]
+
+    norms = np.linalg.norm(matrix, axis=1, keepdims=True)
+    norms = np.where(norms == 0.0, 1.0, norms)
+    matrix = matrix / norms
+
+    return matrix, Usage(prompt_tokens=prompt_tokens, completion_tokens=0, cached=not miss_indices)

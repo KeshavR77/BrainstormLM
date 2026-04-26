@@ -16,6 +16,7 @@ from brainstormlm.config import get_settings
 from brainstormlm.eval.fixtures import HELD_OUT
 from brainstormlm.feedback import evaluator, pricing, prompter
 from brainstormlm.feedback.trajectories import Trajectory, append
+from brainstormlm.memory import LessonStore, augmented_system, retrieve
 from brainstormlm.model.base import TogetherGenerator
 
 app = typer.Typer(add_completion=False, no_args_is_help=False)
@@ -33,6 +34,9 @@ def main(
     max_spend_usd: Annotated[float, typer.Option(help="Abort if cumulative cost exceeds this.")] = 1.00,
     out: Annotated[Path | None, typer.Option(help="Trajectory JSONL path.")] = None,
     seed: Annotated[int, typer.Option(help="Seed for taxonomy shuffle.")] = 42,
+    use_memory: Annotated[bool, typer.Option("--use-memory", help="Inject ReasoningBank lessons into each generator call.")] = False,
+    k_success: Annotated[int, typer.Option(help="Success lessons retrieved when --use-memory is on.")] = 3,
+    k_failure: Annotated[int, typer.Option(help="Failure lessons retrieved when --use-memory is on.")] = 2,
 ) -> None:
     settings = get_settings()
     out_path = out or settings.trajectories_path
@@ -55,6 +59,11 @@ def main(
     generator = TogetherGenerator()
     cap = min(n, max_calls)
 
+    store: LessonStore | None = None
+    if use_memory:
+        store = LessonStore(settings.lessons_path)
+        store.load()
+
     completed = 0
     total_cost = 0.0
     creativity_sum = 0
@@ -76,8 +85,20 @@ def main(
                 else pricing.cost_of(settings.prompter_model, p_usage.prompt_tokens, p_usage.completion_tokens)
             )
 
+            memory_context_ids: list[str] = []
+            trial_system: str | None = None
+            if store is not None:
+                lessons = retrieve(
+                    store, prompt_text, k_success=k_success, k_failure=k_failure
+                )
+                trial_system = augmented_system(None, lessons)
+                memory_context_ids = [lesson.id for lesson in lessons]
+
             response, g_cached = generator.generate_with_meta(
-                prompt_text, temperature=temperature, max_tokens=600
+                prompt_text,
+                system=trial_system,
+                temperature=temperature,
+                max_tokens=600,
             )
             g_cost = (
                 0.0
@@ -117,6 +138,7 @@ def main(
                 logic=result.logic,
                 rationale=result.rationale,
                 failure_modes=result.failure_modes,
+                memory_context_ids=memory_context_ids,
             )
             append(t, out_path)
 
