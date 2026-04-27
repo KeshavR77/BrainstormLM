@@ -43,3 +43,27 @@ def test_estimate_extraction_cost_scales_linearly():
     one = pricing.estimate_extraction_cost(1)
     fifty = pricing.estimate_extraction_cost(50)
     assert fifty == pytest.approx(one * 50)
+
+
+def test_estimate_sibling_run_cost_under_budget():
+    # Plan-04 budget guard: 300 prompts × 6 siblings should land under $5.
+    assert pricing.estimate_sibling_run_cost(300, siblings=6) < 5.0
+
+
+def test_estimate_sibling_run_cost_scales_with_siblings():
+    one = pricing.estimate_sibling_run_cost(100, siblings=1)
+    six = pricing.estimate_sibling_run_cost(100, siblings=6)
+    # 1 prompter + 1 generator + 1 evaluator vs 1 prompter + 6 generator + 6 evaluator,
+    # so 6× is strictly less than the 6-sibling estimate (prompter cost shared).
+    assert six > one
+    assert six < one * 6
+
+
+def test_estimate_modal_cost_a100_80gb_two_hours():
+    cost = pricing.estimate_modal_cost(2.0, gpu="A100-80GB")
+    assert cost == pytest.approx(pricing.MODAL_GPU_HOURLY["A100-80GB"] * 2.0)
+
+
+def test_estimate_modal_cost_unknown_gpu_raises():
+    with pytest.raises(KeyError):
+        pricing.estimate_modal_cost(1.0, gpu="not-a-real-gpu")

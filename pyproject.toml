@@ -11,6 +11,13 @@ dependencies = [
     "pydantic-settings",
     "python-dotenv",
     "numpy",
+    "transformers",
+    "torch",
+    "peft",
+    "trl",
+    "accelerate",
+    "datasets",
+    "modal",
 ]
 
 [project.scripts]

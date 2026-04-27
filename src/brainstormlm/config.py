@@ -34,6 +34,20 @@ class Settings(BaseSettings):
         alias="BRAINSTORMLM_LESSONS_PATH",
     )
 
+    hf_base_model: str = "Qwen/Qwen2.5-7B-Instruct"
+    adapters_dir: Path = Field(
+        default=Path("./data/adapters"), alias="BRAINSTORMLM_ADAPTERS_DIR"
+    )
+    default_adapter_path: Path | None = Field(
+        default=None, alias="BRAINSTORMLM_DEFAULT_ADAPTER"
+    )
+    preferences_path: Path = Field(
+        default=Path("./data/preferences.jsonl"),
+        alias="BRAINSTORMLM_PREFERENCES_PATH",
+    )
+    hf_token: SecretStr | None = Field(default=None, alias="HF_TOKEN")
+    modal_workspace: str | None = Field(default=None, alias="MODAL_WORKSPACE")
+
 
 @lru_cache
 def get_settings() -> Settings:

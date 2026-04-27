@@ -14,6 +14,7 @@ from tqdm import tqdm
 
 from brainstormlm.config import get_settings
 from brainstormlm.eval.fixtures import HELD_OUT
+from brainstormlm.eval.stats import paired_bootstrap_p_value
 from brainstormlm.feedback import evaluator
 from brainstormlm.feedback.trajectories import Trajectory, append
 from brainstormlm.memory import LessonStore, augmented_system, retrieve
@@ -60,23 +61,6 @@ def _generate_and_score(
         failure_modes=result.failure_modes,
         memory_context_ids=memory_context_ids,
     )
-
-
-def _bootstrap_p_value(deltas: list[float], *, n_iterations: int, rng: random.Random) -> float:
-    """One-sided paired bootstrap: H1 = mean(deltas) > 0."""
-    n = len(deltas)
-    if n == 0:
-        return 1.0
-    mean_obs = sum(deltas) / n
-    centered = [d - mean_obs for d in deltas]  # center under H0
-    geq = 0
-    for _ in range(n_iterations):
-        total = 0.0
-        for _ in range(n):
-            total += centered[rng.randrange(n)]
-        if total / n >= mean_obs:
-            geq += 1
-    return geq / n_iterations
 
 
 @app.command()
@@ -147,7 +131,7 @@ def main(
     mean_memory = sum(memory_scores) / n
     mean_delta = sum(deltas) / n
     rng = random.Random(seed)
-    p_value = _bootstrap_p_value(deltas, n_iterations=bootstrap_iterations, rng=rng)
+    p_value = paired_bootstrap_p_value(deltas, n_iterations=bootstrap_iterations, rng=rng)
     wins = sum(1 for d in deltas if d > 0)
     losses = sum(1 for d in deltas if d < 0)
     ties = n - wins - losses

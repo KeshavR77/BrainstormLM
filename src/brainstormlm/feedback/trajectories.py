@@ -29,6 +29,7 @@ class Trajectory(BaseModel):
     rationale: str
     failure_modes: list[str] = Field(default_factory=list)
     memory_context_ids: list[str] = Field(default_factory=list)
+    adapter_path: str | None = None
 
 
 def append(t: Trajectory, path: Path) -> None:

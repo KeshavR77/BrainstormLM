@@ -1,12 +1,13 @@
 """`brainstorm` CLI entrypoint."""
 
+from pathlib import Path
 from typing import Annotated
 
 import typer
 
 from brainstormlm.config import get_settings
 from brainstormlm.memory import LessonStore, augmented_system, retrieve
-from brainstormlm.model.base import TogetherGenerator
+from brainstormlm.model import make_generator
 
 app = typer.Typer(add_completion=False, help="BrainstormLM CLI.", no_args_is_help=True)
 
@@ -27,6 +28,8 @@ def ask(
     k_success: Annotated[int, typer.Option(help="Number of success lessons to retrieve.")] = 3,
     k_failure: Annotated[int, typer.Option(help="Number of failure lessons to retrieve.")] = 2,
     show_lessons: Annotated[bool, typer.Option("--show-lessons", help="Print retrieved lessons to stderr.")] = False,
+    adapter: Annotated[Path | None, typer.Option(help="Path to a PEFT LoRA adapter directory; routes generation through HFGenerator.")] = None,
+    no_adapter: Annotated[bool, typer.Option("--no-adapter", help="Force TogetherGenerator even if a default adapter is configured.")] = False,
 ) -> None:
     """Send PROMPT to the base model and print the response."""
     settings = get_settings()
@@ -44,7 +47,14 @@ def ask(
                 for lesson in lessons:
                     typer.echo(f"[{lesson.kind}] {lesson.lesson}", err=True)
 
-    generator = TogetherGenerator()
+    if no_adapter:
+        adapter_path: Path | None = None
+    elif adapter is not None:
+        adapter_path = adapter
+    else:
+        adapter_path = settings.default_adapter_path
+
+    generator = make_generator(adapter_path)
     response = generator.generate(
         prompt,
         system=effective_system,

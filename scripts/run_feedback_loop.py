@@ -17,7 +17,7 @@ from brainstormlm.eval.fixtures import HELD_OUT
 from brainstormlm.feedback import evaluator, pricing, prompter
 from brainstormlm.feedback.trajectories import Trajectory, append
 from brainstormlm.memory import LessonStore, augmented_system, retrieve
-from brainstormlm.model.base import TogetherGenerator
+from brainstormlm.model import make_generator
 
 app = typer.Typer(add_completion=False, no_args_is_help=False)
 
@@ -37,6 +37,7 @@ def main(
     use_memory: Annotated[bool, typer.Option("--use-memory", help="Inject ReasoningBank lessons into each generator call.")] = False,
     k_success: Annotated[int, typer.Option(help="Success lessons retrieved when --use-memory is on.")] = 3,
     k_failure: Annotated[int, typer.Option(help="Failure lessons retrieved when --use-memory is on.")] = 2,
+    adapter: Annotated[Path | None, typer.Option(help="Route generation through HFGenerator with this PEFT adapter.")] = None,
 ) -> None:
     settings = get_settings()
     out_path = out or settings.trajectories_path
@@ -56,7 +57,8 @@ def main(
     domains = list(prompter.DOMAINS)
     rng.shuffle(domains)
 
-    generator = TogetherGenerator()
+    generator = make_generator(adapter)
+    generator_model = settings.hf_base_model if adapter is not None else settings.together_base_model
     cap = min(n, max_calls)
 
     store: LessonStore | None = None
@@ -102,7 +104,7 @@ def main(
             )
             g_cost = (
                 0.0
-                if g_cached
+                if g_cached or adapter is not None
                 else pricing.cost_of(
                     settings.together_base_model,
                     len(prompt_text) // 4 + 50,
@@ -129,7 +131,7 @@ def main(
                 domain=domain,
                 prompt=prompt_text,
                 response=response,
-                generator_model=settings.together_base_model,
+                generator_model=generator_model,
                 generator_temperature=temperature,
                 prompter_model=settings.prompter_model,
                 evaluator_model=settings.evaluator_model,
@@ -139,6 +141,7 @@ def main(
                 rationale=result.rationale,
                 failure_modes=result.failure_modes,
                 memory_context_ids=memory_context_ids,
+                adapter_path=str(adapter) if adapter is not None else None,
             )
             append(t, out_path)
 
