@@ -63,6 +63,13 @@ image = (
         "datasets",
         "pydantic>=2.0",
         "pydantic-settings",
+        # Transitive imports: training/preferences.py → feedback/evaluator.py
+        # → clients/openai.py and clients/together.py. Even though we never
+        # call those clients during a training run, Python still imports them
+        # at module load. Cheaper to ship the packages than to refactor.
+        "openai",
+        "together",
+        "python-dotenv",
     )
     .add_local_dir("src/brainstormlm", remote_path="/root/brainstormlm")
 )
@@ -303,9 +310,15 @@ def main(
             ),
         )
     else:
-        typer.echo("Launching Modal training job...")
+        typer.echo("Launching Modal training job (detached: survives local disconnects)...")
         pairs_jsonl_text = pairs_path.read_text(encoding="utf-8")
-        with app.run():
+        # detach=True: app + function keep running on Modal even if the local
+        # client loses heartbeat (WiFi blip, display sleep, etc.). Without
+        # this, a single dropped heartbeat kills training mid-run. The local
+        # call still blocks for the return value when the connection is
+        # healthy; if the client dies, you can pull the adapter from the
+        # `brainstormlm-adapters` Volume after the job finishes.
+        with app.run(detach=True):
             manifest = train.remote(
                 pairs_jsonl=pairs_jsonl_text,
                 run_id=rid,
