@@ -89,6 +89,7 @@ def run_ablation(
     k_failure: int = 2,
     temperature: float = 1.0,
     max_tokens: int = 600,
+    arm_label_prefix: str = "",
 ) -> list[AblationRow]:
     """Run 4 arms × every (domain, prompt) pair; return one row per arm × prompt.
 
@@ -115,7 +116,7 @@ def run_ablation(
             result = score_fn(prompt, response)
             rows.append(
                 AblationRow(
-                    arm=arm,
+                    arm=f"{arm_label_prefix}{arm}",
                     domain=domain,
                     prompt=prompt,
                     response=response,
@@ -136,19 +137,39 @@ def summarize(
     n_iterations: int = 10_000,
     seed: int = 42,
 ) -> list[AblationSummary]:
-    """Compute per-arm summary stats with paired bootstrap p-values vs base."""
+    """Compute per-arm summary stats with paired bootstrap p-values vs base.
+
+    The "base" arm is whichever arm name ends in ``base`` (so a prefixed
+    label like ``steered_base`` still anchors its own table).
+    """
     by_arm: dict[str, list[AblationRow]] = {}
     for row in rows:
         by_arm.setdefault(row.arm, []).append(row)
 
-    base_rows = by_arm.get("base", [])
+    # Pick the arm whose name ends in "base" — supports prefixed labels.
+    base_arm_name = next(
+        (name for name in by_arm if name.endswith("base")),
+        "base",
+    )
+    base_rows = by_arm.get(base_arm_name, [])
     base_by_prompt: dict[tuple[str, str], int] = {
         (r.domain, r.prompt): r.total for r in base_rows
     }
 
+    # Iterate in ARMS order, matching by suffix so prefixed arms still sort
+    # consistently (base, base+mem, trained, trained+mem).
+    ordered_names: list[str] = []
+    for canonical in ARMS:
+        for actual in by_arm:
+            if actual.endswith(canonical) and actual not in ordered_names:
+                ordered_names.append(actual)
+    for actual in by_arm:
+        if actual not in ordered_names:
+            ordered_names.append(actual)
+
     rng = random.Random(seed)
     summaries: list[AblationSummary] = []
-    for arm in ARMS:
+    for arm in ordered_names:
         arm_rows = by_arm.get(arm, [])
         if not arm_rows:
             continue
@@ -156,7 +177,7 @@ def summarize(
         mean_c = sum(r.creativity for r in arm_rows) / n
         mean_l = sum(r.logic for r in arm_rows) / n
         mean_t = sum(r.total for r in arm_rows) / n
-        if arm == "base" or not base_by_prompt:
+        if arm == base_arm_name or not base_by_prompt:
             mean_delta: float | None = None
             p: float | None = None
         else:

@@ -21,7 +21,7 @@ from brainstormlm.eval.fixtures import HELD_OUT
 from brainstormlm.eval.harness import format_summary_table, row_to_dict, run_ablation, summarize
 from brainstormlm.feedback import evaluator
 from brainstormlm.memory import LessonStore
-from brainstormlm.model import HFGenerator, TogetherGenerator
+from brainstormlm.model import HFGenerator, TogetherGenerator, make_generator
 
 app = typer.Typer(add_completion=False, no_args_is_help=False)
 
@@ -42,6 +42,8 @@ def main(
     seed: Annotated[int, typer.Option(help="Bootstrap RNG seed.")] = 42,
     bootstrap_iterations: Annotated[int, typer.Option(help="Paired-bootstrap resamples.")] = 10000,
     skip_memory: Annotated[bool, typer.Option("--skip-memory", help="Run only base + trained arms (no LessonStore needed).")] = False,
+    steering_path: Annotated[Path | None, typer.Option(help="Apply steering vector to both base and trained generators (rename arms to steered_*).")] = None,
+    steering_strength: Annotated[float | None, typer.Option(help="Override the steering strength multiplier.")] = None,
 ) -> None:
     """Score every HELD_OUT prompt under each arm; print + persist the table."""
     settings = get_settings()
@@ -67,13 +69,31 @@ def main(
             )
             raise typer.Exit(code=1)
 
-    base_generator = TogetherGenerator()
-    trained_generator = HFGenerator(adapter_path=adapter)
+    effective_strength = (
+        steering_strength
+        if steering_strength is not None
+        else (settings.default_steering_strength if steering_path is not None else None)
+    )
+    if steering_path is not None:
+        base_generator = make_generator(
+            None, steering_path=steering_path, steering_strength=effective_strength
+        )
+        trained_generator = make_generator(
+            adapter, steering_path=steering_path, steering_strength=effective_strength
+        )
+        arm_label_prefix = "steered_"
+    else:
+        base_generator = TogetherGenerator()
+        trained_generator = HFGenerator(adapter_path=adapter)
+        arm_label_prefix = ""
 
     typer.echo(f"Run ID: {rid}")
     typer.echo(f"Held-out prompts: {len(HELD_OUT)}")
     typer.echo(f"Adapter: {adapter}")
-    typer.echo(f"Arms: {'base, trained' if skip_memory else 'base, base+mem, trained, trained+mem'}")
+    if steering_path is not None:
+        typer.echo(f"Steering: {steering_path} (strength={effective_strength})")
+    arms_label = "base, trained" if skip_memory else "base, base+mem, trained, trained+mem"
+    typer.echo(f"Arms: {arm_label_prefix}{{{arms_label}}}")
     typer.echo("")
 
     rows = []
@@ -86,6 +106,7 @@ def main(
         k_success=k_success,
         k_failure=k_failure,
         temperature=temperature,
+        arm_label_prefix=arm_label_prefix,
     ):
         rows.extend(arm_rows)
 
@@ -134,6 +155,7 @@ def _arm_iterator(
     k_success,
     k_failure,
     temperature,
+    arm_label_prefix,
 ):
     """Wrap run_ablation with a tqdm bar — just for the user's progress signal."""
     with tqdm(total=len(held_out) * (4 if store is not None else 2), desc="ablation") as bar:
@@ -147,6 +169,7 @@ def _arm_iterator(
             k_success=k_success,
             k_failure=k_failure,
             temperature=temperature,
+            arm_label_prefix=arm_label_prefix,
         )
     yield rows
 

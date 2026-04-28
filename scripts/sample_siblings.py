@@ -19,7 +19,7 @@ from tqdm import tqdm
 from brainstormlm.config import get_settings
 from brainstormlm.eval.fixtures import HELD_OUT
 from brainstormlm.feedback import evaluator, pricing, prompter
-from brainstormlm.model.base import TogetherGenerator
+from brainstormlm.model import make_generator
 from brainstormlm.training.preferences import (
     append,
     mine_pairs,
@@ -55,6 +55,9 @@ def main(
     resume: Annotated[bool, typer.Option("--resume/--no-resume", help="Skip prompts already represented in the output.")] = True,
     temperatures: Annotated[str, typer.Option(help="Comma-separated sibling temperature schedule (cycles if siblings>len).")] = DEFAULT_TEMPERATURES,
     max_tokens: Annotated[int, typer.Option(help="Generator max_tokens per sibling.")] = 600,
+    adapter: Annotated[Path | None, typer.Option(help="Route generation through HFGenerator with this PEFT adapter.")] = None,
+    steering_path: Annotated[Path | None, typer.Option(help="Steering-vector directory; routes through SteeredGenerator.")] = None,
+    steering_strength: Annotated[float | None, typer.Option(help="Override the steering strength multiplier.")] = None,
 ) -> None:
     settings = get_settings()
     out_path = out or settings.preferences_path
@@ -84,7 +87,16 @@ def main(
         if seen_prompts:
             typer.echo(f"Resume: {len(seen_prompts)} prompt(s) already in {out_path}; skipping.")
 
-    generator = TogetherGenerator()
+    effective_strength = (
+        steering_strength
+        if steering_strength is not None
+        else (settings.default_steering_strength if steering_path is not None else None)
+    )
+    generator = make_generator(
+        adapter,
+        steering_path=steering_path,
+        steering_strength=effective_strength,
+    )
     sibling_run_id = str(uuid.uuid4())
 
     cap = min(n_prompts, max_calls)
@@ -145,7 +157,8 @@ def main(
             for s in sibs:
                 call_counts["generator"] += 1
                 call_counts["evaluator"] += 1
-                if not s.generator_cached:
+                local_generator = adapter is not None or steering_path is not None
+                if not s.generator_cached and not local_generator:
                     g_cost = pricing.cost_of(
                         settings.together_base_model,
                         len(prompt_text) // 4 + 50,

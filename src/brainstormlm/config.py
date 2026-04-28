@@ -48,6 +48,15 @@ class Settings(BaseSettings):
     hf_token: SecretStr | None = Field(default=None, alias="HF_TOKEN")
     modal_workspace: str | None = Field(default=None, alias="MODAL_WORKSPACE")
 
+    steering_dir: Path = Field(
+        default=Path("./data/steering"), alias="BRAINSTORMLM_STEERING_DIR"
+    )
+    default_steering_path: Path | None = Field(
+        default=None, alias="BRAINSTORMLM_STEERING_PATH"
+    )
+    default_steering_strength: float = 1.0
+    default_steering_layers: tuple[int, ...] | None = None
+
 
 @lru_cache
 def get_settings() -> Settings:

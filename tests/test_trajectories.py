@@ -95,3 +95,35 @@ def test_read_all_skips_blank_lines(tmp_path):
     append(_sample("b"), path)
     loaded = list(read_all(path))
     assert [t.id for t in loaded] == ["a", "b"]
+
+
+def test_steering_fields_default_to_none_and_round_trip(tmp_path):
+    """Trajectories without steering provenance load fine; new ones round-trip."""
+    legacy = _sample("legacy")
+    assert legacy.steering_path is None
+    assert legacy.steering_strength is None
+
+    steered = Trajectory(
+        id="steered-1",
+        timestamp="2026-04-27T00:00:00Z",
+        domain="art.visual",
+        prompt="invent a chair",
+        response="a chair shaped like a question mark",
+        generator_model="Qwen/Qwen2.5-7B-Instruct",
+        generator_temperature=1.0,
+        prompter_model="gpt-4o-mini",
+        evaluator_model="gpt-4o-mini",
+        rubric_version=1,
+        creativity=4,
+        logic=3,
+        rationale="ok",
+        steering_path="data/steering/run-01/",
+        steering_strength=1.0,
+    )
+    path = tmp_path / "trajectories.jsonl"
+    append(legacy, path)
+    append(steered, path)
+    loaded = list(read_all(path))
+    assert loaded == [legacy, steered]
+    assert loaded[1].steering_path == "data/steering/run-01/"
+    assert loaded[1].steering_strength == 1.0

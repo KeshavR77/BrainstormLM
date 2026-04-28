@@ -38,6 +38,8 @@ def main(
     k_success: Annotated[int, typer.Option(help="Success lessons retrieved when --use-memory is on.")] = 3,
     k_failure: Annotated[int, typer.Option(help="Failure lessons retrieved when --use-memory is on.")] = 2,
     adapter: Annotated[Path | None, typer.Option(help="Route generation through HFGenerator with this PEFT adapter.")] = None,
+    steering_path: Annotated[Path | None, typer.Option(help="Steering-vector directory; routes through SteeredGenerator.")] = None,
+    steering_strength: Annotated[float | None, typer.Option(help="Override the steering strength multiplier.")] = None,
 ) -> None:
     settings = get_settings()
     out_path = out or settings.trajectories_path
@@ -57,8 +59,18 @@ def main(
     domains = list(prompter.DOMAINS)
     rng.shuffle(domains)
 
-    generator = make_generator(adapter)
-    generator_model = settings.hf_base_model if adapter is not None else settings.together_base_model
+    effective_strength = (
+        steering_strength
+        if steering_strength is not None
+        else (settings.default_steering_strength if steering_path is not None else None)
+    )
+    generator = make_generator(
+        adapter,
+        steering_path=steering_path,
+        steering_strength=effective_strength,
+    )
+    is_local = adapter is not None or steering_path is not None
+    generator_model = settings.hf_base_model if is_local else settings.together_base_model
     cap = min(n, max_calls)
 
     store: LessonStore | None = None
@@ -104,7 +116,7 @@ def main(
             )
             g_cost = (
                 0.0
-                if g_cached or adapter is not None
+                if g_cached or is_local
                 else pricing.cost_of(
                     settings.together_base_model,
                     len(prompt_text) // 4 + 50,
@@ -142,6 +154,8 @@ def main(
                 failure_modes=result.failure_modes,
                 memory_context_ids=memory_context_ids,
                 adapter_path=str(adapter) if adapter is not None else None,
+                steering_path=str(steering_path) if steering_path is not None else None,
+                steering_strength=effective_strength,
             )
             append(t, out_path)
 

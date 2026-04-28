@@ -30,6 +30,10 @@ def ask(
     show_lessons: Annotated[bool, typer.Option("--show-lessons", help="Print retrieved lessons to stderr.")] = False,
     adapter: Annotated[Path | None, typer.Option(help="Path to a PEFT LoRA adapter directory; routes generation through HFGenerator.")] = None,
     no_adapter: Annotated[bool, typer.Option("--no-adapter", help="Force TogetherGenerator even if a default adapter is configured.")] = False,
+    steered: Annotated[bool, typer.Option("--steered", help="Apply the steering vector at settings.default_steering_path (or --steering-path).")] = False,
+    no_steered: Annotated[bool, typer.Option("--no-steered", help="Disable steering even if BRAINSTORMLM_STEERING_PATH is set.")] = False,
+    steering_path: Annotated[Path | None, typer.Option(help="Path to a steering-vector directory (implies --steered).")] = None,
+    steering_strength: Annotated[float | None, typer.Option(help="Override the steering strength multiplier.")] = None,
 ) -> None:
     """Send PROMPT to the base model and print the response."""
     settings = get_settings()
@@ -54,7 +58,26 @@ def ask(
     else:
         adapter_path = settings.default_adapter_path
 
-    generator = make_generator(adapter_path)
+    if no_steered:
+        effective_steering: Path | None = None
+    elif steering_path is not None:
+        effective_steering = steering_path
+    elif steered:
+        if settings.default_steering_path is None:
+            typer.echo(
+                "--steered set but no --steering-path and no BRAINSTORMLM_STEERING_PATH configured.",
+                err=True,
+            )
+            raise typer.Exit(code=2)
+        effective_steering = settings.default_steering_path
+    else:
+        effective_steering = None
+
+    generator = make_generator(
+        adapter_path,
+        steering_path=effective_steering,
+        steering_strength=steering_strength,
+    )
     response = generator.generate(
         prompt,
         system=effective_system,
