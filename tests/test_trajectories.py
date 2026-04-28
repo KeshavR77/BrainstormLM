@@ -97,6 +97,68 @@ def test_read_all_skips_blank_lines(tmp_path):
     assert [t.id for t in loaded] == ["a", "b"]
 
 
+def test_source_defaults_to_synthetic_and_human_rating_round_trips(tmp_path):
+    """plan-06: ``source`` defaults to ``synthetic``; ``human_rating`` round-trips."""
+    from brainstormlm.feedback.trajectories import HumanRating
+
+    legacy = _sample("legacy")
+    assert legacy.source == "synthetic"
+    assert legacy.human_rating is None
+
+    rating = HumanRating(
+        thumbs="up",
+        rating=5,
+        critique="loved this",
+        rated_at="2026-04-27T00:00:00Z",
+    )
+    rated = Trajectory(
+        id="rated",
+        timestamp="2026-04-27T00:00:00Z",
+        domain="art.visual",
+        prompt="invent a chair",
+        response="a chair shaped like a question mark",
+        generator_model="Qwen/Qwen2.5-7B-Instruct",
+        generator_temperature=1.0,
+        prompter_model="gpt-4o-mini",
+        evaluator_model="gpt-4o-mini",
+        rubric_version=1,
+        creativity=4,
+        logic=3,
+        rationale="ok",
+        source="human",
+        human_rating=rating,
+    )
+    path = tmp_path / "trajectories.jsonl"
+    append(legacy, path)
+    append(rated, path)
+    loaded = list(read_all(path))
+    assert loaded == [legacy, rated]
+    assert loaded[1].source == "human"
+    assert loaded[1].human_rating == rating
+
+
+def test_human_rating_rejects_extra_fields():
+    from pydantic import ValidationError as VE
+    from brainstormlm.feedback.trajectories import HumanRating
+
+    with pytest.raises(VE):
+        HumanRating(
+            thumbs="up",
+            rated_at="2026-04-27T00:00:00Z",
+            unexpected="boom",
+        )
+
+
+def test_human_rating_constrains_thumbs_and_rating():
+    from pydantic import ValidationError as VE
+    from brainstormlm.feedback.trajectories import HumanRating
+
+    with pytest.raises(VE):
+        HumanRating(thumbs="sideways", rated_at="t")
+    with pytest.raises(VE):
+        HumanRating(thumbs="up", rating=6, rated_at="t")
+
+
 def test_steering_fields_default_to_none_and_round_trip(tmp_path):
     """Trajectories without steering provenance load fine; new ones round-trip."""
     legacy = _sample("legacy")

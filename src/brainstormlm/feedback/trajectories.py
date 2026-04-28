@@ -10,6 +10,17 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 
+class HumanRating(BaseModel):
+    """Human-supplied rating attached to a trajectory (plan-06)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    thumbs: Literal["up", "down"]
+    rating: int | None = Field(default=None, ge=1, le=5)
+    critique: str | None = None
+    rated_at: str
+
+
 class Trajectory(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -32,6 +43,8 @@ class Trajectory(BaseModel):
     adapter_path: str | None = None
     steering_path: str | None = None
     steering_strength: float | None = None
+    source: Literal["human", "synthetic"] = "synthetic"
+    human_rating: HumanRating | None = None
 
 
 def append(t: Trajectory, path: Path) -> None:

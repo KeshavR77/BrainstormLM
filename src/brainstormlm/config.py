@@ -57,6 +57,29 @@ class Settings(BaseSettings):
     default_steering_strength: float = 1.0
     default_steering_layers: tuple[int, ...] | None = None
 
+    # plan-06 (production) — server, human feedback, A/B routing, promotion.
+    api_host: str = Field(default="127.0.0.1", alias="BRAINSTORMLM_API_HOST")
+    api_port: int = Field(default=8000, alias="BRAINSTORMLM_API_PORT")
+    feedback_human_path: Path = Field(
+        default=Path("./data/feedback_human.jsonl"),
+        alias="BRAINSTORMLM_FEEDBACK_HUMAN_PATH",
+    )
+    ab_config_path: Path = Field(
+        default=Path("./data/ab_config.json"),
+        alias="BRAINSTORMLM_AB_CONFIG_PATH",
+    )
+    promoted_adapter_path: Path = Field(
+        default=Path("./data/adapters/promoted.json"),
+        alias="BRAINSTORMLM_PROMOTED_ADAPTER_PATH",
+    )
+    server_log_path: Path = Field(
+        default=Path("./data/logs/server.jsonl"),
+        alias="BRAINSTORMLM_SERVER_LOG_PATH",
+    )
+    rate_limit_capacity: int = 30
+    rate_limit_refill_per_sec: float = 0.5
+    user_prompt_max_chars: int = 2000
+
 
 @lru_cache
 def get_settings() -> Settings:

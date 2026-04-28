@@ -17,6 +17,7 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict
 
 from brainstormlm.feedback import evaluator as _evaluator
+from brainstormlm.feedback.trajectories import Trajectory
 from brainstormlm.model.interface import Generator
 
 
@@ -189,4 +190,76 @@ def mine_pairs(
                     sibling_run_id=sibling_run_id,
                 )
             )
+    return pairs
+
+
+def _human_score(t: Trajectory) -> tuple[int, int, int]:
+    """Sort key for human-rated trajectories: (rating, critique_len, response_len).
+
+    Higher is better; ``rating`` defaults to 0 if absent.
+    """
+    rating = (
+        t.human_rating.rating
+        if (t.human_rating is not None and t.human_rating.rating is not None)
+        else 0
+    )
+    critique_len = (
+        len(t.human_rating.critique)
+        if (t.human_rating is not None and t.human_rating.critique is not None)
+        else 0
+    )
+    return (rating, critique_len, len(t.response))
+
+
+def mine_human_pairs(
+    rows: list[Trajectory],
+    *,
+    sibling_run_id: str,
+) -> list[PreferencePair]:
+    """Per-prompt: pair the best thumbs-up against the worst thumbs-down.
+
+    Returns at most one ``PreferencePair`` per distinct ``prompt``. Rows
+    without a ``human_rating`` are skipped. Ties are broken by ``rating``,
+    then critique length, then response length.
+    """
+    by_prompt: dict[str, list[Trajectory]] = {}
+    for r in rows:
+        if r.human_rating is None:
+            continue
+        by_prompt.setdefault(r.prompt, []).append(r)
+
+    timestamp = _utc_now_iso()
+    pairs: list[PreferencePair] = []
+    for prompt, group in by_prompt.items():
+        ups = [r for r in group if r.human_rating and r.human_rating.thumbs == "up"]
+        downs = [r for r in group if r.human_rating and r.human_rating.thumbs == "down"]
+        if not ups or not downs:
+            continue
+        chosen = max(ups, key=_human_score)
+        rejected = min(downs, key=_human_score)
+        if chosen.response == rejected.response:
+            continue
+
+        chosen_score = float(chosen.creativity + chosen.logic)
+        rejected_score = float(rejected.creativity + rejected.logic)
+        pairs.append(
+            PreferencePair(
+                id=pair_id(prompt, chosen.response, rejected.response),
+                timestamp=timestamp,
+                domain=chosen.domain,
+                prompt=prompt,
+                chosen=chosen.response,
+                rejected=rejected.response,
+                chosen_score=chosen_score,
+                rejected_score=rejected_score,
+                score_gap=chosen_score - rejected_score,
+                chosen_temperature=chosen.generator_temperature,
+                rejected_temperature=rejected.generator_temperature,
+                generator_model=chosen.generator_model,
+                evaluator_model=chosen.evaluator_model,
+                rubric_version=chosen.rubric_version,
+                source="sibling_sampling",
+                sibling_run_id=sibling_run_id,
+            )
+        )
     return pairs

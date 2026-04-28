@@ -88,5 +88,23 @@ def ask(
     typer.echo(response)
 
 
+@app.command()
+def serve(
+    host: Annotated[str | None, typer.Option(help="Bind host (default: settings.api_host).")] = None,
+    port: Annotated[int | None, typer.Option(help="Bind port (default: settings.api_port).")] = None,
+    reload: Annotated[bool, typer.Option("--reload", help="uvicorn auto-reload (dev only).")] = False,
+) -> None:
+    """Run the BrainstormLM FastAPI server (plan-06)."""
+    import uvicorn
+
+    settings = get_settings()
+    uvicorn.run(
+        "brainstormlm.api.server:app",
+        host=host or settings.api_host,
+        port=port or settings.api_port,
+        reload=reload,
+    )
+
+
 if __name__ == "__main__":
     app()
