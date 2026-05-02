@@ -7,6 +7,7 @@ from pathlib import Path
 
 from brainstormlm.config import get_settings
 from brainstormlm.model.base import TogetherGenerator
+from brainstormlm.model.corpius import CorpiusGenerator
 from brainstormlm.model.hf import HFGenerator
 from brainstormlm.model.interface import Generator
 from brainstormlm.model.steered import SteeredGenerator
@@ -18,8 +19,11 @@ def make_generator(
     steering_path: Path | None = None,
     steering_strength: float | None = None,
     steering_layers: Sequence[int] | None = None,
+    corpius_config_path: Path | None = None,
 ) -> Generator:
     """Pick the right generator for the given adapter / steering combo."""
+    if corpius_config_path is not None:
+        return CorpiusGenerator(config_path=corpius_config_path)
     if steering_path is not None:
         settings = get_settings()
         return SteeredGenerator(

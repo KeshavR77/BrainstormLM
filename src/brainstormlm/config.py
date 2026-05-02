@@ -80,6 +80,12 @@ class Settings(BaseSettings):
     rate_limit_refill_per_sec: float = 0.5
     user_prompt_max_chars: int = 2000
 
+    # Corpius 1 (ShroomsLLM) integration
+    corpius_config_path: Path = Field(
+        default=Path("./data/corpius/corpius_1.json"),
+        alias="BRAINSTORMLM_CORPIUS_CONFIG",
+    )
+
 
 @lru_cache
 def get_settings() -> Settings:

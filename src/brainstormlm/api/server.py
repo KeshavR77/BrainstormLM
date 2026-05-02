@@ -129,7 +129,11 @@ def build_app(
             system = augmented_system(None, scrubbed)
             memory_context_ids = [lesson.id for lesson in scrubbed]
 
-        generator = factory(adapter_path, steering_path=steering_path)
+        generator = factory(
+            adapter_path,
+            steering_path=steering_path,
+            corpius_config_path=resolution.corpius_config_path,
+        )
 
         t0 = time.perf_counter()
         response_text = generator.generate(
@@ -141,10 +145,14 @@ def build_app(
         latency_ms = (time.perf_counter() - t0) * 1000.0
 
         trajectory_id = new_trajectory_id()
-        is_local = adapter_path is not None or steering_path is not None
-        generator_model = (
-            settings.hf_base_model if is_local else settings.together_base_model
-        )
+        is_corpius = resolution.corpius_config_path is not None
+        is_local = adapter_path is not None or steering_path is not None or is_corpius
+        if is_corpius:
+            generator_model = "Qwen/Qwen2.5-3B-Instruct (Corpius 1)"
+        elif is_local:
+            generator_model = settings.hf_base_model
+        else:
+            generator_model = settings.together_base_model
 
         trajectory = Trajectory(
             id=trajectory_id,

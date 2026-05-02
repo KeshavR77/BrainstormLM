@@ -14,6 +14,7 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Protocol
 
+from brainstormlm.eval.diversity import diversity_report
 from brainstormlm.eval.stats import paired_bootstrap_p_value
 from brainstormlm.feedback.evaluator import EvaluatorResult
 from brainstormlm.memory import LessonStore, augmented_system, retrieve
@@ -223,3 +224,54 @@ def format_summary_table(summaries: Sequence[AblationSummary]) -> str:
 def row_to_dict(row: AblationRow) -> dict:
     """JSON-friendly dict for persistence."""
     return asdict(row)
+
+
+@dataclass
+class DiversitySummary:
+    arm: str
+    n: int
+    distinct2: float
+    repetition_index: float
+    near_duplicate_rate: float
+    vendi_score: float
+
+
+def compute_arm_diversity(rows: Sequence[AblationRow]) -> list[DiversitySummary]:
+    """Compute per-arm diversity metrics (Distinct-2, Vendi, near-dup) for a set of ablation rows.
+
+    Responses per arm are pooled together for the diversity computation, measuring
+    how varied the outputs are across all prompts for that arm.
+    """
+    by_arm: dict[str, list[str]] = {}
+    for row in rows:
+        by_arm.setdefault(row.arm, []).append(row.response)
+
+    summaries: list[DiversitySummary] = []
+    for arm, responses in by_arm.items():
+        report = diversity_report(responses)
+        summaries.append(
+            DiversitySummary(
+                arm=arm,
+                n=len(responses),
+                distinct2=report["distinct2"],
+                repetition_index=report["repetition_index"],
+                near_duplicate_rate=report["near_duplicate_rate"],
+                vendi_score=report["vendi_score"],
+            )
+        )
+    return summaries
+
+
+def format_diversity_table(summaries: Sequence[DiversitySummary]) -> str:
+    """Render per-arm diversity metrics as a text table."""
+    header = (
+        f"{'arm':<14}{'n':>6}{'distinct2':>12}{'rep_idx':>10}"
+        f"{'near_dup':>10}{'vendi':>10}"
+    )
+    lines = [header, "-" * len(header)]
+    for s in summaries:
+        lines.append(
+            f"{s.arm:<14}{s.n:>6}{s.distinct2:>12.4f}{s.repetition_index:>10.4f}"
+            f"{s.near_duplicate_rate:>10.4f}{s.vendi_score:>10.4f}"
+        )
+    return "\n".join(lines)

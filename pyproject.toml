@@ -20,7 +20,13 @@ dependencies = [
     "modal",
     "fastapi",
     "uvicorn[standard]",
+    "shrooms-llm",
+    "creativity-evaluator",
 ]
+
+[tool.uv.sources]
+shrooms-llm = { path = "../shrooms-llm", editable = true }
+creativity-evaluator = { path = "../shrooms-llm/creativity_evaluator", editable = true }
 
 [project.scripts]
 brainstorm = "brainstormlm.cli:app"

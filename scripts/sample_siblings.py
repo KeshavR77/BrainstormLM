@@ -58,10 +58,16 @@ def main(
     adapter: Annotated[Path | None, typer.Option(help="Route generation through HFGenerator with this PEFT adapter.")] = None,
     steering_path: Annotated[Path | None, typer.Option(help="Steering-vector directory; routes through SteeredGenerator.")] = None,
     steering_strength: Annotated[float | None, typer.Option(help="Override the steering strength multiplier.")] = None,
+    generator: Annotated[str, typer.Option(help="Generator backend: 'together' | 'hf' | 'corpius'.")] = "together",
+    corpius_config: Annotated[Path | None, typer.Option(help="Corpius config JSON path (default: settings.corpius_config_path).")] = None,
 ) -> None:
     settings = get_settings()
     out_path = out or settings.preferences_path
     temps = _parse_temperatures(temperatures)
+
+    if generator not in ("together", "hf", "corpius"):
+        typer.echo(f"Unknown --generator {generator!r}; choose 'together', 'hf', or 'corpius'.", err=True)
+        raise typer.Exit(code=2)
 
     estimate = pricing.estimate_sibling_run_cost(n_prompts, siblings=siblings)
     typer.echo(
@@ -92,10 +98,12 @@ def main(
         if steering_strength is not None
         else (settings.default_steering_strength if steering_path is not None else None)
     )
-    generator = make_generator(
+    _corpius_cfg = corpius_config or settings.corpius_config_path
+    gen = make_generator(
         adapter,
         steering_path=steering_path,
         steering_strength=effective_strength,
+        corpius_config_path=_corpius_cfg if generator == "corpius" else None,
     )
     sibling_run_id = str(uuid.uuid4())
 
@@ -149,7 +157,7 @@ def main(
                 prompt_text,
                 n=siblings,
                 temperatures=temps,
-                generator=generator,
+                generator=gen,
                 max_tokens=max_tokens,
             )
 
@@ -157,7 +165,7 @@ def main(
             for s in sibs:
                 call_counts["generator"] += 1
                 call_counts["evaluator"] += 1
-                local_generator = adapter is not None or steering_path is not None
+                local_generator = adapter is not None or steering_path is not None or generator == "corpius"
                 if not s.generator_cached and not local_generator:
                     g_cost = pricing.cost_of(
                         settings.together_base_model,

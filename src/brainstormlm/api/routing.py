@@ -19,6 +19,9 @@ class ABConfig(BaseModel):
     adapter_b: Path | None = None
     steering_a: Path | None = None
     steering_b: Path | None = None
+    # Set corpius_a/b to the Corpius config JSON path to serve that arm via CorpiusGenerator.
+    corpius_a: Path | None = None
+    corpius_b: Path | None = None
     traffic_a_pct: int = Field(default=50, ge=0, le=100)
 
 
@@ -28,12 +31,13 @@ class ABResolution(BaseModel):
     arm: Literal["a", "b"]
     adapter_path: Path | None = None
     steering_path: Path | None = None
+    corpius_config_path: Path | None = None
 
 
-def _both_arms_present(cfg: ABConfig) -> bool:
-    a_set = cfg.adapter_a is not None or cfg.steering_a is not None
-    b_set = cfg.adapter_b is not None or cfg.steering_b is not None
-    return a_set and b_set
+def _arm_set(cfg: ABConfig, arm: Literal["a", "b"]) -> bool:
+    if arm == "a":
+        return cfg.adapter_a is not None or cfg.steering_a is not None or cfg.corpius_a is not None
+    return cfg.adapter_b is not None or cfg.steering_b is not None or cfg.corpius_b is not None
 
 
 def _hash_pct(session_id: str) -> int:
@@ -46,24 +50,36 @@ def resolve_arm(session_id: str, cfg: ABConfig) -> ABResolution:
 
     Stable per session: same id → same arm until ``cfg`` changes.
     Degrades to whichever arm is fully configured when only one is set.
+    Corpius arms take precedence over adapter/steering for that arm slot.
     """
-    a_set = cfg.adapter_a is not None or cfg.steering_a is not None
-    b_set = cfg.adapter_b is not None or cfg.steering_b is not None
+    a_set = _arm_set(cfg, "a")
+    b_set = _arm_set(cfg, "b")
 
     if not a_set and not b_set:
-        # Fall back to the base generator (no adapter, no steering).
-        # Pick arm "a" by convention for log/metric coherence.
         return ABResolution(arm="a", adapter_path=None, steering_path=None)
 
+    def _resolution_for(arm: Literal["a", "b"]) -> ABResolution:
+        if arm == "a":
+            return ABResolution(
+                arm="a",
+                adapter_path=cfg.adapter_a,
+                steering_path=cfg.steering_a,
+                corpius_config_path=cfg.corpius_a,
+            )
+        return ABResolution(
+            arm="b",
+            adapter_path=cfg.adapter_b,
+            steering_path=cfg.steering_b,
+            corpius_config_path=cfg.corpius_b,
+        )
+
     if a_set and not b_set:
-        return ABResolution(arm="a", adapter_path=cfg.adapter_a, steering_path=cfg.steering_a)
+        return _resolution_for("a")
     if b_set and not a_set:
-        return ABResolution(arm="b", adapter_path=cfg.adapter_b, steering_path=cfg.steering_b)
+        return _resolution_for("b")
 
     bucket = _hash_pct(session_id)
-    if bucket < cfg.traffic_a_pct:
-        return ABResolution(arm="a", adapter_path=cfg.adapter_a, steering_path=cfg.steering_a)
-    return ABResolution(arm="b", adapter_path=cfg.adapter_b, steering_path=cfg.steering_b)
+    return _resolution_for("a") if bucket < cfg.traffic_a_pct else _resolution_for("b")
 
 
 def load_ab_config(path: Path | None = None) -> ABConfig:
