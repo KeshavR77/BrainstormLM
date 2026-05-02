@@ -35,6 +35,7 @@ class Settings(BaseSettings):
     )
 
     hf_base_model: str = "Qwen/Qwen2.5-7B-Instruct"
+    hf_device: str | None = Field(default=None, alias="BRAINSTORMLM_HF_DEVICE")
     adapters_dir: Path = Field(
         default=Path("./data/adapters"), alias="BRAINSTORMLM_ADAPTERS_DIR"
     )

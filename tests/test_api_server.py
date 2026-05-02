@@ -60,7 +60,14 @@ def stub_state(tmp_path, monkeypatch):
 
     stub = _StubGenerator(response="hello world this is a stub response")
 
-    def _fake_make_generator(adapter_path=None, *, steering_path=None, steering_strength=None, steering_layers=None):
+    def _fake_make_generator(
+        adapter_path=None,
+        *,
+        steering_path=None,
+        steering_strength=None,
+        steering_layers=None,
+        corpius_config_path=None,
+    ):
         return stub
 
     app = build_app(make_generator=_fake_make_generator)
@@ -163,6 +170,52 @@ def test_feedback_attaches_rating(stub_state):
     assert len(rated) == 1
     assert rated[0]["human_rating"]["thumbs"] == "up"
     assert rated[0]["human_rating"]["rating"] == 5
+
+
+def test_feedback_thumbs_up_triggers_memory_ingestion(stub_state, monkeypatch):
+    from brainstormlm.api import server as server_module
+
+    calls: list[dict] = []
+
+    def fake_ingest(trajectory, *, lessons_path=None):
+        calls.append({"trajectory_id": trajectory.id, "thumbs": trajectory.human_rating.thumbs})
+        return 1
+
+    monkeypatch.setattr(server_module, "ingest_human_feedback", fake_ingest)
+
+    client = TestClient(stub_state["app"])
+    ask_res = client.post("/ask", json={"prompt": "name 3 lunch ideas", "session_id": "s1"})
+    trajectory_id = json.loads(_sse_events(ask_res.text)[0]["data"])["trajectory_id"]
+
+    res = client.post(
+        "/feedback",
+        json={"trajectory_id": trajectory_id, "thumbs": "up", "rating": 5, "critique": "great"},
+    )
+    assert res.status_code == 200
+    assert len(calls) == 1
+    assert calls[0]["thumbs"] == "up"
+    assert calls[0]["trajectory_id"] == trajectory_id
+
+
+def test_feedback_thumbs_down_still_calls_ingest_but_it_noops(stub_state, monkeypatch):
+    """The server queues the task unconditionally; ingest_human_feedback decides to skip."""
+    from brainstormlm.api import server as server_module
+
+    received: list[str] = []
+
+    def fake_ingest(trajectory, *, lessons_path=None):
+        received.append(trajectory.human_rating.thumbs)
+        return 0
+
+    monkeypatch.setattr(server_module, "ingest_human_feedback", fake_ingest)
+
+    client = TestClient(stub_state["app"])
+    ask_res = client.post("/ask", json={"prompt": "p", "session_id": "s1"})
+    trajectory_id = json.loads(_sse_events(ask_res.text)[0]["data"])["trajectory_id"]
+
+    res = client.post("/feedback", json={"trajectory_id": trajectory_id, "thumbs": "down"})
+    assert res.status_code == 200
+    assert received == ["down"]
 
 
 def test_feedback_missing_id_returns_404(stub_state):

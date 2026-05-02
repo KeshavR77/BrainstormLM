@@ -33,7 +33,10 @@ class HFGenerator:
         settings = get_settings()
         self.base_model_id = base_model_id or settings.hf_base_model
         self.adapter_path = adapter_path
-        self._device_override = device
+        # Explicit `device=` arg wins; otherwise fall back to BRAINSTORMLM_HF_DEVICE
+        # so a user on Apple Silicon can pin to "cpu" to dodge the 4GB MPS-NDArray
+        # limit that Qwen2.5-7B trips during attention/KV-cache allocations.
+        self._device_override = device if device is not None else settings.hf_device
         self.dtype = dtype
         self._model: Any = None
         self._tokenizer: Any = None

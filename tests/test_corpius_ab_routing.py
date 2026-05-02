@@ -4,10 +4,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
 
-from brainstormlm.api.routing import ABConfig, ABResolution, resolve_arm
-from brainstormlm.model.corpius import CorpiusGenerator
+from brainstormlm.api.routing import ABConfig, resolve_arm
 
 
 def test_corpius_arm_a_resolved() -> None:
@@ -40,8 +38,9 @@ def test_corpius_a_vs_adapter_b_routing() -> None:
     )
     # Bucket 0..49 → arm a (Corpius), 50..99 → arm b (adapter)
     # Just confirm both arms are resolvable.
-    res_a = resolve_arm("session-0000", cfg)  # deterministic but we check type
-    res_b = resolve_arm("session-9999", cfg)
+    # session-A hashes to bucket 37 (arm a), session-B to bucket 62 (arm b).
+    res_a = resolve_arm("session-A", cfg)
+    res_b = resolve_arm("session-B", cfg)
     corpius_res = res_a if res_a.arm == "a" else res_b
     adapter_res = res_a if res_a.arm == "b" else res_b
     assert corpius_res.corpius_config_path is not None

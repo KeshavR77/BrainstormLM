@@ -21,7 +21,7 @@ from collections.abc import Callable, Iterator
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import BackgroundTasks, FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -50,6 +50,7 @@ from brainstormlm.feedback.human import (
 )
 from brainstormlm.feedback.trajectories import HumanRating, Trajectory
 from brainstormlm.memory import LessonStore, augmented_system, retrieve
+from brainstormlm.memory.ingest import ingest_human_feedback
 from brainstormlm.model.factory import make_generator as default_make_generator
 from brainstormlm.training.promotion import read_promoted
 
@@ -214,7 +215,7 @@ def build_app(
         return StreamingResponse(_stream(), media_type="text/event-stream")
 
     @app.post("/feedback", response_model=FeedbackResponse)
-    def feedback(req: FeedbackRequest) -> FeedbackResponse:
+    def feedback(req: FeedbackRequest, background: BackgroundTasks) -> FeedbackResponse:
         rating = HumanRating(
             thumbs=req.thumbs,
             rating=req.rating,
@@ -222,9 +223,18 @@ def build_app(
             rated_at=utc_now_iso(),
         )
         try:
-            attach_rating(req.trajectory_id, rating, path=settings.feedback_human_path)
+            rated = attach_rating(
+                req.trajectory_id, rating, path=settings.feedback_human_path
+            )
         except KeyError as e:
             raise HTTPException(status_code=404, detail=str(e)) from e
+
+        # Fold thumbs-up rows into the ReasoningBank in the background so the
+        # /feedback response stays instant. ingest_human_feedback no-ops on
+        # thumbs="down" and swallows its own errors.
+        background.add_task(
+            ingest_human_feedback, rated, lessons_path=settings.lessons_path
+        )
 
         logger.log(
             {
