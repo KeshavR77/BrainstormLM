@@ -22,13 +22,13 @@ interface E { from: string; to: string }
 const CX = 500, W = 1000, H = 480;
 
 const NODES: N[] = [
-  { id: 's',  x: CX,       y: 55,  label: 'How do we cure creative block?',  type: 'seed' },
-  { id: 'a',  x: CX - 280, y: 200, label: 'Constraint games',         type: 'idea' },
-  { id: 'b',  x: CX,       y: 200, label: 'AI creative partner',      type: 'chosen' },
-  { id: 'c',  x: CX + 280, y: 200, label: 'Ambient inspiration',      type: 'idea' },
-  { id: 'd1', x: CX - 200, y: 360, label: 'Dream journaling',         type: 'deep' },
-  { id: 'd2', x: CX,       y: 360, label: 'Serendipity engine',       type: 'deep' },
-  { id: 'd3', x: CX + 200, y: 360, label: 'Mood-based prompts',       type: 'deep' },
+  { id: 's',  x: CX,       y: 55,  label: 'How do we grow to 10M users?',    type: 'seed' },
+  { id: 'a',  x: CX - 280, y: 200, label: 'Bottoms-up viral loop',   type: 'idea' },
+  { id: 'b',  x: CX,       y: 200, label: 'Platform before product', type: 'chosen' },
+  { id: 'c',  x: CX + 280, y: 200, label: 'Geographic arbitrage',    type: 'idea' },
+  { id: 'd1', x: CX - 200, y: 360, label: 'API marketplace',         type: 'deep' },
+  { id: 'd2', x: CX,       y: 360, label: 'White-label offering',    type: 'deep' },
+  { id: 'd3', x: CX + 200, y: 360, label: 'Partner ecosystem',       type: 'deep' },
 ];
 
 const EDGES: E[] = [

@@ -68,7 +68,7 @@ export function NewProjectModal({ isOpen, onClose, onCreate }: NewProjectModalPr
                 id="project-name"
                 className="input"
                 type="text"
-                placeholder="e.g. Q3 Product Strategy"
+                placeholder="e.g. Q3 Go-to-Market Strategy"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 maxLength={80}

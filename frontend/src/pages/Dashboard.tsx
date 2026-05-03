@@ -32,8 +32,8 @@ export function Dashboard({ onOpenProject }: DashboardProps) {
             <Zap size={16} />
           </div>
           <div>
-            <h1 className="dashboard__title">Corpus</h1>
-            <p className="dashboard__subtitle">Creative LLM brainstorming</p>
+            <h1 className="dashboard__title">Conceptial</h1>
+            <p className="dashboard__subtitle">Where divergent ideas begin</p>
           </div>
         </div>
 

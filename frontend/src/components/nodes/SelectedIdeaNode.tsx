@@ -77,7 +77,7 @@ export function SelectedIdeaNode({ data }: NodeProps) {
           <div className="bs-node__prompt-label">What should we explore from here?</div>
           <textarea
             className="input bs-node__prompt-input"
-            placeholder="e.g. Focus on B2B use cases, or explore pricing models..."
+            placeholder="e.g. Push toward enterprise, or explore the API-first angle..."
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             onKeyDown={(e) => {

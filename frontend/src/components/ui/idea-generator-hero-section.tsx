@@ -20,7 +20,7 @@ export function HeroSection({ onSubmit }: HeroSectionProps) {
       {/* Navigation */}
       <nav className="flex justify-between items-center p-6 text-white relative z-10">
         <div className="flex items-center space-x-6">
-          <span className="text-xl font-semibold tracking-tight">Corpus</span>
+          <span className="text-xl font-semibold tracking-tight">Conceptial</span>
           <span className="hidden md:inline text-white/40">›</span>
           <a className="hidden md:inline hover:text-purple-300 cursor-pointer transition-colors" href="#/app">Projects</a>
           <a className="hidden md:inline hover:text-purple-300 cursor-pointer transition-colors" href="#explore">Explore</a>
@@ -37,8 +37,8 @@ export function HeroSection({ onSubmit }: HeroSectionProps) {
       {/* Main Content */}
       <div className="flex flex-col items-center justify-center min-h-[80vh] px-6 relative z-10">
         <h1 className="text-6xl md:text-7xl lg:text-8xl font-light text-white text-center mb-16 leading-tight">
-          What should<br />
-          we build today?
+          Every model gives you<br />
+          the same answer.
         </h1>
 
         {/* Input Container */}
@@ -68,7 +68,7 @@ export function HeroSection({ onSubmit }: HeroSectionProps) {
           </div>
 
           <p className="text-center text-purple-200/60 text-sm mt-6">
-            Creative LLM brainstorming. Recursive assumption breaking. Skilled agents.
+            Divergence engine. Ten meaningfully different answers, not ten variations of one.
           </p>
         </form>
       </div>

@@ -39,7 +39,7 @@ export function SeedNode({ data }: NodeProps) {
           <>
             <textarea
               className="input bs-seed-input"
-              placeholder="What do you want to brainstorm about?"
+              placeholder="What strategic question should we explore?"
               value={text}
               onChange={(e) => setText(e.target.value)}
               onKeyDown={(e) => {

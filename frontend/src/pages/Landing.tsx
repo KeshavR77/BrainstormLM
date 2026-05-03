@@ -167,7 +167,7 @@ export function Landing({ onStartProject, onOpenDashboard }: LandingProps) {
       <nav className={`lp__nav ${navSolid ? 'lp__nav--solid' : ''}`}>
         <div className="lp__nav-left">
           <div className="lp__nav-mark"><Zap size={13} /></div>
-          <span className="lp__nav-name">Corpus</span>
+          <span className="lp__nav-name">Conceptial</span>
         </div>
         <button className="lp__nav-btn" onClick={onOpenDashboard}>
           Open Workspace <ArrowRight size={13} />
@@ -179,11 +179,11 @@ export function Landing({ onStartProject, onOpenDashboard }: LandingProps) {
         <motion.div className="lp__hero" style={{ opacity: bgOp }}>
           <motion.div style={{ opacity: heroOp, y: heroY }}>
             <motion.p className="lp__eyebrow" style={{ opacity: subOp }}>
-              Recursive idea engine
+              Divergence engine
             </motion.p>
             <h1 className="lp__h1">
-              What should<br />
-              <span className="lp__accent">we build today?</span>
+              Every model gives you<br />
+              <span className="lp__accent">the same answer.</span>
             </h1>
           </motion.div>
 
@@ -196,7 +196,7 @@ export function Landing({ onStartProject, onOpenDashboard }: LandingProps) {
             <div className="lp__form-inner">
               <input
                 type="text"
-                placeholder="How might we reimagine creative collaboration?"
+                placeholder="How might we differentiate in a crowded market?"
                 value={idea}
                 onChange={e => setIdea(e.target.value)}
                 className="lp__input"
@@ -211,7 +211,7 @@ export function Landing({ onStartProject, onOpenDashboard }: LandingProps) {
               </button>
             </div>
             <motion.p className="lp__sub" style={{ opacity: subOp }}>
-              Type an idea, or scroll to see how it works
+              Type a strategic question, or scroll to see it work
             </motion.p>
           </motion.form>
 
@@ -234,16 +234,16 @@ export function Landing({ onStartProject, onOpenDashboard }: LandingProps) {
 
           <div className="lp__captions">
             <motion.p className="lp__cap" style={{ opacity: c1Op }}>
-              {"Start with one wild question. Corpus branches it into "}
-              <strong>{"unexpected directions"}</strong>{"."}
+              {"Start with any strategic question. Conceptial steers it into "}
+              <strong>{"genuinely different directions"}</strong>{" — not variations of the same answer."}
             </motion.p>
             <motion.p className="lp__cap" style={{ opacity: c2Op }}>
-              {"Pick the path that excites you — it becomes "}
-              <strong>{"the new seed"}</strong>{" and recurses deeper."}
+              {"Choose the direction that surprises you — it becomes "}
+              <strong>{"the new seed"}</strong>{" and branches deeper."}
             </motion.p>
             <motion.p className="lp__cap" style={{ opacity: c3Op }}>
-              {"One spark becomes a "}
-              <strong>{"whole landscape of ideas"}</strong>{" — each fork more surprising than the last."}
+              {"One question becomes a "}
+              <strong>{"whole landscape of divergent possibilities"}</strong>{" — each fork further from the last."}
             </motion.p>
           </div>
 
@@ -257,11 +257,11 @@ export function Landing({ onStartProject, onOpenDashboard }: LandingProps) {
             }}
           >
             <h2 className="lp__final-title">
-              Stop iterating in circles.<br />
-              <span className="lp__accent">Start branching.</span>
+              Frontier models converge.<br />
+              <span className="lp__accent">Conceptial explores.</span>
             </h2>
             <p className="lp__final-sub">
-              Turn a single spark into a whole tree of ideas.
+              Turn one question into a tree of meaningfully different ideas.
             </p>
             <button className="lp__final-btn" onClick={onOpenDashboard}>
               Open workspace <ArrowRight size={18} />
@@ -272,7 +272,7 @@ export function Landing({ onStartProject, onOpenDashboard }: LandingProps) {
 
       {/* Footer */}
       <footer className="lp__footer">
-        <span className="lp__footer-name">Corpus</span>
+        <span className="lp__footer-name">Conceptial</span>
         <span className="lp__footer-copy">© 2026</span>
       </footer>
     </div>

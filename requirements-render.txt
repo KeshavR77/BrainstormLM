@@ -1,0 +1,12 @@
+# Minimal Python dependencies for Render deployment (demo/smoke mode).
+# Heavy ML deps (torch, transformers, shrooms-llm) are intentionally excluded.
+# Set CONCEPTIAL_DEMO=true to run without any model loaded.
+fastapi>=0.115
+uvicorn[standard]>=0.30
+pydantic>=2.7
+pydantic-settings>=2.3
+python-dotenv>=1.0
+numpy>=1.26
+httpx>=0.27
+openai>=1.30
+together>=1.3
