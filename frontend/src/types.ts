@@ -27,6 +27,8 @@ export interface BrainstormNode {
   createdAt: string;
   isExpanded: boolean;
   children: string[];
+  trajectoryId?: string;
+  feedbackGiven?: 'up' | 'down';
 }
 
 export interface BrainstormEdge {

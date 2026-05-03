@@ -57,6 +57,7 @@ class BrainstormRequest(BaseModel):
 class IdeaBranch(BaseModel):
     summary: str
     content: str
+    trajectory_id: str
 
 
 class BrainstormResponse(BaseModel):

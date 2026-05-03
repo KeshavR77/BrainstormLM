@@ -40,6 +40,8 @@ function CanvasInner({ projectId, onBack }: CanvasPageProps) {
     selectIdea,
     editNode,
     addCustomIdea,
+    submitNodeFeedback,
+    submitCritique,
     nodeCount,
     maxDepth,
     hasRoot,
@@ -95,7 +97,10 @@ function CanvasInner({ projectId, onBack }: CanvasPageProps) {
               onSelect: selectIdea,
               onExpand: expandNode,
               onEdit: editNode,
+              onFeedback: submitNodeFeedback,
               nodeId: node.id,
+              trajectoryId: node.trajectoryId,
+              feedbackGiven: node.feedbackGiven,
             },
           });
           break;
@@ -112,6 +117,7 @@ function CanvasInner({ projectId, onBack }: CanvasPageProps) {
               onExpandWithPrompt: expandWithPrompt,
               onAutoExpand: expandNode,
               onAddCustom: addCustomIdea,
+              onCritique: submitCritique,
               nodeId: node.id,
             },
           });
@@ -129,7 +135,7 @@ function CanvasInner({ projectId, onBack }: CanvasPageProps) {
     }
 
     return { builtNodes: fNodes, builtEdges: fEdges };
-  }, [tree, submitSeed, selectIdea, expandNode, expandWithPrompt, editNode, addCustomIdea]);
+  }, [tree, submitSeed, selectIdea, expandNode, expandWithPrompt, editNode, addCustomIdea, submitNodeFeedback, submitCritique]);
 
   // ── Apply layout ─────────────────────────────────────────────
 

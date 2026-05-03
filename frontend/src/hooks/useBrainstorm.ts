@@ -3,11 +3,17 @@
  *
  * Handles node creation, idea generation, selection, editing, and expansion.
  * All state is persisted to localStorage keyed by project ID.
+ *
+ * RLHF feedback loop:
+ * - Each generated idea carries a trajectoryId from the backend.
+ * - "Choose This" auto-fires thumbs-up for the chosen idea and thumbs-down
+ *   for all siblings, creating DPO preference pairs automatically.
+ * - submitNodeFeedback / submitCritique allow explicit feedback from the UI.
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { BrainstormNode, BrainstormEdge, BrainstormTree } from '../types';
-import { generateIdeas } from '../mockGenerator';
+import { generateIdeas, submitFeedback } from '../lib/api';
 
 function storageKey(projectId: string) {
   return `brainstorm-tree-${projectId}`;
@@ -103,6 +109,8 @@ export function useBrainstorm(projectId: string) {
             createdAt: new Date().toISOString(),
             isExpanded: false,
             children: [],
+            trajectoryId: idea.trajectory_id,
+            feedbackGiven: undefined,
           };
 
           newEdges.push({
@@ -144,22 +152,83 @@ export function useBrainstorm(projectId: string) {
     [expandNodeInner],
   );
 
-  // ── Select an idea (no auto-expand — user decides next) ───────
+  // ── Select an idea — fires DPO preference pairs automatically ─
 
   const selectIdea = useCallback(
     (nodeId: string) => {
       const node = treeRef.current.nodes[nodeId];
       if (!node || node.type === 'seed') return;
 
-      // Mark this node as selected
+      // Fire thumbs-up for chosen idea
+      if (node.trajectoryId) {
+        submitFeedback(node.trajectoryId, 'up');
+      }
+
+      // Fire thumbs-down for all siblings that haven't been explicitly rated
+      const parentNode = node.parentId ? treeRef.current.nodes[node.parentId] : null;
+      if (parentNode) {
+        for (const sibId of parentNode.children) {
+          if (sibId !== nodeId) {
+            const sib = treeRef.current.nodes[sibId];
+            if (sib?.trajectoryId && !sib.feedbackGiven) {
+              submitFeedback(sib.trajectoryId, 'down');
+            }
+          }
+        }
+      }
+
+      // Update state: mark chosen as selected, siblings as rejected
       setTree((prev) => {
         const updated = { ...prev, nodes: { ...prev.nodes } };
-        updated.nodes[nodeId] = { ...updated.nodes[nodeId], type: 'selected' };
+        // Mark chosen node selected
+        updated.nodes[nodeId] = {
+          ...updated.nodes[nodeId],
+          type: 'selected',
+          feedbackGiven: 'up',
+        };
+        // Mark siblings as having received down feedback
+        if (parentNode) {
+          for (const sibId of parentNode.children) {
+            if (sibId !== nodeId && updated.nodes[sibId] && !updated.nodes[sibId].feedbackGiven) {
+              updated.nodes[sibId] = { ...updated.nodes[sibId], feedbackGiven: 'down' };
+            }
+          }
+        }
         return updated;
       });
 
       setActiveNodeId(nodeId);
-      // NOTE: no auto-expand — the SelectedIdeaNode now shows a prompt input
+    },
+    [],
+  );
+
+  // ── Manual feedback (explicit thumb press on a node) ──────────
+
+  const submitNodeFeedback = useCallback(
+    (nodeId: string, thumbs: 'up' | 'down') => {
+      const node = treeRef.current.nodes[nodeId];
+      if (!node?.trajectoryId || node.feedbackGiven) return;
+
+      submitFeedback(node.trajectoryId, thumbs);
+
+      setTree((prev) => ({
+        ...prev,
+        nodes: {
+          ...prev.nodes,
+          [nodeId]: { ...prev.nodes[nodeId], feedbackGiven: thumbs },
+        },
+      }));
+    },
+    [],
+  );
+
+  // ── Submit a critique note for a selected node ────────────────
+
+  const submitCritique = useCallback(
+    (nodeId: string, critique: string) => {
+      const node = treeRef.current.nodes[nodeId];
+      if (!node?.trajectoryId || !critique.trim()) return;
+      submitFeedback(node.trajectoryId, 'up', undefined, critique.trim());
     },
     [],
   );
@@ -241,6 +310,8 @@ export function useBrainstorm(projectId: string) {
     selectIdea,
     editNode,
     addCustomIdea,
+    submitNodeFeedback,
+    submitCritique,
     nodeCount,
     maxDepth,
     hasRoot: tree.rootId !== null,

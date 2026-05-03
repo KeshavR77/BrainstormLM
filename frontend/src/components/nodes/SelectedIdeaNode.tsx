@@ -4,11 +4,14 @@
  * When not yet expanded, shows an inline prompt input so the user
  * can guide what gets generated next. They can also auto-generate
  * or add their own custom idea.
+ *
+ * Also shows a collapsible critique note so users can annotate why
+ * they chose this direction (feeds the RLHF critique field).
  */
 
 import { Handle, Position } from '@xyflow/react';
 import type { NodeProps } from '@xyflow/react';
-import { CheckCircle2, ArrowRight, Zap, Plus } from 'lucide-react';
+import { CheckCircle2, ArrowRight, Zap, Plus, Pencil } from 'lucide-react';
 import { useState } from 'react';
 
 export interface SelectedIdeaNodeData {
@@ -19,6 +22,7 @@ export interface SelectedIdeaNodeData {
   onExpandWithPrompt: (nodeId: string, prompt: string) => void;
   onAutoExpand: (nodeId: string) => void;
   onAddCustom: (parentId: string, content: string, summary: string) => void;
+  onCritique?: (nodeId: string, critique: string) => void;
   nodeId: string;
   [key: string]: unknown;
 }
@@ -32,13 +36,14 @@ export function SelectedIdeaNode({ data }: NodeProps) {
     onExpandWithPrompt,
     onAutoExpand,
     onAddCustom,
+    onCritique,
     nodeId,
   } = data as unknown as SelectedIdeaNodeData;
 
   const [prompt, setPrompt] = useState('');
   const [showCustom, setShowCustom] = useState(false);
-  const [customSummary, setCustomSummary] = useState('');
-  const [customContent, setCustomContent] = useState('');
+  const [showCritique, setShowCritique] = useState(false);
+  const [critique, setCritique] = useState('');
 
   const handleSubmitPrompt = () => {
     if (prompt.trim()) {
@@ -54,6 +59,16 @@ export function SelectedIdeaNode({ data }: NodeProps) {
       setShowCustom(false);
     }
   };
+
+  const handleSaveCritique = () => {
+    if (critique.trim()) {
+      onCritique?.(nodeId, critique.trim());
+      setShowCritique(false);
+    }
+  };
+
+  const [customSummary, setCustomSummary] = useState('');
+  const [customContent, setCustomContent] = useState('');
 
   return (
     <div className="bs-node bs-node--selected">
@@ -153,6 +168,47 @@ export function SelectedIdeaNode({ data }: NodeProps) {
         <div className="bs-node__selected-badge">
           <CheckCircle2 size={11} />
           Chosen Path
+        </div>
+      )}
+
+      {/* Critique note — collapsible, visible regardless of expanded state */}
+      {onCritique && (
+        <div className="bs-node__critique">
+          {!showCritique ? (
+            <button
+              className="btn btn-sm btn-ghost bs-node__critique-toggle"
+              onClick={() => setShowCritique(true)}
+            >
+              <Pencil size={10} />
+              Add a note
+            </button>
+          ) : (
+            <>
+              <textarea
+                className="input bs-node__critique-input"
+                placeholder="Why did you choose this direction? (optional)"
+                value={critique}
+                onChange={(e) => setCritique(e.target.value)}
+                rows={2}
+                autoFocus
+              />
+              <div className="bs-node__critique-actions">
+                <button
+                  className="btn btn-sm btn-ghost"
+                  onClick={() => { setShowCritique(false); setCritique(''); }}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="btn btn-sm btn-primary"
+                  onClick={handleSaveCritique}
+                  disabled={!critique.trim()}
+                >
+                  Save note
+                </button>
+              </div>
+            </>
+          )}
         </div>
       )}
 

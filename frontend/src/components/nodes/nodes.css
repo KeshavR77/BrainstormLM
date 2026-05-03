@@ -296,6 +296,107 @@
   line-height: 1.6;
 }
 
+/* ── Feedback Row (thumbs up/down on IdeaNode) ──────────────────────── */
+
+.bs-node__feedback {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.bs-node__feedback-label {
+  font-size: 10px;
+  font-weight: 500;
+  color: rgba(237, 235, 232, 0.28);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  flex: 1;
+}
+
+.bs-node__thumb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: transparent;
+  color: rgba(237, 235, 232, 0.28);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+
+.bs-node__thumb:hover:not(:disabled) {
+  color: rgba(237, 235, 232, 0.7);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.bs-node__thumb--up.is-active {
+  color: #c9a55c;
+  border-color: rgba(201, 165, 92, 0.4);
+  background: rgba(201, 165, 92, 0.08);
+}
+
+.bs-node__thumb--down.is-active {
+  color: rgba(239, 68, 68, 0.72);
+  border-color: rgba(239, 68, 68, 0.3);
+  background: rgba(239, 68, 68, 0.06);
+}
+
+.bs-node__thumb:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+/* ── Critique Note (on SelectedIdeaNode) ────────────────────────────── */
+
+.bs-node__critique {
+  padding: 10px 16px 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.bs-node__critique-toggle {
+  font-size: 11px !important;
+  color: rgba(237, 235, 232, 0.38) !important;
+  gap: 4px !important;
+}
+
+.bs-node__critique-toggle:hover {
+  color: var(--accent-teal) !important;
+}
+
+.bs-node__critique-input {
+  width: 100%;
+  font-size: 12px !important;
+  padding: 7px 9px !important;
+  margin-bottom: 6px;
+  background: rgba(255, 255, 255, 0.03) !important;
+  border-color: rgba(94, 234, 212, 0.18) !important;
+  color: var(--text-primary) !important;
+  min-height: auto !important;
+  border-radius: var(--radius-sm) !important;
+  resize: none;
+}
+
+.bs-node__critique-input:focus {
+  border-color: rgba(94, 234, 212, 0.4) !important;
+  background: rgba(94, 234, 212, 0.05) !important;
+}
+
+.bs-node__critique-actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.bs-node__critique-actions .btn {
+  font-size: 11px !important;
+  padding: 4px 10px !important;
+}
+
 /* ── Loading Node State ─────────────────────────────────────────────── */
 
 .bs-node--loading {

@@ -3,11 +3,12 @@
  *
  * Can be selected, expanded, or edited inline.
  * Double-click the content to edit it.
+ * Thumbs up/down buttons appear when a trajectoryId is present.
  */
 
 import { Handle, Position } from '@xyflow/react';
 import type { NodeProps } from '@xyflow/react';
-import { Lightbulb, ChevronRight, Expand, Pencil, Check, X } from 'lucide-react';
+import { Lightbulb, ChevronRight, Expand, Pencil, Check, X, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 
 export interface IdeaNodeData {
@@ -19,7 +20,10 @@ export interface IdeaNodeData {
   onSelect: (nodeId: string) => void;
   onExpand: (nodeId: string) => void;
   onEdit: (nodeId: string, content: string, summary: string) => void;
+  onFeedback?: (nodeId: string, thumbs: 'up' | 'down') => void;
   nodeId: string;
+  trajectoryId?: string;
+  feedbackGiven?: 'up' | 'down';
   [key: string]: unknown;
 }
 
@@ -33,7 +37,10 @@ export function IdeaNode({ data }: NodeProps) {
     onSelect,
     onExpand,
     onEdit,
+    onFeedback,
     nodeId,
+    trajectoryId,
+    feedbackGiven,
   } = data as unknown as IdeaNodeData;
 
   const [editing, setEditing] = useState(false);
@@ -168,6 +175,37 @@ export function IdeaNode({ data }: NodeProps) {
           </>
         )}
       </div>
+
+      {/* Feedback row — only when a trajectory exists and not editing */}
+      {!editing && trajectoryId && (
+        <div className="bs-node__feedback">
+          <span className="bs-node__feedback-label">Useful?</span>
+          <button
+            className={`bs-node__thumb bs-node__thumb--up${feedbackGiven === 'up' ? ' is-active' : ''}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              onFeedback?.(nodeId, 'up');
+            }}
+            disabled={!!feedbackGiven}
+            title="Good direction"
+            aria-label="Thumbs up"
+          >
+            <ThumbsUp size={11} />
+          </button>
+          <button
+            className={`bs-node__thumb bs-node__thumb--down${feedbackGiven === 'down' ? ' is-active' : ''}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              onFeedback?.(nodeId, 'down');
+            }}
+            disabled={!!feedbackGiven}
+            title="Not useful"
+            aria-label="Thumbs down"
+          >
+            <ThumbsDown size={11} />
+          </button>
+        </div>
+      )}
 
       {(isExpanded || hasChildren) && (
         <Handle type="source" position={Position.Bottom} />
