@@ -22,6 +22,7 @@ from pathlib import Path
 from typing import Any
 
 from fastapi import BackgroundTasks, FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -35,9 +36,12 @@ from brainstormlm.api.safety import (
 )
 from brainstormlm.api.schemas import (
     AskRequest,
+    BrainstormRequest,
+    BrainstormResponse,
     FeedbackRequest,
     FeedbackResponse,
     HealthzResponse,
+    IdeaBranch,
     MetricsResponse,
 )
 from brainstormlm.config import get_settings
@@ -82,6 +86,13 @@ def build_app(
     settings = get_settings()
     factory = make_generator or default_make_generator
     app = FastAPI(title="BrainstormLM", version="0.6.0")
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["http://localhost:5173", "http://localhost:4173"],
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
     bucket = TokenBucket(
         capacity=settings.rate_limit_capacity,
@@ -247,6 +258,37 @@ def build_app(
         )
         return FeedbackResponse(ok=True)
 
+    @app.post("/brainstorm", response_model=BrainstormResponse)
+    def brainstorm(req: BrainstormRequest) -> BrainstormResponse:
+        try:
+            validate_user_prompt(req.prompt, max_len=settings.user_prompt_max_chars)
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e)) from e
+
+        system: str | None = None
+        if req.use_memory:
+            store = LessonStore(settings.lessons_path)
+            store.load()
+            lessons = retrieve(store, req.prompt, k_success=3, k_failure=2)
+            scrubbed = scrub_lessons(lessons)
+            system = augmented_system(None, scrubbed)
+
+        corpius_config = settings.corpius_config_path if settings.corpius_config_path.exists() else None
+        temperatures = [0.9, 1.0, 1.1, 1.2]
+        ideas: list[IdeaBranch] = []
+        for i in range(req.n_ideas):
+            temp = temperatures[i % len(temperatures)]
+            gen = factory(None, corpius_config_path=corpius_config)
+            full_prompt = req.prompt
+            if req.context:
+                full_prompt = f"{req.context}\n\n{req.prompt}"
+            text = gen.generate(full_prompt, system=system, temperature=temp, max_tokens=600)
+            first_line = text.split("\n")[0].strip()
+            summary = first_line[:60] if len(first_line) <= 60 else first_line[:57] + "..."
+            ideas.append(IdeaBranch(summary=summary, content=text))
+
+        return BrainstormResponse(ideas=ideas)
+
     @app.get("/metrics", response_model=MetricsResponse)
     def metrics() -> MetricsResponse:
         records = logger.snapshot()
@@ -283,10 +325,10 @@ def build_app(
             cache_hit_rate=cache_hit_rate,
         )
 
-    # Mount the static frontend if present (development convenience).
-    frontend_dir = Path(__file__).resolve().parents[3] / "frontend"
-    if frontend_dir.exists():
-        app.mount("/", StaticFiles(directory=str(frontend_dir), html=True), name="frontend")
+    # Mount the built React app when dist/ exists; dev uses the Vite dev server.
+    frontend_dist = Path(__file__).resolve().parents[3] / "frontend" / "dist"
+    if frontend_dist.exists():
+        app.mount("/", StaticFiles(directory=str(frontend_dist), html=True), name="frontend")
 
     return app
 

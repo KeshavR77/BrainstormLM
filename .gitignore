@@ -8,3 +8,11 @@ data/
 .coverage
 dist/
 *.egg-info/
+
+# React frontend
+frontend/node_modules/
+frontend/dist/
+
+# WIC backend
+src/wic/__pycache__/
+src/wic/venv/

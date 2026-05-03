@@ -43,3 +43,21 @@ class MetricsResponse(BaseModel):
     requests_last_60s: int
     mean_latency_ms_by_arm: dict[str, float]
     cache_hit_rate: float
+
+
+class BrainstormRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    prompt: str
+    context: str | None = None
+    n_ideas: int = Field(default=4, ge=1, le=8)
+    use_memory: bool = False
+
+
+class IdeaBranch(BaseModel):
+    summary: str
+    content: str
+
+
+class BrainstormResponse(BaseModel):
+    ideas: list[IdeaBranch]

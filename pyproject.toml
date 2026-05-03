@@ -22,6 +22,7 @@ dependencies = [
     "uvicorn[standard]",
     "shrooms-llm",
     "creativity-evaluator",
+    "asyncpg",
 ]
 
 [tool.uv.sources]

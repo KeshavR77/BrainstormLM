@@ -1,49 +1,17 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>BrainstormLM</title>
-    <link rel="stylesheet" href="/style.css" />
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Corpus — Creative LLM brainstorming with skilled, steered agents" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <title>Corpus</title>
   </head>
   <body>
-    <main>
-      <h1>BrainstormLM</h1>
-      <p class="hint">A creative-brainstorming model. Single-turn. Be specific.</p>
-
-      <form id="ask-form">
-        <textarea
-          id="prompt"
-          name="prompt"
-          rows="3"
-          placeholder="e.g. design a coffee cup that doubles as a planter"
-          required
-          maxlength="2000"
-        ></textarea>
-        <div class="row">
-          <label>
-            <input type="checkbox" id="use-memory" />
-            use ReasoningBank memory
-          </label>
-          <button type="submit" id="submit-btn">brainstorm</button>
-        </div>
-      </form>
-
-      <section id="response-area" hidden>
-        <div class="meta" id="response-meta"></div>
-        <pre id="response-text"></pre>
-        <div class="feedback" id="feedback-controls" hidden>
-          <button data-thumbs="up" class="feedback-btn">👍 worked</button>
-          <button data-thumbs="down" class="feedback-btn">👎 didn't help</button>
-          <textarea
-            id="critique"
-            placeholder="optional critique"
-            rows="2"
-          ></textarea>
-        </div>
-        <div id="feedback-status" class="status"></div>
-      </section>
-    </main>
-    <script src="/app.js"></script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

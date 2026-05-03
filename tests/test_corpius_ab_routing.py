@@ -37,7 +37,6 @@ def test_corpius_a_vs_adapter_b_routing() -> None:
         traffic_a_pct=50,
     )
     # Bucket 0..49 → arm a (Corpius), 50..99 → arm b (adapter)
-    # Just confirm both arms are resolvable.
     # session-A hashes to bucket 37 (arm a), session-B to bucket 62 (arm b).
     res_a = resolve_arm("session-A", cfg)
     res_b = resolve_arm("session-B", cfg)
