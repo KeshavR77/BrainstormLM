@@ -469,6 +469,15 @@ def build_app(
             cache_hit_rate=cache_hit_rate,
         )
 
+    # Mount streaming SSE router before the static file mount
+    from brainstormlm.api.streaming import build_streaming_router
+    streaming_router = build_streaming_router(
+        factory=factory,
+        demo_mode=_DEMO_MODE,
+        ml_available=_ML_AVAILABLE,
+    )
+    app.include_router(streaming_router)
+
     # Mount the built React app when dist/ exists; dev uses the Vite dev server.
     frontend_dist = Path(__file__).resolve().parents[3] / "frontend" / "dist"
     if frontend_dist.exists():
