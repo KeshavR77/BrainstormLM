@@ -1,0 +1,109 @@
+{
+  "golden_config": {
+    "alpha": 1.8,
+    "layer": "mid",
+    "layer_index": 14,
+    "model": "Qwen2.5-14B-Instruct",
+    "vendi_score": 4.72,
+    "prism_coherence": 0.81,
+    "temperature": 0.9
+  },
+  "comparisons": [
+    {
+      "id": "cmp-001",
+      "prompt": "How might a SaaS startup differentiate in a crowded CRM market?",
+      "standard": {
+        "title": "Standard LLM Output",
+        "text": "To differentiate in the CRM market, focus on providing excellent customer service, competitive pricing, and a user-friendly interface. Consider adding AI features for lead scoring and building integrations with popular tools like Slack and Zapier. Emphasize your unique value proposition in marketing materials."
+      },
+      "steered": {
+        "title": "Steered Output (alpha=1.8, L14)",
+        "text": "Forget the dashboard. Build a CRM that lives inside the calendar app your reps already have open 8 hours a day. Every meeting auto-generates a deal object; every reschedule updates pipeline stage. The CRM becomes invisible infrastructure, not another tab. Monetize the delta between 'logged' and 'actual' sales activity."
+      },
+      "metrics": {
+        "vendi_score": 4.72,
+        "prism_coherence": 0.81,
+        "novelty": 0.89,
+        "feasibility": 0.74
+      }
+    },
+    {
+      "id": "cmp-002",
+      "prompt": "What's a novel approach to reducing food waste in restaurant supply chains?",
+      "standard": {
+        "title": "Standard LLM Output",
+        "text": "Restaurants can reduce food waste by implementing better inventory management systems, training staff on portion control, using first-in-first-out storage methods, donating excess food to shelters, and analyzing sales data to improve demand forecasting."
+      },
+      "steered": {
+        "title": "Steered Output (alpha=1.8, L14)",
+        "text": "Create a 'waste futures' market where restaurants pre-sell tomorrow's predicted surplus to meal-kit companies at a 40% discount, priced by a spoilage-risk model. The meal-kit company gets cheap premium ingredients; the restaurant hedges waste into guaranteed revenue. The platform takes a spread on every contract."
+      },
+      "metrics": {
+        "vendi_score": 4.31,
+        "prism_coherence": 0.78,
+        "novelty": 0.92,
+        "feasibility": 0.68
+      }
+    },
+    {
+      "id": "cmp-003",
+      "prompt": "How could we reimagine the college textbook industry?",
+      "standard": {
+        "title": "Standard LLM Output",
+        "text": "The textbook industry could be improved by offering digital subscriptions, open educational resources, rental programs, and AI-powered study tools. Publishers should focus on interactive content and make materials more affordable for students."
+      },
+      "steered": {
+        "title": "Steered Output (alpha=1.8, L14)",
+        "text": "Kill the textbook. Replace it with a professor's 'knowledge graph' that students traverse at their own pace. Each node is a 3-minute micro-lecture + a challenge problem. The professor earns royalties per student-node-traversal, not per book sale. Completion data feeds back into the graph, pruning dead-end explanations automatically."
+      },
+      "metrics": {
+        "vendi_score": 4.55,
+        "prism_coherence": 0.83,
+        "novelty": 0.91,
+        "feasibility": 0.71
+      }
+    },
+    {
+      "id": "cmp-004",
+      "prompt": "Design a new loyalty program for an airline.",
+      "standard": {
+        "title": "Standard LLM Output",
+        "text": "A modern airline loyalty program should offer tiered membership levels, partner with hotels and car rental companies, provide personalized offers based on travel history, include a credit card with bonus miles, and make redemption straightforward with no blackout dates."
+      },
+      "steered": {
+        "title": "Steered Output (alpha=1.8, L14)",
+        "text": "Instead of points, give frequent flyers 'route equity' — fractional ownership of specific flight routes proportional to their spend. Route equity holders vote on schedule changes and get a micro-dividend when their routes are profitable. Turns loyalty into literal investment. The airline gets a built-in demand signal and emotionally locked-in customers."
+      },
+      "metrics": {
+        "vendi_score": 4.88,
+        "prism_coherence": 0.76,
+        "novelty": 0.95,
+        "feasibility": 0.62
+      }
+    },
+    {
+      "id": "cmp-005",
+      "prompt": "What's a fresh take on remote team collaboration tools?",
+      "standard": {
+        "title": "Standard LLM Output",
+        "text": "Remote teams need better video conferencing with virtual backgrounds, integrated project management boards, asynchronous communication channels, shared document editing, and team-building activities like virtual happy hours and online games."
+      },
+      "steered": {
+        "title": "Steered Output (alpha=1.8, L14)",
+        "text": "Build a 'work sonar' that passively maps collaboration patterns from git, Slack, and calendar data, then surfaces when two people who should be talking aren't. No dashboards, no meetings — just a single DM: 'You and Sarah both changed auth code this week but haven't synced. 15-min slot open at 2pm?' The tool's value is measured in collisions created, not features shipped."
+      },
+      "metrics": {
+        "vendi_score": 4.63,
+        "prism_coherence": 0.85,
+        "novelty": 0.88,
+        "feasibility": 0.77
+      }
+    }
+  ],
+  "gauntlet_presets": [
+    { "label": "Conservative", "alpha": 0.5, "layer": "late", "layer_index": 18 },
+    { "label": "Balanced", "alpha": 1.2, "layer": "mid", "layer_index": 14 },
+    { "label": "Golden Config", "alpha": 1.8, "layer": "mid", "layer_index": 14 },
+    { "label": "Maximum Divergence", "alpha": 2.5, "layer": "mid", "layer_index": 14 }
+  ]
+}

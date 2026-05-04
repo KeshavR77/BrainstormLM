@@ -2,7 +2,8 @@
  * App.tsx — Main application shell with hash-based routing.
  *
  * Routes:
- *   #/             → Landing (Corpus marketing + hero idea input)
+ *   #/             → Corpus 1 Landing (marketing + demo CTA)
+ *   #/gauntlet     → Gauntlet (live steered generation demo)
  *   #/app          → Dashboard (project listing)
  *   #/project/:id  → Canvas (brainstorm workspace)
  */
@@ -12,13 +13,17 @@ import './index.css';
 import './components/nodes/nodes.css';
 import './pages/pages.css';
 import './pages/landing-scroll.css';
+import './pages/corpus1.css';
+import './pages/gauntlet.css';
 
-import { Landing } from './pages/Landing';
+import { Corpus1Landing } from './pages/Corpus1Landing';
+import { Gauntlet } from './pages/Gauntlet';
 import { Dashboard } from './pages/Dashboard';
 import { Canvas } from './pages/Canvas';
 
 type Route =
   | { page: 'landing' }
+  | { page: 'gauntlet' }
   | { page: 'dashboard' }
   | { page: 'canvas'; projectId: string };
 
@@ -27,6 +32,9 @@ function parseRoute(): Route {
   const projectMatch = hash.match(/^#\/project\/(.+)$/);
   if (projectMatch) {
     return { page: 'canvas', projectId: projectMatch[1] };
+  }
+  if (hash === '#/gauntlet' || hash.startsWith('#/gauntlet/')) {
+    return { page: 'gauntlet' };
   }
   if (hash === '#/app' || hash.startsWith('#/app/')) {
     return { page: 'dashboard' };
@@ -43,7 +51,6 @@ export default function App() {
     return () => window.removeEventListener('hashchange', handleHash);
   }, []);
 
-  // Lock body scroll only for the Canvas workspace.
   useEffect(() => {
     const body = document.body;
     if (route.page === 'canvas') {
@@ -64,19 +71,22 @@ export default function App() {
   );
 
   const openDashboard = useCallback(() => navigateTo('/app'), [navigateTo]);
-  const goToDashboard = openDashboard;
+  const openGauntlet = useCallback(() => navigateTo('/gauntlet'), [navigateTo]);
+  const openLanding = useCallback(() => navigateTo('/'), [navigateTo]);
 
   switch (route.page) {
     case 'canvas':
-      return <Canvas projectId={route.projectId} onBack={goToDashboard} />;
+      return <Canvas projectId={route.projectId} onBack={openDashboard} />;
+    case 'gauntlet':
+      return <Gauntlet onBack={openLanding} />;
     case 'dashboard':
       return <Dashboard onOpenProject={openProject} />;
     case 'landing':
     default:
       return (
-        <Landing
-          onStartProject={openProject}
-          onOpenDashboard={openDashboard}
+        <Corpus1Landing
+          onLaunchGauntlet={openGauntlet}
+          onOpenWorkspace={openDashboard}
         />
       );
   }
