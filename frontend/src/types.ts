@@ -42,3 +42,37 @@ export interface BrainstormTree {
   edges: BrainstormEdge[];
   rootId: string | null;
 }
+
+// ── Brainstorm Phase State Machine ────────────────────────────────────
+
+export interface PartialIdea {
+  summary: string;
+  content: string;
+  temperature?: number;
+  creativityScore?: number;
+}
+
+export type BrainstormPhase =
+  | { status: 'IDLE' }
+  | { status: 'GENERATING_DIVERSE_POOL'; progress: number; rawIdeas: PartialIdea[] }
+  | { status: 'SYNTHESIZING_QUALITY'; progress: number; candidateCount: number }
+  | { status: 'COMPLETE'; finalIdeas: { summary: string; content: string; trajectory_id: string }[] }
+  | { status: 'ERROR'; message: string };
+
+export type BrainstormEvent =
+  | { type: 'START_GENERATION'; prompt: string }
+  | { type: 'RAW_IDEA_ARRIVED'; idea: PartialIdea }
+  | { type: 'DIVERSE_POOL_DONE'; count: number }
+  | { type: 'SYNTHESIS_PROGRESS'; progress: number }
+  | { type: 'SYNTHESIS_COMPLETE'; ideas: { summary: string; content: string; trajectory_id: string }[] }
+  | { type: 'ERROR'; message: string }
+  | { type: 'RESET' };
+
+// ── Steering Telemetry ────────────────────────────────────────────────
+
+export interface SteeringStep {
+  step: number;
+  creative: number;
+  technical: number;
+  temperature: number;
+}
