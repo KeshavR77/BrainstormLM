@@ -1,19 +1,7 @@
-/**
- * useBrainstorm.ts — Manages the brainstorm tree state for a single project.
- *
- * Handles node creation, idea generation, selection, editing, and expansion.
- * All state is persisted to localStorage keyed by project ID.
- *
- * RLHF feedback loop:
- * - Each generated idea carries a trajectoryId from the backend.
- * - "Choose This" auto-fires thumbs-up for the chosen idea and thumbs-down
- *   for all siblings, creating DPO preference pairs automatically.
- * - submitNodeFeedback / submitCritique allow explicit feedback from the UI.
- */
-
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import type { BrainstormNode, BrainstormEdge, BrainstormTree } from '../types';
-import { generateIdeas, submitFeedback } from '../lib/api';
+import { generateIdeasPhased, submitFeedback } from '../lib/api';
+import { brainstormReducer, IDLE, isLoading } from '../lib/brainstormMachine';
 
 function storageKey(projectId: string) {
   return `brainstorm-tree-${projectId}`;
@@ -34,20 +22,21 @@ function saveTree(projectId: string, tree: BrainstormTree) {
 
 export function useBrainstorm(projectId: string) {
   const [tree, setTree] = useState<BrainstormTree>(() => loadTree(projectId));
-  const [loading, setLoading] = useState(false);
+  const [phase, dispatch] = useReducer(brainstormReducer, IDLE);
   const [activeNodeId, setActiveNodeId] = useState<string | null>(null);
   const treeRef = useRef(tree);
   treeRef.current = tree;
 
-  // Persist tree whenever it changes
+  const loading = isLoading(phase);
+
   useEffect(() => {
     saveTree(projectId, tree);
   }, [projectId, tree]);
 
-  // Re-load tree when projectId changes
   useEffect(() => {
     setTree(loadTree(projectId));
     setActiveNodeId(null);
+    dispatch({ type: 'RESET' });
   }, [projectId]);
 
   // ── Submit seed ────────────────────────────────────────────────
@@ -70,7 +59,6 @@ export function useBrainstorm(projectId: string) {
       setTree({ nodes: { [seedId]: seed }, edges: [], rootId: seedId });
       setActiveNodeId(seedId);
 
-      // Auto-generate first set of ideas
       await expandNodeInner(seedId, undefined, {
         nodes: { [seedId]: seed },
         edges: [],
@@ -88,9 +76,9 @@ export function useBrainstorm(projectId: string) {
       const node = t.nodes[nodeId];
       if (!node || node.isExpanded) return;
 
-      setLoading(true);
+      dispatch({ type: 'START_GENERATION', prompt: node.content });
       try {
-        const ideas = await generateIdeas(node.content, userPrompt);
+        const ideas = await generateIdeasPhased(node.content, userPrompt, dispatch);
         const newNodes: Record<string, BrainstormNode> = {};
         const newEdges: BrainstormEdge[] = [];
         const childIds: string[] = [];
@@ -129,8 +117,8 @@ export function useBrainstorm(projectId: string) {
           },
           edges: [...prev.edges, ...newEdges],
         }));
-      } finally {
-        setLoading(false);
+      } catch (err) {
+        dispatch({ type: 'ERROR', message: err instanceof Error ? err.message : 'Generation failed' });
       }
     },
     [],
@@ -159,12 +147,10 @@ export function useBrainstorm(projectId: string) {
       const node = treeRef.current.nodes[nodeId];
       if (!node || node.type === 'seed') return;
 
-      // Fire thumbs-up for chosen idea
       if (node.trajectoryId) {
         submitFeedback(node.trajectoryId, 'up');
       }
 
-      // Fire thumbs-down for all siblings that haven't been explicitly rated
       const parentNode = node.parentId ? treeRef.current.nodes[node.parentId] : null;
       if (parentNode) {
         for (const sibId of parentNode.children) {
@@ -177,16 +163,13 @@ export function useBrainstorm(projectId: string) {
         }
       }
 
-      // Update state: mark chosen as selected, siblings as rejected
       setTree((prev) => {
         const updated = { ...prev, nodes: { ...prev.nodes } };
-        // Mark chosen node selected
         updated.nodes[nodeId] = {
           ...updated.nodes[nodeId],
           type: 'selected',
           feedbackGiven: 'up',
         };
-        // Mark siblings as having received down feedback
         if (parentNode) {
           for (const sibId of parentNode.children) {
             if (sibId !== nodeId && updated.nodes[sibId] && !updated.nodes[sibId].feedbackGiven) {
@@ -301,6 +284,7 @@ export function useBrainstorm(projectId: string) {
 
   return {
     tree,
+    phase,
     loading,
     activeNodeId,
     setActiveNodeId,
