@@ -397,6 +397,35 @@
   padding: 4px 10px !important;
 }
 
+/* ── Preview Node (ghost during diverse pool phase) ──────────────────── */
+
+.bs-node--preview {
+  opacity: 0.45;
+  border-color: rgba(201, 165, 92, 0.30);
+  background: rgba(18, 18, 26, 0.50);
+  pointer-events: none;
+  animation: nodeEntrance 0.35s var(--ease-out) both;
+}
+
+.bs-node--preview .bs-node__accent {
+  background: linear-gradient(90deg, transparent, rgba(201, 165, 92, 0.40), transparent);
+}
+
+.bs-node__icon--preview {
+  background: linear-gradient(135deg, rgba(201, 165, 92, 0.18), rgba(201, 165, 92, 0.08));
+  border-color: rgba(201, 165, 92, 0.30);
+  color: rgba(201, 165, 92, 0.70);
+}
+
+.bs-node--preview .bs-node__label {
+  color: rgba(237, 235, 232, 0.60);
+}
+
+.bs-node--preview .bs-node__content {
+  color: rgba(237, 235, 232, 0.40);
+  font-size: 12px;
+}
+
 /* ── Loading Node State ─────────────────────────────────────────────── */
 
 .bs-node--loading {
