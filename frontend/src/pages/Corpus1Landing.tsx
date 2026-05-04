@@ -6,8 +6,9 @@ import {
   useMotionValueEvent,
   useReducedMotion,
 } from 'framer-motion';
-import { ArrowRight, Zap, BarChart3, Brain, Sparkles, Shield, Target } from 'lucide-react';
+import { ArrowRight, Zap, BarChart3, Brain, Sparkles, Shield, Target, Check } from 'lucide-react';
 import { ComparisonViewer } from '../components/ComparisonViewer';
+import { ScrollTree } from '../components/ScrollTree';
 
 interface Props {
   onLaunchGauntlet: () => void;
@@ -32,26 +33,60 @@ function useParticles(count: number, seed = 7): Particle[] {
 
 export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
   const rootRef = useRef<HTMLDivElement>(null);
+  const act2Ref = useRef<HTMLDivElement>(null);
+
   const prefersReduced = useReducedMotion();
   const [reduced, setReduced] = useState(false);
   useEffect(() => setReduced(!!prefersReduced), [prefersReduced]);
   const particles = useParticles(reduced ? 0 : 46);
 
+  /* ── Scroll tracking ──────────────────────────────────────────────── */
   const { scrollYProgress: pageProg } = useScroll({
     target: rootRef,
     offset: ['start start', 'end end'],
   });
 
-  const bgY = useTransform(pageProg, [0, 1], [0, -140]);
+  // Tree section progress
+  const { scrollYProgress: a2 } = useScroll({
+    target: act2Ref,
+    offset: ['start 65%', 'end end'],
+  });
+
+  const [treeProg, setTreeProg] = useState(0);
+  useMotionValueEvent(a2, 'change', setTreeProg);
+
+  const bgY    = useTransform(pageProg, [0, 1], [0, -140]);
   const constY = useTransform(pageProg, [0, 1], [0, -220]);
   const glowAOp = useTransform(pageProg, [0, 0.5, 1], [0.55, 0.8, 0.3]);
   const glowBOp = useTransform(pageProg, [0, 0.5, 1], [0.3, 0.55, 0.7]);
 
   const [navSolid, setNavSolid] = useState(false);
-  useMotionValueEvent(pageProg, 'change', v => setNavSolid(v > 0.02));
+  useMotionValueEvent(pageProg, 'change', v => setNavSolid(v > 0.01));
 
-  const scrollToGauntlet = useCallback(() => {
-    document.getElementById('gauntlet-cta')?.scrollIntoView({ behavior: 'smooth' });
+  /* ── Tree captions + CTA ─────────────────────────────────────────── */
+  const c1Op = useTransform(a2, [0.02, 0.10, 0.24, 0.30], [0, 1, 1, 0]);
+  const c2Op = useTransform(a2, [0.30, 0.38, 0.54, 0.60], [0, 1, 1, 0]);
+  const c3Op = useTransform(a2, [0.60, 0.68, 0.86, 0.92], [0, 1, 1, 0]);
+  const ctaOp = useTransform(a2, [0.94, 1.0], [0, 1]);
+  const ctaY  = useTransform(a2, [0.94, 1.0], [24, 0]);
+  const [ctaVisible, setCtaVisible] = useState(false);
+  useMotionValueEvent(ctaOp, 'change', v => setCtaVisible(v > 0.1));
+
+  const treeOp = useTransform(a2, [0, 0.08, 0.90, 1.0], [0, 1, 1, 0.2]);
+  const treeSc = useTransform(a2, [0, 0.08, 0.94, 1.0], [0.94, 1, 1, 1.04]);
+
+  /* ── Waitlist ─────────────────────────────────────────────────────── */
+  const [email, setEmail] = useState('');
+  const [waitlistStatus, setWaitlistStatus] = useState<'idle' | 'success'>('idle');
+
+  const handleWaitlist = useCallback((e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim()) return;
+    setWaitlistStatus('success');
+  }, [email]);
+
+  const scrollToWaitlist = useCallback(() => {
+    document.getElementById('waitlist')?.scrollIntoView({ behavior: 'smooth' });
   }, []);
 
   return (
@@ -93,7 +128,10 @@ export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
           <span className="lp__nav-name">Corpus 1</span>
         </div>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-          <button className="lp__nav-btn" onClick={scrollToGauntlet}>
+          <button className="lp__nav-btn" onClick={scrollToWaitlist}>
+            Join Waitlist
+          </button>
+          <button className="lp__nav-btn" onClick={onLaunchGauntlet}>
             Launch Gauntlet <ArrowRight size={13} />
           </button>
           <button className="lp__nav-btn" onClick={onOpenWorkspace}>
@@ -122,8 +160,8 @@ export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
             <button className="c1__primary-btn" onClick={onLaunchGauntlet}>
               <Zap size={16} /> Launch Gauntlet
             </button>
-            <button className="c1__secondary-btn" onClick={scrollToGauntlet}>
-              See it work <ArrowRight size={14} />
+            <button className="c1__secondary-btn" onClick={scrollToWaitlist}>
+              Join the Waitlist <ArrowRight size={14} />
             </button>
           </div>
         </motion.div>
@@ -149,7 +187,65 @@ export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
             <span className="c1__stat-label">Parameters</span>
           </div>
         </motion.div>
+
+        <motion.div
+          className="lp__cue"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.2, duration: 0.6 }}
+        >
+          <div className="lp__cue-line" />
+          <span>Scroll</span>
+        </motion.div>
       </section>
+
+      {/* ═══ ACT 2 — Sticky scroll-driven idea tree ═══ */}
+      <div ref={act2Ref} className="lp__act2">
+        <div className="lp__pin">
+          <motion.div
+            className="lp__tree-area"
+            style={{ opacity: treeOp, scale: treeSc }}
+          >
+            <ScrollTree progress={treeProg} className="lp__tree" />
+          </motion.div>
+
+          <div className="lp__captions">
+            <motion.p className="lp__cap" style={{ opacity: c1Op }}>
+              {"Start with any strategic question. Corpus 1 steers it into "}
+              <strong>{"genuinely different directions"}</strong>{" — not variations of the same answer."}
+            </motion.p>
+            <motion.p className="lp__cap" style={{ opacity: c2Op }}>
+              {"Choose the direction that surprises you — it becomes "}
+              <strong>{"the new seed"}</strong>{" and branches deeper."}
+            </motion.p>
+            <motion.p className="lp__cap" style={{ opacity: c3Op }}>
+              {"One question becomes a "}
+              <strong>{"whole landscape of divergent possibilities"}</strong>{" — each fork further from the last."}
+            </motion.p>
+          </div>
+
+          {/* CTA overlay at end of tree scroll */}
+          <motion.div
+            className="lp__cta-overlay"
+            style={{
+              opacity: ctaOp,
+              y: ctaY,
+              pointerEvents: ctaVisible ? 'auto' : 'none',
+            }}
+          >
+            <h2 className="lp__final-title">
+              Frontier models converge.<br />
+              <span className="lp__accent">Corpus 1 explores.</span>
+            </h2>
+            <p className="lp__final-sub">
+              Steerable 14B models. Measured diversity. Business-coherent outliers.
+            </p>
+            <button className="lp__final-btn" onClick={onLaunchGauntlet}>
+              Launch Gauntlet <ArrowRight size={18} />
+            </button>
+          </motion.div>
+        </div>
+      </div>
 
       {/* ═══ CONTRAST — Comparison Viewer ═══ */}
       <section className="c1__section">
@@ -168,7 +264,7 @@ export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
         </div>
       </section>
 
-      {/* ═══ SCIENCE — Vendi Score & PRISM ═══ */}
+      {/* ═══ SCIENCE ═══ */}
       <section className="c1__section c1__section--dark">
         <div className="landing-container">
           <div className="landing-section__header">
@@ -182,75 +278,59 @@ export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
           </div>
 
           <div className="c1__science-grid">
-            <motion.div
-              className="c1__science-card"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-80px' }}
-              transition={{ duration: 0.5 }}
-            >
-              <div className="feature-card__icon"><BarChart3 size={22} /></div>
-              <h3 className="feature-card__title">Vendi Score</h3>
-              <p className="feature-card__body">
-                Measures effective diversity across a batch of generations using matrix-based
-                entropy. A score of 4.72 means the outputs span nearly 5 orthogonal semantic
-                directions — standard LLMs typically score below 2.0.
-              </p>
-              <div className="c1__science-metric">
-                <div className="c1__science-bar">
-                  <div className="c1__science-fill c1__science-fill--gold" style={{ width: '94%' }} />
-                </div>
-                <span className="c1__science-val c1__science-val--gold">4.72 / 5.0</span>
-              </div>
-            </motion.div>
-
-            <motion.div
-              className="c1__science-card"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-80px' }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-            >
-              <div className="feature-card__icon"><Shield size={22} /></div>
-              <h3 className="feature-card__title">PRISM Coherence</h3>
-              <p className="feature-card__body">
-                Ensures steered outputs remain actionable and relevant. PRISM scores each idea
-                against the original prompt for business logic, feasibility, and specificity.
-                Above 75% means the idea is wild but grounded.
-              </p>
-              <div className="c1__science-metric">
-                <div className="c1__science-bar">
-                  <div className="c1__science-fill c1__science-fill--teal" style={{ width: '81%' }} />
-                </div>
-                <span className="c1__science-val c1__science-val--teal">81%</span>
-              </div>
-            </motion.div>
-
-            <motion.div
-              className="c1__science-card"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-80px' }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
-              <div className="feature-card__icon"><Brain size={22} /></div>
-              <h3 className="feature-card__title">Representation Engineering</h3>
-              <p className="feature-card__body">
-                We don't prompt-hack. We inject learned steering vectors directly into the
-                model's transformer layers — nudging the latent space toward unexplored regions
-                without destroying coherence.
-              </p>
-              <div className="c1__science-layers">
-                <div className="c1__layer">
-                  <span className="c1__layer-name">Layer 14 (Mid)</span>
-                  <span className="c1__layer-desc">Creative divergence</span>
-                </div>
-                <div className="c1__layer">
-                  <span className="c1__layer-name">Layer 18 (Late)</span>
-                  <span className="c1__layer-desc">Technical precision</span>
-                </div>
-              </div>
-            </motion.div>
+            {[
+              {
+                icon: <BarChart3 size={22} />,
+                title: 'Vendi Score',
+                body: 'Measures effective diversity across a batch of generations using matrix-based entropy. A score of 4.72 means outputs span nearly 5 orthogonal semantic directions — standard LLMs typically score below 2.0.',
+                bar: { width: '94%', cls: 'c1__science-fill--gold', val: '4.72 / 5.0', valCls: 'c1__science-val--gold' },
+              },
+              {
+                icon: <Shield size={22} />,
+                title: 'PRISM Coherence',
+                body: 'Ensures steered outputs remain actionable and relevant. PRISM scores each idea against the original prompt for business logic, feasibility, and specificity. Above 75% means the idea is wild but grounded.',
+                bar: { width: '81%', cls: 'c1__science-fill--teal', val: '81%', valCls: 'c1__science-val--teal' },
+              },
+              {
+                icon: <Brain size={22} />,
+                title: 'Representation Engineering',
+                body: "We don't prompt-hack. We inject learned steering vectors directly into the model's transformer layers — nudging the latent space toward unexplored regions without destroying coherence.",
+                layers: true,
+              },
+            ].map((card, i) => (
+              <motion.div
+                key={card.title}
+                className="c1__science-card"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-80px' }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+              >
+                <div className="feature-card__icon">{card.icon}</div>
+                <h3 className="feature-card__title">{card.title}</h3>
+                <p className="feature-card__body">{card.body}</p>
+                {card.bar && (
+                  <div className="c1__science-metric">
+                    <div className="c1__science-bar">
+                      <div className={`c1__science-fill ${card.bar.cls}`} style={{ width: card.bar.width }} />
+                    </div>
+                    <span className={`c1__science-val ${card.bar.valCls}`}>{card.bar.val}</span>
+                  </div>
+                )}
+                {card.layers && (
+                  <div className="c1__science-layers">
+                    <div className="c1__layer">
+                      <span className="c1__layer-name">Layer 14 (Mid)</span>
+                      <span className="c1__layer-desc">Creative divergence</span>
+                    </div>
+                    <div className="c1__layer">
+                      <span className="c1__layer-name">Layer 18 (Late)</span>
+                      <span className="c1__layer-desc">Technical precision</span>
+                    </div>
+                  </div>
+                )}
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
@@ -264,27 +344,11 @@ export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
               From question to <span className="landing-gradient-text">idea-edge</span> in three steps.
             </h2>
           </div>
-
           <div className="c1__steps">
             {[
-              {
-                num: '01',
-                icon: <Target size={20} />,
-                title: 'Enter a strategic question',
-                desc: 'Any open-ended business, product, or research question. The broader, the better.'
-              },
-              {
-                num: '02',
-                icon: <Sparkles size={20} />,
-                title: 'Tune the steering vector',
-                desc: 'Adjust alpha strength and injection layer. Higher alpha = more divergent. Mid-layer = creative. Late-layer = precise.'
-              },
-              {
-                num: '03',
-                icon: <Zap size={20} />,
-                title: 'Harvest the outliers',
-                desc: 'The steered 14B model generates ideas that sit on the frontier — novel enough to matter, coherent enough to ship.'
-              },
+              { num: '01', icon: <Target size={20} />, title: 'Enter a strategic question', desc: 'Any open-ended business, product, or research question. The broader, the better.' },
+              { num: '02', icon: <Sparkles size={20} />, title: 'Tune the steering vector', desc: 'Adjust alpha strength and injection layer. Higher alpha = more divergent. Mid-layer = creative. Late-layer = precise.' },
+              { num: '03', icon: <Zap size={20} />, title: 'Harvest the outliers', desc: 'The steered 14B model generates ideas that sit on the frontier — novel enough to matter, coherent enough to ship.' },
             ].map((step, i) => (
               <motion.div
                 key={step.num}
@@ -304,8 +368,77 @@ export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
         </div>
       </section>
 
-      {/* ═══ CTA ═══ */}
-      <section className="landing-cta" id="gauntlet-cta">
+      {/* ═══ WAITLIST ═══ */}
+      <section className="c1__section c1__section--dark" id="waitlist">
+        <div className="landing-container">
+          <motion.div
+            className="c1__waitlist"
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-60px' }}
+            transition={{ duration: 0.6 }}
+          >
+            <span className="landing-eyebrow">Early Access</span>
+            <h2 className="c1__waitlist-title">
+              Be first in when<br />
+              <span className="lp__accent">Corpus 1 ships.</span>
+            </h2>
+            <p className="c1__waitlist-sub">
+              We're onboarding a small cohort of founders and innovation leads.
+              Drop your email — we'll reach out when the API is ready.
+            </p>
+
+            {waitlistStatus === 'success' ? (
+              <motion.div
+                className="c1__waitlist-success"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div className="c1__waitlist-success-icon">
+                  <Check size={20} />
+                </div>
+                <div>
+                  <p className="c1__waitlist-success-title">You're on the list.</p>
+                  <p className="c1__waitlist-success-sub">We'll be in touch when access opens.</p>
+                </div>
+              </motion.div>
+            ) : (
+              <form className="c1__waitlist-form" onSubmit={handleWaitlist}>
+                <div className="c1__waitlist-input-wrap">
+                  <input
+                    type="email"
+                    placeholder="your@company.com"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    className="c1__waitlist-input"
+                    required
+                  />
+                  <button type="submit" className="c1__waitlist-btn">
+                    Join Waitlist <ArrowRight size={15} />
+                  </button>
+                </div>
+                <p className="c1__waitlist-note">No spam. Unsubscribe anytime.</p>
+              </form>
+            )}
+
+            <div className="c1__waitlist-badges">
+              <div className="c1__waitlist-badge">
+                <Zap size={12} /> Vendi Score 4.72
+              </div>
+              <div className="c1__waitlist-badge">
+                <Shield size={12} /> PRISM Coherence 81%
+              </div>
+              <div className="c1__waitlist-badge">
+                <Brain size={12} /> Qwen2.5-14B
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ═══ FINAL CTA ═══ */}
+      <section className="landing-cta">
         <div className="landing-container">
           <div className="landing-cta__inner" style={{ margin: '0 auto' }}>
             <h2 className="landing-cta__title">

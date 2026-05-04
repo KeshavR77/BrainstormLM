@@ -482,6 +482,158 @@
   color: rgba(237, 235, 232, 0.45);
 }
 
+/* ── Waitlist ─────────────────────────────────────────────────────────── */
+
+.c1__waitlist {
+  max-width: 640px;
+  margin: 0 auto;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.c1__waitlist-title {
+  font-family: var(--font-display);
+  font-size: clamp(32px, 4.5vw, 54px);
+  font-weight: 200;
+  line-height: 1.1;
+  letter-spacing: -0.035em;
+  color: #edebe8;
+}
+
+.c1__waitlist-sub {
+  font-size: 16px;
+  line-height: 1.65;
+  color: rgba(237, 235, 232, 0.45);
+  max-width: 480px;
+}
+
+.c1__waitlist-form {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.c1__waitlist-input-wrap {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  background: rgba(18, 18, 26, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  padding: 4px;
+  backdrop-filter: blur(12px);
+  transition: border-color 0.25s, box-shadow 0.25s;
+}
+
+.c1__waitlist-input-wrap:focus-within {
+  border-color: rgba(201, 165, 92, 0.4);
+  box-shadow: 0 0 0 3px rgba(201, 165, 92, 0.1);
+}
+
+.c1__waitlist-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #edebe8;
+  font-size: 15px;
+  padding: 12px 20px;
+  font-family: var(--font-sans);
+}
+
+.c1__waitlist-input::placeholder {
+  color: rgba(237, 235, 232, 0.25);
+}
+
+.c1__waitlist-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #d4b978, #c9a55c);
+  color: #0a0a12;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: box-shadow 0.2s;
+  box-shadow: 0 4px 16px rgba(201, 165, 92, 0.25);
+}
+
+.c1__waitlist-btn:hover {
+  box-shadow: 0 6px 24px rgba(201, 165, 92, 0.4);
+}
+
+.c1__waitlist-note {
+  font-size: 11px;
+  color: rgba(237, 235, 232, 0.22);
+}
+
+.c1__waitlist-success {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 28px;
+  background: rgba(94, 234, 212, 0.06);
+  border: 1px solid rgba(94, 234, 212, 0.2);
+  border-radius: var(--radius-xl);
+  text-align: left;
+}
+
+.c1__waitlist-success-icon {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(94, 234, 212, 0.15);
+  color: #5eead4;
+}
+
+.c1__waitlist-success-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #edebe8;
+}
+
+.c1__waitlist-success-sub {
+  font-size: 13px;
+  color: rgba(237, 235, 232, 0.45);
+  margin-top: 2px;
+}
+
+.c1__waitlist-badges {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.c1__waitlist-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(237, 235, 232, 0.4);
+}
+
 /* ── Responsive ───────────────────────────────────────────────────────── */
 
 @media (max-width: 900px) {
