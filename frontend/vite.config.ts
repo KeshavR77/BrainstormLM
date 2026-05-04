@@ -12,11 +12,12 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/brainstorm': 'http://localhost:8000',
-      '/ask':        'http://localhost:8000',
-      '/feedback':   'http://localhost:8000',
-      '/session':    'http://localhost:8000',
-      '/healthz':    'http://localhost:8000',
+      '/brainstorm/stream': 'http://localhost:8000',
+      '/brainstorm':        'http://localhost:8000',
+      '/ask':               'http://localhost:8000',
+      '/feedback':          'http://localhost:8000',
+      '/session':           'http://localhost:8000',
+      '/healthz':           'http://localhost:8000',
     },
   },
 })
