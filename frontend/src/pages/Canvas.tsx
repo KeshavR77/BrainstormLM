@@ -1,7 +1,3 @@
-/**
- * Canvas.tsx — The brainstorming workspace with React Flow canvas.
- */
-
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -21,6 +17,7 @@ import { Sparkles } from 'lucide-react';
 
 import { nodeTypes } from '../components/nodes';
 import { CanvasHeader } from '../components/CanvasHeader';
+import { SteeringTelemetry } from '../components/SteeringTelemetry';
 import { useBrainstorm } from '../hooks/useBrainstorm';
 import { useProjects } from '../hooks/useProjects';
 import { layoutTree } from '../layoutTree';
@@ -33,7 +30,7 @@ interface CanvasPageProps {
 function CanvasInner({ projectId, onBack }: CanvasPageProps) {
   const {
     tree,
-    loading,
+    phase,
     submitSeed,
     expandNode,
     expandWithPrompt,
@@ -137,15 +134,54 @@ function CanvasInner({ projectId, onBack }: CanvasPageProps) {
     return { builtNodes: fNodes, builtEdges: fEdges };
   }, [tree, submitSeed, selectIdea, expandNode, expandWithPrompt, editNode, addCustomIdea, submitNodeFeedback, submitCritique]);
 
+  // ── Preview nodes during diverse pool phase ──────────────────
+
+  const previewNodes = useMemo<FlowNode[]>(() => {
+    if (phase.status !== 'GENERATING_DIVERSE_POOL' || !tree.rootId) return [];
+
+    const activeParentId = tree.rootId;
+    const parentNode = tree.nodes[activeParentId];
+    if (!parentNode) return [];
+
+    return phase.rawIdeas.map((idea, i) => ({
+      id: `preview-${i}`,
+      type: 'preview' as const,
+      position: { x: 0, y: 0 },
+      data: {
+        summary: idea.summary,
+        content: idea.content,
+      },
+    }));
+  }, [phase, tree.rootId, tree.nodes]);
+
+  const previewEdges = useMemo<FlowEdge[]>(() => {
+    if (phase.status !== 'GENERATING_DIVERSE_POOL' || !tree.rootId) return [];
+
+    const lastExpandedNodeId = Object.values(tree.nodes)
+      .filter((n) => n.type === 'seed' || n.type === 'selected')
+      .sort((a, b) => b.depth - a.depth)[0]?.id ?? tree.rootId;
+
+    return previewNodes.map((pn) => ({
+      id: `pe-${lastExpandedNodeId}-${pn.id}`,
+      source: lastExpandedNodeId,
+      target: pn.id,
+      animated: true,
+      style: { opacity: 0.3 },
+    }));
+  }, [previewNodes, tree.rootId, tree.nodes, phase.status]);
+
   // ── Apply layout ─────────────────────────────────────────────
 
   useEffect(() => {
-    if (builtNodes.length > 0) {
-      const laid = layoutTree(builtNodes, builtEdges);
+    const allNodes = [...builtNodes, ...previewNodes];
+    const allEdges = [...builtEdges, ...previewEdges];
+
+    if (allNodes.length > 0) {
+      const laid = layoutTree(allNodes, allEdges);
       setFlowNodes(laid);
-      setFlowEdges(builtEdges);
+      setFlowEdges(allEdges);
     }
-  }, [builtNodes, builtEdges]);
+  }, [builtNodes, builtEdges, previewNodes, previewEdges]);
 
   // ── Auto-fit view ────────────────────────────────────────────
 
@@ -177,8 +213,6 @@ function CanvasInner({ projectId, onBack }: CanvasPageProps) {
           type: 'seed',
           position: { x: 0, y: 0 },
           data: {
-            // Pre-fill with the project description when the user
-            // kicked off from the landing-page hero.
             content: project?.description ?? '',
             submitted: false,
             onSubmit: submitSeed,
@@ -193,7 +227,7 @@ function CanvasInner({ projectId, onBack }: CanvasPageProps) {
         projectName={project?.name ?? 'Untitled'}
         nodeCount={nodeCount}
         maxDepth={maxDepth}
-        loading={loading}
+        phase={phase}
         onBack={onBack}
       />
 
@@ -219,7 +253,6 @@ function CanvasInner({ projectId, onBack }: CanvasPageProps) {
           <Controls position="bottom-left" showInteractive={false} />
         </ReactFlow>
 
-        {/* Hint overlay when canvas has no root */}
         {!hasRoot && (
           <div className="canvas-hint animate-fade-in">
             <Sparkles size={16} />
@@ -227,12 +260,13 @@ function CanvasInner({ projectId, onBack }: CanvasPageProps) {
             <kbd className="canvas-hint__kbd">⌘ Enter</kbd> to start
           </div>
         )}
+
+        <SteeringTelemetry phase={phase} />
       </div>
     </div>
   );
 }
 
-// Wrap with ReactFlowProvider
 export function Canvas(props: CanvasPageProps) {
   return (
     <ReactFlowProvider>
