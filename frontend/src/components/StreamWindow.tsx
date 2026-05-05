@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Copy, Check, Terminal } from 'lucide-react';
 
@@ -9,39 +9,7 @@ interface Props {
 }
 
 export function StreamWindow({ text, isStreaming, label }: Props) {
-  const [displayText, setDisplayText] = useState('');
   const [copied, setCopied] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const charIdx = useRef(0);
-
-  useEffect(() => {
-    if (!isStreaming) {
-      setDisplayText(text);
-      charIdx.current = text.length;
-      return;
-    }
-
-    charIdx.current = 0;
-    setDisplayText('');
-
-    const interval = setInterval(() => {
-      charIdx.current += 2;
-      if (charIdx.current >= text.length) {
-        setDisplayText(text);
-        clearInterval(interval);
-      } else {
-        setDisplayText(text.slice(0, charIdx.current));
-      }
-    }, 18);
-
-    return () => clearInterval(interval);
-  }, [text, isStreaming]);
-
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  }, [displayText]);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(text);
@@ -58,7 +26,7 @@ export function StreamWindow({ text, isStreaming, label }: Props) {
         </div>
         <div className="stream-window__header-right">
           <AnimatePresence mode="wait">
-            {isStreaming && charIdx.current < text.length && (
+            {isStreaming && (
               <motion.span
                 className="stream-window__live"
                 initial={{ opacity: 0 }}
@@ -75,10 +43,10 @@ export function StreamWindow({ text, isStreaming, label }: Props) {
           </button>
         </div>
       </div>
-      <div className="stream-window__body" ref={scrollRef}>
+      <div className="stream-window__body">
         <p className="stream-window__text">
-          {displayText}
-          {isStreaming && charIdx.current < text.length && (
+          {text}
+          {isStreaming && (
             <span className="stream-window__cursor" />
           )}
         </p>

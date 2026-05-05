@@ -97,39 +97,65 @@
 
 /* Hero stats */
 .c1__hero-stats {
-  display: flex;
-  align-items: center;
-  gap: 0;
-  margin-top: 56px;
-  padding: 16px 32px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.02);
-  backdrop-filter: blur(12px);
+  width: min(1080px, 100%);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-top: 64px;
 }
 
 .c1__stat {
+  position: relative;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  padding: 0 28px;
+  align-items: flex-start;
+  min-height: 168px;
+  padding: 26px;
+  border: 1px solid rgba(201, 165, 92, 0.18);
+  border-radius: var(--radius-xl);
+  background:
+    radial-gradient(circle at 20% 0%, rgba(201, 165, 92, 0.16), transparent 45%),
+    rgba(255, 255, 255, 0.035);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  overflow: hidden;
+  backdrop-filter: blur(14px);
+}
+
+.c1__stat::after {
+  content: '';
+  position: absolute;
+  inset: auto 20px 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(201, 165, 92, 0.55), transparent);
 }
 
 .c1__stat-value {
   font-family: var(--font-display);
-  font-size: 24px;
+  font-size: clamp(38px, 4.8vw, 64px);
   font-weight: 600;
   color: #d4b978;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.055em;
+  line-height: 0.95;
   font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 36px rgba(201, 165, 92, 0.24);
 }
 
 .c1__stat-label {
-  font-size: 11px;
-  color: rgba(237, 235, 232, 0.35);
+  max-width: 170px;
+  font-size: 12px;
+  color: rgba(237, 235, 232, 0.72);
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  margin-top: 2px;
+  line-height: 1.35;
+  margin-top: 14px;
+}
+
+.c1__stat-note {
+  margin-top: auto;
+  padding-top: 18px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: rgba(237, 235, 232, 0.36);
 }
 
 .c1__stat-divider {
@@ -642,6 +668,10 @@
     grid-template-columns: 1fr;
   }
 
+  .c1__hero-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .cv__grid {
     grid-template-columns: 1fr;
     gap: 12px;
@@ -658,10 +688,13 @@
   }
 
   .c1__hero-stats {
-    flex-direction: column;
-    gap: 12px;
-    border-radius: var(--radius-xl);
-    padding: 20px;
+    grid-template-columns: 1fr;
+    max-width: 420px;
+    margin-top: 44px;
+  }
+
+  .c1__stat {
+    min-height: 132px;
   }
 
   .c1__stat-divider {

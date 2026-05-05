@@ -1,4 +1,4 @@
-import { useRef, useCallback, useState, useEffect, useMemo } from 'react';
+import { useRef, useCallback, useState, useMemo } from 'react';
 import {
   motion,
   useScroll,
@@ -19,14 +19,27 @@ interface Particle {
   cx: number; cy: number; r: number; op: number; delay: number; dur: number; hue: 'gold' | 'teal';
 }
 
+const HERO_STATS = [
+  { value: '+250%', label: 'Distinct strategy archetypes', note: 'Legal-Tech test: 4 -> 14' },
+  { value: '+171.1%', label: 'Semantic entropy lift', note: 'Legal-Tech test coverage' },
+  { value: '100%', label: 'Pass@5 coverage', note: 'B2B reasoning benchmark' },
+  { value: '-26.7%', label: 'Time-to-first-token', note: 'Lower mean TTFT' },
+];
+
 function useParticles(count: number, seed = 7): Particle[] {
   return useMemo(() => {
-    let s = seed;
-    const rand = () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
-    return Array.from({ length: count }, () => ({
-      cx: rand() * 100, cy: rand() * 100, r: 0.5 + rand() * 1.2,
-      op: 0.15 + rand() * 0.35, delay: rand() * 14, dur: 14 + rand() * 12,
-      hue: rand() > 0.78 ? 'teal' as const : 'gold' as const,
+    const rand = (index: number) => {
+      const x = Math.sin(seed * 1000 + index * 97.13) * 10000;
+      return x - Math.floor(x);
+    };
+    return Array.from({ length: count }, (_, i) => ({
+      cx: rand(i * 7) * 100,
+      cy: rand(i * 7 + 1) * 100,
+      r: 0.5 + rand(i * 7 + 2) * 1.2,
+      op: 0.15 + rand(i * 7 + 3) * 0.35,
+      delay: rand(i * 7 + 4) * 14,
+      dur: 14 + rand(i * 7 + 5) * 12,
+      hue: rand(i * 7 + 6) > 0.78 ? 'teal' as const : 'gold' as const,
     }));
   }, [count, seed]);
 }
@@ -36,8 +49,7 @@ export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
   const act2Ref = useRef<HTMLDivElement>(null);
 
   const prefersReduced = useReducedMotion();
-  const [reduced, setReduced] = useState(false);
-  useEffect(() => setReduced(!!prefersReduced), [prefersReduced]);
+  const reduced = !!prefersReduced;
   const particles = useParticles(reduced ? 0 : 46);
 
   /* ── Scroll tracking ──────────────────────────────────────────────── */
@@ -125,14 +137,14 @@ export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
       <nav className={`lp__nav ${navSolid ? 'lp__nav--solid' : ''}`}>
         <div className="lp__nav-left">
           <div className="lp__nav-mark"><Zap size={13} /></div>
-          <span className="lp__nav-name">Corpius 1</span>
+          <span className="lp__nav-name">Conceptial</span>
         </div>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
           <button className="lp__nav-btn" onClick={scrollToWaitlist}>
             Join Waitlist
           </button>
           <button className="lp__nav-btn" onClick={onLaunchGauntlet}>
-            Launch Gauntlet <ArrowRight size={13} />
+            Open Test <ArrowRight size={13} />
           </button>
           <button className="lp__nav-btn" onClick={onOpenWorkspace}>
             Workspace <ArrowRight size={13} />
@@ -158,7 +170,7 @@ export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
           </p>
           <div className="c1__hero-actions">
             <button className="c1__primary-btn" onClick={onLaunchGauntlet}>
-              <Zap size={16} /> Launch Gauntlet
+              <Zap size={16} /> Open Test
             </button>
             <button className="c1__secondary-btn" onClick={scrollToWaitlist}>
               Join the Waitlist <ArrowRight size={14} />
@@ -172,20 +184,13 @@ export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
         >
-          <div className="c1__stat">
-            <span className="c1__stat-value">−18.4%</span>
-            <span className="c1__stat-label">Near-Duplicate Rate</span>
-          </div>
-          <div className="c1__stat-divider" />
-          <div className="c1__stat">
-            <span className="c1__stat-value">+250%</span>
-            <span className="c1__stat-label">Distinct Archetypes</span>
-          </div>
-          <div className="c1__stat-divider" />
-          <div className="c1__stat">
-            <span className="c1__stat-value">100%</span>
-            <span className="c1__stat-label">PRISM Pass Rate</span>
-          </div>
+          {HERO_STATS.map(stat => (
+            <div key={stat.label} className="c1__stat">
+              <span className="c1__stat-value">{stat.value}</span>
+              <span className="c1__stat-label">{stat.label}</span>
+              <span className="c1__stat-note">{stat.note}</span>
+            </div>
+          ))}
         </motion.div>
 
         <motion.div
@@ -241,7 +246,7 @@ export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
               Steerable 14B models. Measured diversity. Business-coherent outliers.
             </p>
             <button className="lp__final-btn" onClick={onLaunchGauntlet}>
-              Launch Gauntlet <ArrowRight size={18} />
+              Open Test <ArrowRight size={18} />
             </button>
           </motion.div>
         </div>
@@ -424,13 +429,13 @@ export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
 
             <div className="c1__waitlist-badges">
               <div className="c1__waitlist-badge">
-                <Zap size={12} /> Vendi Score 4.72
+                <Zap size={12} /> Vendi Score 4.02
               </div>
               <div className="c1__waitlist-badge">
-                <Shield size={12} /> PRISM Coherence 81%
+                <Shield size={12} /> Pass@5 100%
               </div>
               <div className="c1__waitlist-badge">
-                <Brain size={12} /> Qwen2.5-14B
+                <Brain size={12} /> Harmonic 14B
               </div>
             </div>
           </motion.div>
@@ -450,7 +455,7 @@ export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
               the idea-space that frontier APIs can't reach.
             </p>
             <button className="landing-cta__button" onClick={onLaunchGauntlet}>
-              <Zap size={16} /> Launch Gauntlet <ArrowRight size={16} />
+              <Zap size={16} /> Open Test <ArrowRight size={16} />
             </button>
           </div>
         </div>
@@ -460,7 +465,7 @@ export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
       <footer className="landing-footer">
         <div className="landing-container">
           <div className="landing-footer__inner">
-            <span className="landing-footer__brand">Corpius 1</span>
+            <span className="landing-footer__brand">Conceptial</span>
             <span className="landing-footer__copy">&copy; 2026</span>
           </div>
         </div>
