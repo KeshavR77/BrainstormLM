@@ -5,8 +5,8 @@ const DEMO_TIMESTAMP = '2026-05-04T00:00:00.000Z';
 
 export const DEMO_PROJECT: Project = {
   id: DEMO_PROJECT_ID,
-  name: 'Aha Moment Onboarding Brainstorming',
-  description: 'Strategy map for redesigning onboarding around a faster first win.',
+  name: 'Onboarding redesign',
+  description: 'Idea map for a faster first-session aha moment.',
   createdAt: DEMO_TIMESTAMP,
   updatedAt: DEMO_TIMESTAMP,
   nodeCount: 7,

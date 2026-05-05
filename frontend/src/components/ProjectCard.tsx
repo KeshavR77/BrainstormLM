@@ -4,6 +4,7 @@
 
 import { Calendar, GitBranch, Trash2 } from 'lucide-react';
 import type { Project } from '../types';
+import { DEMO_PROJECT_ID } from '../lib/demoProject';
 
 interface ProjectCardProps {
   project: Project;
@@ -13,6 +14,7 @@ interface ProjectCardProps {
 }
 
 export function ProjectCard({ project, index, onOpen, onDelete }: ProjectCardProps) {
+  const isSampleProject = project.id === DEMO_PROJECT_ID;
   const formattedDate = new Date(project.updatedAt).toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
@@ -46,19 +48,21 @@ export function ProjectCard({ project, index, onOpen, onDelete }: ProjectCardPro
           </span>
         </div>
       </div>
-      <button
-        className="project-card__delete"
-        onClick={(e) => {
-          e.stopPropagation();
-          if (window.confirm(`Delete "${project.name}"? This cannot be undone.`)) {
-            onDelete(project.id);
-          }
-        }}
-        title="Delete project"
-        aria-label="Delete project"
-      >
-        <Trash2 size={14} />
-      </button>
+      {!isSampleProject && (
+        <button
+          className="project-card__delete"
+          onClick={(e) => {
+            e.stopPropagation();
+            if (window.confirm(`Delete "${project.name}"? This cannot be undone.`)) {
+              onDelete(project.id);
+            }
+          }}
+          title="Delete project"
+          aria-label="Delete project"
+        >
+          <Trash2 size={14} />
+        </button>
+      )}
     </div>
   );
 }

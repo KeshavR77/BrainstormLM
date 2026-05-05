@@ -4,26 +4,48 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import type { Project } from '../types';
+import { DEMO_PROJECT, DEMO_PROJECT_ID } from '../lib/demoProject';
 
 const STORAGE_KEY = 'brainstorm-projects';
 
 function loadProjects(): Project[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
+    const projects: Project[] = raw ? JSON.parse(raw) : [];
+    const rest = projects.filter((p) => p.id !== DEMO_PROJECT_ID);
+    const savedDemo = projects.find((p) => p.id === DEMO_PROJECT_ID);
+    const demo = savedDemo
+      ? {
+          ...DEMO_PROJECT,
+          nodeCount: savedDemo.nodeCount,
+          updatedAt: savedDemo.updatedAt,
+          createdAt: savedDemo.createdAt,
+        }
+      : { ...DEMO_PROJECT };
+    return [demo, ...rest];
   } catch {
-    return [];
+    return [{ ...DEMO_PROJECT }];
   }
 }
 
+/** Always persist the seeded project first; merge saved row with canonical defaults. */
 function saveProjects(projects: Project[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
+  const demoRow = projects.find((p) => p.id === DEMO_PROJECT_ID);
+  const rest = projects.filter((p) => p.id !== DEMO_PROJECT_ID);
+  const demo = demoRow
+    ? {
+        ...DEMO_PROJECT,
+        nodeCount: demoRow.nodeCount,
+        updatedAt: demoRow.updatedAt,
+        createdAt: demoRow.createdAt,
+      }
+    : DEMO_PROJECT;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify([demo, ...rest]));
 }
 
 export function useProjects() {
   const [projects, setProjects] = useState<Project[]>(loadProjects);
 
-  // Persist whenever projects change
   useEffect(() => {
     saveProjects(projects);
   }, [projects]);
@@ -42,8 +64,8 @@ export function useProjects() {
   }, []);
 
   const deleteProject = useCallback((id: string) => {
+    if (id === DEMO_PROJECT_ID) return;
     setProjects((prev) => prev.filter((p) => p.id !== id));
-    // Also remove the brainstorm tree for this project
     localStorage.removeItem(`brainstorm-tree-${id}`);
   }, []);
 
@@ -57,9 +79,7 @@ export function useProjects() {
   const updateProject = useCallback((id: string, updates: Partial<Pick<Project, 'name' | 'description' | 'nodeCount'>>) => {
     setProjects((prev) =>
       prev.map((p) =>
-        p.id === id
-          ? { ...p, ...updates, updatedAt: new Date().toISOString() }
-          : p,
+        p.id === id ? { ...p, ...updates, updatedAt: new Date().toISOString() } : p,
       ),
     );
   }, []);

@@ -2,16 +2,28 @@ import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import type { BrainstormNode, BrainstormEdge, BrainstormTree } from '../types';
 import { generateIdeasPhased, submitFeedback } from '../lib/api';
 import { brainstormReducer, IDLE, isLoading } from '../lib/brainstormMachine';
+import { DEMO_PROJECT_ID, DEMO_TREE } from '../lib/demoProject';
 
 function storageKey(projectId: string) {
   return `brainstorm-tree-${projectId}`;
 }
 
+function isEmptyTree(t: BrainstormTree): boolean {
+  return t.rootId == null || Object.keys(t.nodes).length === 0;
+}
+
 function loadTree(projectId: string): BrainstormTree {
   try {
     const raw = localStorage.getItem(storageKey(projectId));
-    return raw ? JSON.parse(raw) : { nodes: {}, edges: [], rootId: null };
+    if (raw) {
+      const parsed = JSON.parse(raw) as BrainstormTree;
+      if (projectId === DEMO_PROJECT_ID && isEmptyTree(parsed)) return DEMO_TREE;
+      return parsed;
+    }
+    if (projectId === DEMO_PROJECT_ID) return DEMO_TREE;
+    return { nodes: {}, edges: [], rootId: null };
   } catch {
+    if (projectId === DEMO_PROJECT_ID) return DEMO_TREE;
     return { nodes: {}, edges: [], rootId: null };
   }
 }
@@ -25,48 +37,16 @@ export function useBrainstorm(projectId: string) {
   const [phase, dispatch] = useReducer(brainstormReducer, IDLE);
   const [activeNodeId, setActiveNodeId] = useState<string | null>(null);
   const treeRef = useRef(tree);
-  treeRef.current = tree;
 
   const loading = isLoading(phase);
 
   useEffect(() => {
-    saveTree(projectId, tree);
-  }, [projectId, tree]);
+    treeRef.current = tree;
+  }, [tree]);
 
   useEffect(() => {
-    setTree(loadTree(projectId));
-    setActiveNodeId(null);
-    dispatch({ type: 'RESET' });
-  }, [projectId]);
-
-  // ── Submit seed ────────────────────────────────────────────────
-
-  const submitSeed = useCallback(
-    async (text: string) => {
-      const seedId = crypto.randomUUID();
-      const seed: BrainstormNode = {
-        id: seedId,
-        parentId: null,
-        type: 'seed',
-        content: text.trim(),
-        summary: text.trim().slice(0, 60) + (text.length > 60 ? '…' : ''),
-        depth: 0,
-        createdAt: new Date().toISOString(),
-        isExpanded: false,
-        children: [],
-      };
-
-      setTree({ nodes: { [seedId]: seed }, edges: [], rootId: seedId });
-      setActiveNodeId(seedId);
-
-      await expandNodeInner(seedId, undefined, {
-        nodes: { [seedId]: seed },
-        edges: [],
-        rootId: seedId,
-      });
-    },
-    [projectId],
-  );
+    saveTree(projectId, tree);
+  }, [projectId, tree]);
 
   // ── Expand a node (generate children) ─────────────────────────
 
@@ -122,6 +102,35 @@ export function useBrainstorm(projectId: string) {
       }
     },
     [],
+  );
+
+  // ── Submit seed ────────────────────────────────────────────────
+
+  const submitSeed = useCallback(
+    async (text: string) => {
+      const seedId = crypto.randomUUID();
+      const seed: BrainstormNode = {
+        id: seedId,
+        parentId: null,
+        type: 'seed',
+        content: text.trim(),
+        summary: text.trim().slice(0, 60) + (text.length > 60 ? '…' : ''),
+        depth: 0,
+        createdAt: new Date().toISOString(),
+        isExpanded: false,
+        children: [],
+      };
+
+      setTree({ nodes: { [seedId]: seed }, edges: [], rootId: seedId });
+      setActiveNodeId(seedId);
+
+      await expandNodeInner(seedId, undefined, {
+        nodes: { [seedId]: seed },
+        edges: [],
+        rootId: seedId,
+      });
+    },
+    [expandNodeInner],
   );
 
   const expandNode = useCallback(
