@@ -192,7 +192,7 @@ export function Gauntlet({ onBack }: GauntletProps) {
               <StreamWindow
                 text={result.steered.text}
                 isStreaming={isStreaming}
-                label={`Corpus 1  ·  ${layerLabel}  ·  α=${alpha.toFixed(1)}`}
+                label={`Corpius 1  ·  ${layerLabel}  ·  α=${alpha.toFixed(1)}`}
               />
               {!isStreaming && (
                 <motion.div

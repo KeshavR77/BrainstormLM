@@ -125,7 +125,7 @@ export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
       <nav className={`lp__nav ${navSolid ? 'lp__nav--solid' : ''}`}>
         <div className="lp__nav-left">
           <div className="lp__nav-mark"><Zap size={13} /></div>
-          <span className="lp__nav-name">Corpus 1</span>
+          <span className="lp__nav-name">Corpius 1</span>
         </div>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
           <button className="lp__nav-btn" onClick={scrollToWaitlist}>
@@ -173,6 +173,11 @@ export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
           transition={{ duration: 0.6, delay: 0.4 }}
         >
           <div className="c1__stat">
+            <span className="c1__stat-value">−18.4%</span>
+            <span className="c1__stat-label">Near-Duplicate Rate</span>
+          </div>
+          <div className="c1__stat-divider" />
+          <div className="c1__stat">
             <span className="c1__stat-value">+250%</span>
             <span className="c1__stat-label">Distinct Archetypes</span>
           </div>
@@ -180,11 +185,6 @@ export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
           <div className="c1__stat">
             <span className="c1__stat-value">100%</span>
             <span className="c1__stat-label">PRISM Pass Rate</span>
-          </div>
-          <div className="c1__stat-divider" />
-          <div className="c1__stat">
-            <span className="c1__stat-value">4.02</span>
-            <span className="c1__stat-label">Vendi Score</span>
           </div>
         </motion.div>
 
@@ -211,7 +211,7 @@ export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
 
           <div className="lp__captions">
             <motion.p className="lp__cap" style={{ opacity: c1Op }}>
-              {"Start with any strategic question. Corpus 1 steers it into "}
+              {"Start with any strategic question. Corpius 1 steers it into "}
               <strong>{"genuinely different directions"}</strong>{" — not variations of the same answer."}
             </motion.p>
             <motion.p className="lp__cap" style={{ opacity: c2Op }}>
@@ -235,7 +235,7 @@ export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
           >
             <h2 className="lp__final-title">
               Frontier models converge.<br />
-              <span className="lp__accent">Corpus 1 explores.</span>
+              <span className="lp__accent">Corpius 1 explores.</span>
             </h2>
             <p className="lp__final-sub">
               Steerable 14B models. Measured diversity. Business-coherent outliers.
@@ -256,7 +256,7 @@ export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
               Same prompt. <span className="landing-gradient-text">Radically different</span> output.
             </h2>
             <p className="landing-section__sub">
-              Standard LLMs converge on the semantic average. Corpus 1 steers the model's internal
+              Standard LLMs converge on the semantic average. Corpius 1 steers the model's internal
               representations to surface ideas that live on the edge of the distribution.
             </p>
           </div>
@@ -281,15 +281,15 @@ export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
             {[
               {
                 icon: <BarChart3 size={22} />,
-                title: 'Vendi Score',
-                body: 'Measures effective diversity across a batch of generations using matrix-based entropy (MiniLM-L6-v2). Corpus 1 Harmonic reached 4.02 on correct completions — vs. a baseline mean of 1.71 on the same prompt set.',
-                bar: { width: '80%', cls: 'c1__science-fill--gold', val: '4.02 (correct-only)', valCls: 'c1__science-val--gold' },
+                title: 'Near-Duplicate Rate −18.4%',
+                body: 'Corpius 1 outputs repeat each other 18.4% less than the unsteered baseline (0.267 vs 0.327). Fewer near-duplicates means every generation is genuinely earning its place — not restating the same idea with different words.',
+                bar: { width: '100%', cls: 'c1__science-fill--gold', val: '0.267 vs 0.327 baseline', valCls: 'c1__science-val--gold' },
               },
               {
                 icon: <Shield size={22} />,
-                title: 'PRISM Pass Rate',
-                body: '100% of Corpus 1 completions pass the coherence/relevance floor (mean(coherence, relevance)/2 ≥ 3.0, judge: GPT-4o-mini) vs. 97.78% unsteered. Steered outputs are wilder — and still pass the quality gate.',
-                bar: { width: '100%', cls: 'c1__science-fill--teal', val: '100% vs 97.78%', valCls: 'c1__science-val--teal' },
+                title: 'Vendi Score 4.02',
+                body: 'Embedding-space diversity measured via matrix entropy (MiniLM-L6-v2). Corpius 1 Harmonic reached 4.02 on correct completions vs. a baseline mean of 1.71 — nearly double the semantic coverage on the same prompt set.',
+                bar: { width: '80%', cls: 'c1__science-fill--teal', val: '4.02 vs 1.71 baseline', valCls: 'c1__science-val--teal' },
               },
               {
                 icon: <Brain size={22} />,
@@ -381,7 +381,7 @@ export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
             <span className="landing-eyebrow">Early Access</span>
             <h2 className="c1__waitlist-title">
               Be first in when<br />
-              <span className="lp__accent">Corpus 1 ships.</span>
+              <span className="lp__accent">Corpius 1 ships.</span>
             </h2>
             <p className="c1__waitlist-sub">
               We're onboarding a small cohort of founders and innovation leads.
@@ -443,7 +443,7 @@ export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
           <div className="landing-cta__inner" style={{ margin: '0 auto' }}>
             <h2 className="landing-cta__title">
               Standard models converge.<br />
-              <span className="landing-gradient-text">Corpus 1 explores.</span>
+              <span className="landing-gradient-text">Corpius 1 explores.</span>
             </h2>
             <p className="landing-cta__sub">
               Stop getting the same answer as everyone else. Steer a 14B model into
@@ -460,7 +460,7 @@ export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
       <footer className="landing-footer">
         <div className="landing-container">
           <div className="landing-footer__inner">
-            <span className="landing-footer__brand">Corpus 1</span>
+            <span className="landing-footer__brand">Corpius 1</span>
             <span className="landing-footer__copy">&copy; 2026</span>
           </div>
         </div>

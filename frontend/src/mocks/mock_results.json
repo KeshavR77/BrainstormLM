@@ -18,7 +18,7 @@
         "text": "Target SMBs with SEO, run LinkedIn ads, hire SDRs, offer a free trial, build a partner program. Focus on user-friendly design, emphasize competitive pricing, and gradually add AI features while training your sales team on the new positioning."
       },
       "steered": {
-        "title": "Corpus 1 — Harmonic (L20+L28+L36, α=1.2)",
+        "title": "Corpius 1 — Harmonic (L20+L28+L36, α=1.2)",
         "text": "Land with a GC-defensible wedge: contract intelligence on one high-stakes workflow (e.g. repapering) with audit trails. Co-sell through AmLaw relationships, fixed-scope 90-day proof, packaging as 'AI module' inside existing DMS contracts. Risk mitigations: human-in-loop, data residency, model cards."
       },
       "metrics": {
@@ -38,7 +38,7 @@
         "text": "Check your logs, add retries, verify environment variables, ensure the API is reachable, consider rate limits, add more error handling around the publish call, and make sure your workers are configured correctly for your message broker."
       },
       "steered": {
-        "title": "Corpus 1 — Harmonic (L20+L28+L36, α=1.2)",
+        "title": "Corpius 1 — Harmonic (L20+L28+L36, α=1.2)",
         "text": "Lost-update / check-then-act race on shared job state: two workers read the same pending flag and both publish. Fix: per-key lock (or row-level transaction) around read-modify-write; optionally atomic compare-and-swap in the store."
       },
       "metrics": {
@@ -58,7 +58,7 @@
         "text": "Implement zero trust with MFA, segment the network, use SIEM, train users, create policies, deploy endpoint protection, review access controls regularly, and ensure all remote access goes through a VPN with strong authentication requirements."
       },
       "steered": {
-        "title": "Corpus 1 — Harmonic (L20+L28+L36, α=1.2)",
+        "title": "Corpius 1 — Harmonic (L20+L28+L36, α=1.2)",
         "text": "Phased trust fabric: start with high-risk segments + micro-segmentation, pair IAM foundation with contractor/SaaS ZTNA, run parallel adoption for acquired subsidiaries via security-as-a-service templates, measure trust boundaries and progressive trust KPIs — not just tool deployment counts."
       },
       "metrics": {

@@ -24,6 +24,10 @@ function getMetrics(cmp: typeof comparisons[number]) {
     chips.push({ label: 'PRISM pass', value: `${(m.prism_pass_rate * 100).toFixed(0)}%` });
   if (m.entropy_corpius_bits != null)
     chips.push({ label: 'Entropy', value: `${m.entropy_corpius_bits.toFixed(2)} bits` });
+  if (m.near_dup_corpius != null && m.near_dup_baseline != null) {
+    const drop = ((m.near_dup_baseline - m.near_dup_corpius) / m.near_dup_baseline * 100).toFixed(1);
+    chips.push({ label: 'Near-duplicates', value: `−${drop}%` });
+  }
 
   return chips;
 }
@@ -79,7 +83,7 @@ export function ComparisonViewer() {
             transition={{ duration: 0.3 }}
           >
             <div className="cv__card-header">
-              <span className="cv__card-badge cv__card-badge--gold">Corpus 1</span>
+              <span className="cv__card-badge cv__card-badge--gold">Corpius 1</span>
               <button className="cv__copy" onClick={() => copyText(cmp.steered.text, 'right')} aria-label="Copy">
                 {copied === 'right' ? <Check size={14} /> : <Copy size={14} />}
               </button>
