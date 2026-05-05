@@ -22,7 +22,7 @@ interface Particle {
 const HERO_STATS = [
   { value: '-18.4%', label: 'Near-duplicate mass', note: 'Control 0.327 -> 0.267' },
   { value: '+5.7%', label: 'Mean Vendi lift', note: 'Control 1.897 -> 2.004' },
-  { value: '+25%', label: 'Pass@5 lift', note: 'Baseline 80% -> 100%' },
+  { value: '+25%', label: 'Pass@5 lift', note: 'Generate 5, need ≥1 correct — 80%→100%' },
   { value: '+18.2%', label: 'Entropy rollup lift', note: '3-prompt avg vs baseline' },
 ];
 
@@ -299,9 +299,9 @@ export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
               },
               {
                 icon: <Brain size={22} />,
-                title: '+250% archetypes on the hardest test',
-                body: 'On the Legal-Tech GTM prompt, valid strategic archetypes increased from 4 baseline to 14 Corpius, with semantic entropy up +171.1%. This is the single-test highlight, not the all-prompt average.',
-                bar: { width: '100%', cls: 'c1__science-fill--gold', val: '4 -> 14 archetypes; H 1.2320 -> 3.3394', valCls: 'c1__science-val--gold' },
+                title: 'Pass@5: 80% → 100%',
+                body: 'Pass@5 asks: if the model generates 5 answers, does at least one hit the mark? On the engineering debug benchmark, the baseline scored 80% — Corpius 1 hit 100%. More diverse outputs means more chances to land the right answer.',
+                bar: { width: '100%', cls: 'c1__science-fill--gold', val: '5/5 correct vs 4/5 baseline', valCls: 'c1__science-val--gold' },
               },
             ].map((card, i) => (
               <motion.div

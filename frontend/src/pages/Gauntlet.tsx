@@ -17,7 +17,7 @@ const DEMO_IDEA_MAPS = [
     {
       title: 'Visionary Alignment',
       description: 'Prove value against GC risk, not feature volume.',
-      metric: '4.02 Vendi',
+      metric: '4.15 Vendi',
     },
     {
       title: 'Trusted Advisor Leverage',
@@ -104,8 +104,8 @@ function getResultMetrics(idx: number) {
     { label: 'PRISM vs Unsteered', value: '+2.2pp' },
   ];
   if (idx === 1) return [
-    { label: 'Pass@5 vs Baseline', value: '+25%' },
-    { label: 'Coverage', value: '80→100%' },
+    { label: 'Pass@5 (5 tries, ≥1 correct)', value: '100%' },
+    { label: 'vs Baseline Pass@5', value: '80%→100%' },
     { label: 'TTFT vs Baseline', value: '−26.7%' },
     { label: 'Output Token Tax', value: '0%' },
   ];
