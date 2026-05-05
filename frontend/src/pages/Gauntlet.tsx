@@ -45,9 +45,11 @@ function getResultMetrics() {
     { label: 'Strategy Variety', value: '+250%' },
     { label: 'Idea Spread', value: '+171%' },
     { label: 'Quality Gate', value: '100%' },
-    { label: 'Quality vs Unsteered', value: '+2pp' },
   ];
 }
+
+const STRATEGY_VARIETY_NOTE =
+  'Strategy variety (+250%) is the lift when distinct strategy archetypes go from 4 on the baseline to 14 on this steered run — same prompt, more separate strategic modes.';
 
 interface GauntletProps {
   onBack: () => void;
@@ -172,17 +174,20 @@ export function Gauntlet({ onBack }: GauntletProps) {
 
               {!isStreaming && (
                 <motion.div
-                  className="gauntlet__result-metrics"
+                  className="gauntlet__result-metrics-wrap"
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.2 }}
                 >
-                  {getResultMetrics().map(m => (
-                    <div key={m.label} className="gauntlet__result-metric">
-                      <span className="gauntlet__result-metric-label">{m.label}</span>
-                      <span className="gauntlet__result-metric-value">{m.value}</span>
-                    </div>
-                  ))}
+                  <div className="gauntlet__result-metrics">
+                    {getResultMetrics().map(m => (
+                      <div key={m.label} className="gauntlet__result-metric">
+                        <span className="gauntlet__result-metric-label">{m.label}</span>
+                        <span className="gauntlet__result-metric-value">{m.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="gauntlet__result-metrics-note">{STRATEGY_VARIETY_NOTE}</p>
                 </motion.div>
               )}
             </motion.div>

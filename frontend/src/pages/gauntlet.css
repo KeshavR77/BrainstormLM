@@ -407,10 +407,23 @@
   gap: 16px;
 }
 
+.gauntlet__result-metrics-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 .gauntlet__result-metrics {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 12px;
+}
+
+.gauntlet__result-metrics-note {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: rgba(237, 235, 232, 0.45);
 }
 
 .gauntlet__result-metric {
