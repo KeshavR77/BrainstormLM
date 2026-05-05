@@ -20,10 +20,10 @@ interface Particle {
 }
 
 const HERO_STATS = [
-  { value: '+250%', label: 'Distinct strategy archetypes', note: 'Legal-Tech test: 4 -> 14' },
-  { value: '+171.1%', label: 'Semantic entropy lift', note: 'Legal-Tech test coverage' },
-  { value: '100%', label: 'Pass@5 coverage', note: 'B2B reasoning benchmark' },
-  { value: '-26.7%', label: 'Time-to-first-token', note: 'Lower mean TTFT' },
+  { value: '-18.4%', label: 'Near-duplicate mass', note: 'Control 0.327 -> 0.267' },
+  { value: '+5.7%', label: 'Mean Vendi lift', note: 'Control 1.897 -> 2.004' },
+  { value: '+25%', label: 'Pass@5 lift', note: 'Baseline 80% -> 100%' },
+  { value: '+18.2%', label: 'Entropy rollup lift', note: '3-prompt avg vs baseline' },
 ];
 
 function useParticles(count: number, seed = 7): Particle[] {
@@ -166,7 +166,7 @@ export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
           </h1>
           <p className="c1__sub">
             Steerable 14B models that bypass the semantic average to find the outliers.
-            Representation engineering meets divergent ideation.
+              Every headline below is a percent lift against a control or baseline.
           </p>
           <div className="c1__hero-actions">
             <button className="c1__primary-btn" onClick={onLaunchGauntlet}>
@@ -278,7 +278,8 @@ export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
               Measured divergence, <span className="landing-gradient-text">not random noise.</span>
             </h2>
             <p className="landing-section__sub">
-              Two metrics ensure steered outputs are genuinely novel and still business-coherent.
+              The headline story is lift against controls: less repetition, higher embedding diversity,
+              broader coverage, and faster first tokens.
             </p>
           </div>
 
@@ -286,21 +287,21 @@ export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
             {[
               {
                 icon: <BarChart3 size={22} />,
-                title: 'Near-Duplicate Rate −18.4%',
-                body: 'Corpius 1 outputs repeat each other 18.4% less than the unsteered baseline (0.267 vs 0.327). Fewer near-duplicates means every generation is genuinely earning its place — not restating the same idea with different words.',
-                bar: { width: '100%', cls: 'c1__science-fill--gold', val: '0.267 vs 0.327 baseline', valCls: 'c1__science-val--gold' },
+                title: '−18.4% near-duplicate rate',
+                body: 'Best investor-deck surface: promoted Corpius Arm B reduced near-duplicate mass from 0.3270 control to 0.2667. Lower is better: fewer repeated ideas, less semantic sameness.',
+                bar: { width: '82%', cls: 'c1__science-fill--gold', val: '0.2667 vs 0.3270 control', valCls: 'c1__science-val--gold' },
               },
               {
                 icon: <Shield size={22} />,
-                title: 'Vendi Score 4.02',
-                body: 'Embedding-space diversity measured via matrix entropy (MiniLM-L6-v2). Corpius 1 Harmonic reached 4.02 on correct completions vs. a baseline mean of 1.71 — nearly double the semantic coverage on the same prompt set.',
-                bar: { width: '80%', cls: 'c1__science-fill--teal', val: '4.02 vs 1.71 baseline', valCls: 'c1__science-val--teal' },
+                title: '+5.7% mean Vendi lift',
+                body: 'Mean embedding-space diversity rose from 1.8967 control to 2.0042 on the promoted Corpius surface. Vendi is the matrix-entropy diversity score; higher means the set covers more semantic territory.',
+                bar: { width: '88%', cls: 'c1__science-fill--teal', val: '2.0042 vs 1.8967 control', valCls: 'c1__science-val--teal' },
               },
               {
                 icon: <Brain size={22} />,
-                title: 'Representation Engineering',
-                body: "We don't prompt-hack. We inject learned steering vectors directly into the model's transformer layers — nudging the latent space toward unexplored regions without destroying coherence.",
-                layers: true,
+                title: '+250% archetypes on the hardest test',
+                body: 'On the Legal-Tech GTM prompt, valid strategic archetypes increased from 4 baseline to 14 Corpius, with semantic entropy up +171.1%. This is the single-test highlight, not the all-prompt average.',
+                bar: { width: '100%', cls: 'c1__science-fill--gold', val: '4 -> 14 archetypes; H 1.2320 -> 3.3394', valCls: 'c1__science-val--gold' },
               },
             ].map((card, i) => (
               <motion.div
@@ -320,18 +321,6 @@ export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
                       <div className={`c1__science-fill ${card.bar.cls}`} style={{ width: card.bar.width }} />
                     </div>
                     <span className={`c1__science-val ${card.bar.valCls}`}>{card.bar.val}</span>
-                  </div>
-                )}
-                {card.layers && (
-                  <div className="c1__science-layers">
-                    <div className="c1__layer">
-                      <span className="c1__layer-name">Layer 14 (Mid)</span>
-                      <span className="c1__layer-desc">Creative divergence</span>
-                    </div>
-                    <div className="c1__layer">
-                      <span className="c1__layer-name">Layer 18 (Late)</span>
-                      <span className="c1__layer-desc">Technical precision</span>
-                    </div>
                   </div>
                 )}
               </motion.div>
@@ -429,13 +418,13 @@ export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
 
             <div className="c1__waitlist-badges">
               <div className="c1__waitlist-badge">
-                <Zap size={12} /> Vendi Score 4.02
+                <Zap size={12} /> Vendi +5.7% vs control
               </div>
               <div className="c1__waitlist-badge">
-                <Shield size={12} /> Pass@5 100%
+                <Shield size={12} /> Pass@5 +25% vs baseline
               </div>
               <div className="c1__waitlist-badge">
-                <Brain size={12} /> Harmonic 14B
+                <Brain size={12} /> Near-dup −18.4%
               </div>
             </div>
           </motion.div>

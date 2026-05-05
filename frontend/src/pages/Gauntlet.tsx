@@ -98,22 +98,22 @@ const DEMO_IDEA_MAPS = [
 
 function getResultMetrics(idx: number) {
   if (idx === 0) return [
-    { label: 'Distinct Archetypes', value: '+250%' },
-    { label: 'Semantic Entropy', value: '+171.1%' },
-    { label: 'PRISM Pass Rate', value: '100%' },
-    { label: 'Vendi Score', value: '4.02' },
+    { label: 'Archetypes vs Baseline', value: '+250%' },
+    { label: 'Entropy vs Baseline', value: '+171.1%' },
+    { label: 'Rollup Entropy Lift', value: '+18.2%' },
+    { label: 'PRISM vs Unsteered', value: '+2.2pp' },
   ];
   if (idx === 1) return [
-    { label: 'Pass@5', value: '100%' },
-    { label: 'Relative Lift', value: '+25%' },
-    { label: 'TTFT', value: '−26.7%' },
-    { label: 'Vendi Score', value: '4.02' },
+    { label: 'Pass@5 vs Baseline', value: '+25%' },
+    { label: 'Coverage', value: '80→100%' },
+    { label: 'TTFT vs Baseline', value: '−26.7%' },
+    { label: 'Output Token Tax', value: '0%' },
   ];
   return [
-    { label: 'Vendi Score', value: '4.02' },
-    { label: 'PRISM Pass Rate', value: '100%' },
-    { label: 'Entropy', value: '4.32 bits' },
-    { label: 'Near-Duplicates', value: '−18.4%' },
+    { label: 'Vendi vs Control', value: '+5.7%' },
+    { label: 'Near-Dup vs Control', value: '−18.4%' },
+    { label: 'PRISM vs Unsteered', value: '+2.2pp' },
+    { label: 'Entropy Rollup Lift', value: '+18.2%' },
   ];
 }
 
