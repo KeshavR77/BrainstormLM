@@ -158,12 +158,6 @@
   color: rgba(237, 235, 232, 0.36);
 }
 
-.c1__stat-divider {
-  width: 1px;
-  height: 32px;
-  background: rgba(255, 255, 255, 0.08);
-}
-
 /* ── Sections ─────────────────────────────────────────────────────────── */
 
 .c1__section {
@@ -426,85 +420,149 @@
 .c1__science-val--gold { color: #d4b978; }
 .c1__science-val--teal { color: #5eead4; }
 
-.c1__science-layers {
-  margin-top: 20px;
+/* ── Designer Tree Demo ──────────────────────────────────────────────── */
+
+.c1__tree-section {
+  background:
+    radial-gradient(circle at 82% 18%, rgba(94, 234, 212, 0.08), transparent 30%),
+    linear-gradient(180deg, rgba(8, 8, 14, 1) 0%, rgba(12, 12, 20, 1) 100%);
+}
+
+.c1__tree-demo {
+  display: grid;
+  grid-template-columns: 0.8fr 1.2fr;
+  gap: 48px;
+  align-items: center;
+}
+
+.c1__tree-copy {
+  max-width: 430px;
+}
+
+.c1__tree-copy .landing-section__header,
+.c1__tree-copy .landing-section__title,
+.c1__tree-copy .landing-section__sub {
+  text-align: left;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.c1__tree-copy .c1__secondary-btn {
+  margin-top: 24px;
+}
+
+.c1__tree-canvas {
+  position: relative;
+  padding: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 50% 8%, rgba(201, 165, 92, 0.12), transparent 36%),
+    rgba(255, 255, 255, 0.025);
+  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.28);
+  overflow: hidden;
+}
+
+.c1__tree-canvas::before,
+.c1__tree-canvas::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  width: 1px;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, rgba(201, 165, 92, 0.35), rgba(94, 234, 212, 0.22));
+}
+
+.c1__tree-canvas::before {
+  top: 100px;
+  height: 76px;
+}
+
+.c1__tree-canvas::after {
+  top: 278px;
+  height: 62px;
+}
+
+.c1__tree-root {
+  position: relative;
+  z-index: 1;
+  max-width: 520px;
+  margin: 0 auto 34px;
+  padding: 18px 22px;
+  border: 1px solid rgba(201, 165, 92, 0.32);
+  border-radius: 999px;
+  background: rgba(10, 10, 18, 0.86);
+  text-align: center;
+}
+
+.c1__tree-root span,
+.c1__tree-node-kicker {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(201, 165, 92, 0.62);
+}
+
+.c1__tree-root strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 15px;
+  line-height: 1.35;
+  color: rgba(237, 235, 232, 0.92);
+}
+
+.c1__tree-branches,
+.c1__tree-deep {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.c1__tree-branches {
+  margin-bottom: 34px;
+}
+
+.c1__tree-node {
+  min-height: 150px;
   display: flex;
   flex-direction: column;
   gap: 8px;
+  padding: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.075);
+  border-radius: var(--radius-lg);
+  background: rgba(14, 14, 22, 0.88);
 }
 
-.c1__layer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 12px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: var(--radius-md);
+.c1__tree-node--selected {
+  border-color: rgba(94, 234, 212, 0.38);
+  background: rgba(14, 22, 20, 0.9);
+  box-shadow: 0 0 34px rgba(94, 234, 212, 0.08);
 }
 
-.c1__layer-name {
-  font-size: 12px;
+.c1__tree-node--selected .c1__tree-node-kicker {
+  color: rgba(94, 234, 212, 0.8);
+}
+
+.c1__tree-node--deep {
+  min-height: 136px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.c1__tree-node h3 {
+  font-family: var(--font-display);
+  font-size: 16px;
   font-weight: 600;
-  color: rgba(237, 235, 232, 0.8);
-}
-
-.c1__layer-desc {
-  font-size: 11px;
-  color: rgba(237, 235, 232, 0.35);
-}
-
-/* ── Steps ────────────────────────────────────────────────────────────── */
-
-.c1__steps {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-}
-
-.c1__step {
-  position: relative;
-  padding: 36px 28px;
-  border-radius: var(--radius-xl);
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.c1__step-num {
-  font-family: var(--font-display);
-  font-size: 48px;
-  font-weight: 200;
-  color: rgba(201, 165, 92, 0.15);
-  letter-spacing: -0.03em;
-  margin-bottom: 8px;
-  line-height: 1;
-}
-
-.c1__step-icon {
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius-md);
-  background: rgba(201, 165, 92, 0.1);
-  border: 1px solid rgba(201, 165, 92, 0.2);
-  color: #c9a55c;
-  margin-bottom: 16px;
-}
-
-.c1__step-title {
-  font-family: var(--font-display);
-  font-size: 17px;
-  font-weight: 500;
+  line-height: 1.2;
   color: #edebe8;
-  margin-bottom: 8px;
-  letter-spacing: -0.01em;
 }
 
-.c1__step-desc {
-  font-size: 14px;
-  line-height: 1.65;
+.c1__tree-node p {
+  font-size: 12px;
+  line-height: 1.55;
   color: rgba(237, 235, 232, 0.45);
 }
 
@@ -663,9 +721,16 @@
 /* ── Responsive ───────────────────────────────────────────────────────── */
 
 @media (max-width: 900px) {
-  .c1__science-grid,
-  .c1__steps {
+  .c1__science-grid {
     grid-template-columns: 1fr;
+  }
+
+  .c1__tree-demo {
+    grid-template-columns: 1fr;
+  }
+
+  .c1__tree-copy {
+    max-width: none;
   }
 
   .c1__hero-stats {
@@ -697,12 +762,21 @@
     min-height: 132px;
   }
 
-  .c1__stat-divider {
-    width: 40px;
-    height: 1px;
-  }
-
   .c1__section {
     padding: 72px 0;
+  }
+
+  .c1__tree-canvas {
+    padding: 20px;
+  }
+
+  .c1__tree-canvas::before,
+  .c1__tree-canvas::after {
+    display: none;
+  }
+
+  .c1__tree-branches,
+  .c1__tree-deep {
+    grid-template-columns: 1fr;
   }
 }

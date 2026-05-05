@@ -6,9 +6,8 @@ import {
   useMotionValueEvent,
   useReducedMotion,
 } from 'framer-motion';
-import { ArrowRight, Zap, BarChart3, Brain, Sparkles, Shield, Target, Check } from 'lucide-react';
+import { ArrowRight, Zap, BarChart3, Brain, Shield, Check } from 'lucide-react';
 import { ComparisonViewer } from '../components/ComparisonViewer';
-import { ScrollTree } from '../components/ScrollTree';
 
 interface Props {
   onLaunchGauntlet: () => void;
@@ -21,10 +20,24 @@ interface Particle {
 
 const HERO_STATS = [
   { value: '-18.4%', label: 'Near-duplicate mass', note: 'Control 0.327 -> 0.267' },
-  { value: '+5.7%', label: 'Mean Vendi lift', note: 'Control 1.897 -> 2.004' },
+  { value: '+10.7%', label: 'Mean Vendi lift', note: 'Local PRISM control: 1.169 -> 1.295' },
   { value: '+25%', label: 'Pass@5 lift', note: 'Generate 5, need ≥1 correct — 80%→100%' },
   { value: '+18.2%', label: 'Entropy rollup lift', note: '3-prompt avg vs baseline' },
 ];
+
+const DESIGN_TREE = {
+  prompt: 'How should a design team redesign onboarding so new users reach an aha moment in under 60 seconds?',
+  branches: [
+    { title: 'Instant personal payoff', note: 'Start from the user\'s goal, not the product tour' },
+    { title: 'Progressive trust', note: 'Prove value before asking for setup work' },
+    { title: 'Social proof moment', note: 'Show what similar teams achieved first' },
+  ],
+  deep: [
+    { title: 'Role-based first task', note: 'Designer, founder, or PM each gets a different first win' },
+    { title: 'Sample data sandbox', note: 'Let users feel the finished workflow before connecting tools' },
+    { title: 'Outcome receipt', note: 'End onboarding with a concrete artifact they can share' },
+  ],
+};
 
 function useParticles(count: number, seed = 7): Particle[] {
   return useMemo(() => {
@@ -46,7 +59,6 @@ function useParticles(count: number, seed = 7): Particle[] {
 
 export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
   const rootRef = useRef<HTMLDivElement>(null);
-  const act2Ref = useRef<HTMLDivElement>(null);
 
   const prefersReduced = useReducedMotion();
   const reduced = !!prefersReduced;
@@ -58,15 +70,6 @@ export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
     offset: ['start start', 'end end'],
   });
 
-  // Tree section progress
-  const { scrollYProgress: a2 } = useScroll({
-    target: act2Ref,
-    offset: ['start 65%', 'end end'],
-  });
-
-  const [treeProg, setTreeProg] = useState(0);
-  useMotionValueEvent(a2, 'change', setTreeProg);
-
   const bgY    = useTransform(pageProg, [0, 1], [0, -140]);
   const constY = useTransform(pageProg, [0, 1], [0, -220]);
   const glowAOp = useTransform(pageProg, [0, 0.5, 1], [0.55, 0.8, 0.3]);
@@ -74,18 +77,6 @@ export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
 
   const [navSolid, setNavSolid] = useState(false);
   useMotionValueEvent(pageProg, 'change', v => setNavSolid(v > 0.01));
-
-  /* ── Tree captions + CTA ─────────────────────────────────────────── */
-  const c1Op = useTransform(a2, [0.02, 0.10, 0.24, 0.30], [0, 1, 1, 0]);
-  const c2Op = useTransform(a2, [0.30, 0.38, 0.54, 0.60], [0, 1, 1, 0]);
-  const c3Op = useTransform(a2, [0.60, 0.68, 0.86, 0.92], [0, 1, 1, 0]);
-  const ctaOp = useTransform(a2, [0.94, 1.0], [0, 1]);
-  const ctaY  = useTransform(a2, [0.94, 1.0], [24, 0]);
-  const [ctaVisible, setCtaVisible] = useState(false);
-  useMotionValueEvent(ctaOp, 'change', v => setCtaVisible(v > 0.1));
-
-  const treeOp = useTransform(a2, [0, 0.08, 0.90, 1.0], [0, 1, 1, 0.2]);
-  const treeSc = useTransform(a2, [0, 0.08, 0.94, 1.0], [0.94, 1, 1, 1.04]);
 
   /* ── Waitlist ─────────────────────────────────────────────────────── */
   const [email, setEmail] = useState('');
@@ -166,7 +157,7 @@ export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
           </h1>
           <p className="c1__sub">
             Steerable 14B models that bypass the semantic average to find the outliers.
-              Every headline below is a percent lift against a control or baseline.
+            Every headline below is a percent lift against a control or baseline.
           </p>
           <div className="c1__hero-actions">
             <button className="c1__primary-btn" onClick={onLaunchGauntlet}>
@@ -204,71 +195,6 @@ export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
         </motion.div>
       </section>
 
-      {/* ═══ ACT 2 — Sticky scroll-driven idea tree ═══ */}
-      <div ref={act2Ref} className="lp__act2">
-        <div className="lp__pin">
-          <motion.div
-            className="lp__tree-area"
-            style={{ opacity: treeOp, scale: treeSc }}
-          >
-            <ScrollTree progress={treeProg} className="lp__tree" />
-          </motion.div>
-
-          <div className="lp__captions">
-            <motion.p className="lp__cap" style={{ opacity: c1Op }}>
-              {"Start with any strategic question. Corpius 1 steers it into "}
-              <strong>{"genuinely different directions"}</strong>{" — not variations of the same answer."}
-            </motion.p>
-            <motion.p className="lp__cap" style={{ opacity: c2Op }}>
-              {"Choose the direction that surprises you — it becomes "}
-              <strong>{"the new seed"}</strong>{" and branches deeper."}
-            </motion.p>
-            <motion.p className="lp__cap" style={{ opacity: c3Op }}>
-              {"One question becomes a "}
-              <strong>{"whole landscape of divergent possibilities"}</strong>{" — each fork further from the last."}
-            </motion.p>
-          </div>
-
-          {/* CTA overlay at end of tree scroll */}
-          <motion.div
-            className="lp__cta-overlay"
-            style={{
-              opacity: ctaOp,
-              y: ctaY,
-              pointerEvents: ctaVisible ? 'auto' : 'none',
-            }}
-          >
-            <h2 className="lp__final-title">
-              Frontier models converge.<br />
-              <span className="lp__accent">Corpius 1 explores.</span>
-            </h2>
-            <p className="lp__final-sub">
-              Steerable 14B models. Measured diversity. Business-coherent outliers.
-            </p>
-            <button className="lp__final-btn" onClick={onLaunchGauntlet}>
-              Open Test <ArrowRight size={18} />
-            </button>
-          </motion.div>
-        </div>
-      </div>
-
-      {/* ═══ CONTRAST — Comparison Viewer ═══ */}
-      <section className="c1__section">
-        <div className="landing-container">
-          <div className="landing-section__header">
-            <span className="landing-eyebrow">The Contrast</span>
-            <h2 className="landing-section__title">
-              Same prompt. <span className="landing-gradient-text">Radically different</span> output.
-            </h2>
-            <p className="landing-section__sub">
-              Standard LLMs converge on the semantic average. Corpius 1 steers the model's internal
-              representations to surface ideas that live on the edge of the distribution.
-            </p>
-          </div>
-          <ComparisonViewer />
-        </div>
-      </section>
-
       {/* ═══ SCIENCE ═══ */}
       <section className="c1__section c1__section--dark">
         <div className="landing-container">
@@ -293,9 +219,9 @@ export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
               },
               {
                 icon: <Shield size={22} />,
-                title: '+5.7% mean Vendi lift',
-                body: 'Mean embedding-space diversity rose from 1.8967 control to 2.0042 on the promoted Corpius surface. Vendi is the matrix-entropy diversity score; higher means the set covers more semantic territory.',
-                bar: { width: '88%', cls: 'c1__science-fill--teal', val: '2.0042 vs 1.8967 control', valCls: 'c1__science-val--teal' },
+                title: '+10.7% mean Vendi lift',
+                body: 'Best mean Vendi lift found in the local v17 PRISM trail: qwen_v17 rose from 1.1693 OpenAI control to 1.2947. The stricter investor-deck matched-control lift is +5.7%.',
+                bar: { width: '88%', cls: 'c1__science-fill--teal', val: '1.2947 vs 1.1693 local control', valCls: 'c1__science-val--teal' },
               },
               {
                 icon: <Brain size={22} />,
@@ -329,36 +255,77 @@ export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
         </div>
       </section>
 
-      {/* ═══ HOW IT WORKS ═══ */}
+      {/* ═══ TREE EXAMPLE ═══ */}
+      <section className="c1__section c1__tree-section">
+        <div className="landing-container">
+          <div className="c1__tree-demo">
+            <div className="c1__tree-copy">
+              <span className="landing-eyebrow">Idea Map</span>
+              <h2 className="landing-section__title">
+                A designer's question becomes a <span className="landing-gradient-text">usable map.</span>
+              </h2>
+              <p className="landing-section__sub">
+                The test is preloaded with a product-design prompt so the room sees branching,
+                selection, and deeper exploration immediately.
+              </p>
+              <button className="c1__secondary-btn" onClick={onLaunchGauntlet}>
+                Open Test Map <ArrowRight size={14} />
+              </button>
+            </div>
+
+            <motion.div
+              className="c1__tree-canvas"
+              initial={{ opacity: 0, y: 18 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-80px' }}
+              transition={{ duration: 0.55 }}
+            >
+              <div className="c1__tree-root">
+                <span>Designer prompt</span>
+                <strong>{DESIGN_TREE.prompt}</strong>
+              </div>
+
+              <div className="c1__tree-branches">
+                {DESIGN_TREE.branches.map((branch, idx) => (
+                  <article
+                    key={branch.title}
+                    className={`c1__tree-node ${idx === 0 ? 'c1__tree-node--selected' : ''}`}
+                  >
+                    <span className="c1__tree-node-kicker">{idx === 0 ? 'Selected' : `Option ${idx + 1}`}</span>
+                    <h3>{branch.title}</h3>
+                    <p>{branch.note}</p>
+                  </article>
+                ))}
+              </div>
+
+              <div className="c1__tree-deep">
+                {DESIGN_TREE.deep.map(node => (
+                  <article key={node.title} className="c1__tree-node c1__tree-node--deep">
+                    <span className="c1__tree-node-kicker">Next move</span>
+                    <h3>{node.title}</h3>
+                    <p>{node.note}</p>
+                  </article>
+                ))}
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ CONTRAST — Comparison Viewer ═══ */}
       <section className="c1__section">
         <div className="landing-container">
           <div className="landing-section__header">
-            <span className="landing-eyebrow">How It Works</span>
+            <span className="landing-eyebrow">The Contrast</span>
             <h2 className="landing-section__title">
-              From question to <span className="landing-gradient-text">idea-edge</span> in three steps.
+              Same prompt. <span className="landing-gradient-text">Radically different</span> output.
             </h2>
+            <p className="landing-section__sub">
+              Standard LLMs converge on the semantic average. Corpius 1 steers the model's internal
+              representations to surface ideas that live on the edge of the distribution.
+            </p>
           </div>
-          <div className="c1__steps">
-            {[
-              { num: '01', icon: <Target size={20} />, title: 'Enter a strategic question', desc: 'Any open-ended business, product, or research question. The broader, the better.' },
-              { num: '02', icon: <Sparkles size={20} />, title: 'Tune the steering vector', desc: 'Adjust alpha strength and injection layer. Higher alpha = more divergent. Mid-layer = creative. Late-layer = precise.' },
-              { num: '03', icon: <Zap size={20} />, title: 'Harvest the outliers', desc: 'The steered 14B model generates ideas that sit on the frontier — novel enough to matter, coherent enough to ship.' },
-            ].map((step, i) => (
-              <motion.div
-                key={step.num}
-                className="c1__step"
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, margin: '-60px' }}
-                transition={{ duration: 0.4, delay: i * 0.12 }}
-              >
-                <div className="c1__step-num">{step.num}</div>
-                <div className="c1__step-icon">{step.icon}</div>
-                <h3 className="c1__step-title">{step.title}</h3>
-                <p className="c1__step-desc">{step.desc}</p>
-              </motion.div>
-            ))}
-          </div>
+          <ComparisonViewer />
         </div>
       </section>
 
@@ -418,7 +385,7 @@ export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
 
             <div className="c1__waitlist-badges">
               <div className="c1__waitlist-badge">
-                <Zap size={12} /> Vendi +5.7% vs control
+                <Zap size={12} /> Vendi +10.7% vs control
               </div>
               <div className="c1__waitlist-badge">
                 <Shield size={12} /> Pass@5 +25% vs baseline
@@ -428,25 +395,6 @@ export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
               </div>
             </div>
           </motion.div>
-        </div>
-      </section>
-
-      {/* ═══ FINAL CTA ═══ */}
-      <section className="landing-cta">
-        <div className="landing-container">
-          <div className="landing-cta__inner" style={{ margin: '0 auto' }}>
-            <h2 className="landing-cta__title">
-              Standard models converge.<br />
-              <span className="landing-gradient-text">Corpius 1 explores.</span>
-            </h2>
-            <p className="landing-cta__sub">
-              Stop getting the same answer as everyone else. Steer a 14B model into
-              the idea-space that frontier APIs can't reach.
-            </p>
-            <button className="landing-cta__button" onClick={onLaunchGauntlet}>
-              <Zap size={16} /> Open Test <ArrowRight size={16} />
-            </button>
-          </div>
         </div>
       </section>
 
