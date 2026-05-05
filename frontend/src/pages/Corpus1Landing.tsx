@@ -173,18 +173,18 @@ export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
           transition={{ duration: 0.6, delay: 0.4 }}
         >
           <div className="c1__stat">
-            <span className="c1__stat-value">4.72</span>
+            <span className="c1__stat-value">+250%</span>
+            <span className="c1__stat-label">Distinct Archetypes</span>
+          </div>
+          <div className="c1__stat-divider" />
+          <div className="c1__stat">
+            <span className="c1__stat-value">100%</span>
+            <span className="c1__stat-label">PRISM Pass Rate</span>
+          </div>
+          <div className="c1__stat-divider" />
+          <div className="c1__stat">
+            <span className="c1__stat-value">4.02</span>
             <span className="c1__stat-label">Vendi Score</span>
-          </div>
-          <div className="c1__stat-divider" />
-          <div className="c1__stat">
-            <span className="c1__stat-value">81%</span>
-            <span className="c1__stat-label">PRISM Coherence</span>
-          </div>
-          <div className="c1__stat-divider" />
-          <div className="c1__stat">
-            <span className="c1__stat-value">14B</span>
-            <span className="c1__stat-label">Parameters</span>
           </div>
         </motion.div>
 
@@ -282,14 +282,14 @@ export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
               {
                 icon: <BarChart3 size={22} />,
                 title: 'Vendi Score',
-                body: 'Measures effective diversity across a batch of generations using matrix-based entropy. A score of 4.72 means outputs span nearly 5 orthogonal semantic directions — standard LLMs typically score below 2.0.',
-                bar: { width: '94%', cls: 'c1__science-fill--gold', val: '4.72 / 5.0', valCls: 'c1__science-val--gold' },
+                body: 'Measures effective diversity across a batch of generations using matrix-based entropy (MiniLM-L6-v2). Corpus 1 Harmonic reached 4.02 on correct completions — vs. a baseline mean of 1.71 on the same prompt set.',
+                bar: { width: '80%', cls: 'c1__science-fill--gold', val: '4.02 (correct-only)', valCls: 'c1__science-val--gold' },
               },
               {
                 icon: <Shield size={22} />,
-                title: 'PRISM Coherence',
-                body: 'Ensures steered outputs remain actionable and relevant. PRISM scores each idea against the original prompt for business logic, feasibility, and specificity. Above 75% means the idea is wild but grounded.',
-                bar: { width: '81%', cls: 'c1__science-fill--teal', val: '81%', valCls: 'c1__science-val--teal' },
+                title: 'PRISM Pass Rate',
+                body: '100% of Corpus 1 completions pass the coherence/relevance floor (mean(coherence, relevance)/2 ≥ 3.0, judge: GPT-4o-mini) vs. 97.78% unsteered. Steered outputs are wilder — and still pass the quality gate.',
+                bar: { width: '100%', cls: 'c1__science-fill--teal', val: '100% vs 97.78%', valCls: 'c1__science-val--teal' },
               },
               {
                 icon: <Brain size={22} />,

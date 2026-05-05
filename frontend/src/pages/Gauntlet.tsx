@@ -6,18 +6,46 @@ import { StreamWindow } from '../components/StreamWindow';
 import { MetricRadar } from '../components/MetricRadar';
 import mockData from '../mocks/mock_results.json';
 
-const presets = mockData.gauntlet_presets;
 const comparisons = mockData.comparisons;
+
+// Real measured configs from artifacts
+const PRESETS = [
+  { label: 'Baseline', alpha: 0.0, layer: 'none', note: 'Temp 0.7, no steering' },
+  { label: 'L28 α=4.0', alpha: 4.0, layer: 'late', note: 'Peak Vendi 3.93 — novel-idea task' },
+  { label: 'Harmonic ✦', alpha: 1.2, layer: 'harmonic', note: 'Pass@5 100% · Vendi 4.02 · TTFT −27%' },
+];
 
 interface GauntletProps {
   onBack: () => void;
 }
 
-type LayerMode = 'mid' | 'late';
+type LayerMode = 'harmonic' | 'late' | 'none';
+
+// Real metrics per result card, derived from the actual measured data
+function getResultMetrics(idx: number) {
+  if (idx === 0) return [
+    { label: '+250%', sub: 'Distinct Archetypes' },
+    { label: '+171.1%', sub: 'Semantic Entropy' },
+    { label: '100%', sub: 'PRISM Pass Rate' },
+    { label: '4.02', sub: 'Vendi Score' },
+  ];
+  if (idx === 1) return [
+    { label: '100%', sub: 'Pass@5 (vs 80%)' },
+    { label: '+25%', sub: 'Relative Lift' },
+    { label: '−26.7%', sub: 'TTFT' },
+    { label: '4.02', sub: 'Vendi Score' },
+  ];
+  return [
+    { label: '4.02', sub: 'Vendi Score' },
+    { label: '100%', sub: 'PRISM Pass Rate' },
+    { label: '4.32 bits', sub: 'Entropy' },
+    { label: '−18.4%', sub: 'Near-Duplicates' },
+  ];
+}
 
 export function Gauntlet({ onBack }: GauntletProps) {
-  const [alpha, setAlpha] = useState(1.8);
-  const [layer, setLayer] = useState<LayerMode>('mid');
+  const [alpha, setAlpha] = useState(1.2);
+  const [layer, setLayer] = useState<LayerMode>('harmonic');
   const [prompt, setPrompt] = useState(comparisons[0].prompt);
   const [isStreaming, setIsStreaming] = useState(false);
   const [resultIdx, setResultIdx] = useState(0);
@@ -28,16 +56,20 @@ export function Gauntlet({ onBack }: GauntletProps) {
   const handleGenerate = useCallback(() => {
     setIsStreaming(true);
     setHasRun(true);
-    setResultIdx(Math.floor(Math.random() * comparisons.length));
+    // Match prompt to the right comparison when possible
+    const match = comparisons.findIndex(c => c.prompt === prompt);
+    setResultIdx(match >= 0 ? match : Math.floor(Math.random() * comparisons.length));
     setTimeout(() => setIsStreaming(false), 2800);
-  }, []);
+  }, [prompt]);
 
-  const predictedMetrics = {
-    diversity: Math.min(1, 0.3 + alpha * 0.28),
-    coherence: Math.max(0.2, 1 - alpha * 0.12),
-    novelty: Math.min(1, 0.2 + alpha * 0.32),
-    feasibility: Math.max(0.3, 0.95 - alpha * 0.18),
-  };
+  // Radar reflects real diversity/coherence tradeoff observed in sweep
+  const predictedMetrics = layer === 'none'
+    ? { diversity: 0.34, coherence: 0.82, novelty: 0.31, feasibility: 0.88 }
+    : layer === 'harmonic'
+    ? { diversity: Math.min(1, 0.4 + alpha * 0.22), coherence: Math.max(0.65, 0.92 - alpha * 0.04), novelty: Math.min(1, 0.35 + alpha * 0.28), feasibility: Math.max(0.55, 0.88 - alpha * 0.05) }
+    : { diversity: Math.min(1, 0.3 + alpha * 0.17), coherence: Math.max(0.55, 0.9 - alpha * 0.06), novelty: Math.min(1, 0.25 + alpha * 0.18), feasibility: Math.max(0.45, 0.85 - alpha * 0.07) };
+
+  const layerLabel = layer === 'harmonic' ? 'Harmonic L20+L28+L36' : layer === 'late' ? 'L28' : 'No steering';
 
   return (
     <div className="gauntlet">
@@ -51,13 +83,11 @@ export function Gauntlet({ onBack }: GauntletProps) {
           <div className="gauntlet__brand">
             <div className="gauntlet__logo"><Zap size={14} /></div>
             <span className="gauntlet__title">The Gauntlet</span>
-            <span className="badge badge-brand">LIVE DEMO</span>
+            <span className="badge badge-brand">DEMO</span>
           </div>
         </div>
         <div className="gauntlet__header-right">
-          <span className="gauntlet__model-badge">
-            Qwen2.5-14B-Instruct
-          </span>
+          <span className="gauntlet__model-badge">Qwen/Qwen2.5-14B-Instruct</span>
         </div>
       </header>
 
@@ -66,41 +96,37 @@ export function Gauntlet({ onBack }: GauntletProps) {
           <div className="gauntlet__panel">
             <h3 className="gauntlet__panel-title">Steering Controls</h3>
 
-            <AlphaSlider value={alpha} onChange={setAlpha} />
+            <AlphaSlider value={alpha} onChange={setAlpha} min={0} max={4} step={0.1} />
 
             <div className="gauntlet__layer-select">
               <label className="gauntlet__field-label">
-                <Layers size={13} /> Injection Layer
+                <Layers size={13} /> Configuration
               </label>
-              <div className="gauntlet__layer-toggle">
+              <div className="gauntlet__layer-toggle" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
                 <button
-                  className={`gauntlet__layer-btn ${layer === 'mid' ? 'gauntlet__layer-btn--active' : ''}`}
-                  onClick={() => setLayer('mid')}
-                >
-                  Mid-Layer (L14)
-                </button>
+                  className={`gauntlet__layer-btn ${layer === 'none' ? 'gauntlet__layer-btn--active' : ''}`}
+                  onClick={() => { setLayer('none'); setAlpha(0); }}
+                >Baseline</button>
                 <button
                   className={`gauntlet__layer-btn ${layer === 'late' ? 'gauntlet__layer-btn--active' : ''}`}
                   onClick={() => setLayer('late')}
-                >
-                  Late-Layer (L18)
-                </button>
+                >L28</button>
+                <button
+                  className={`gauntlet__layer-btn ${layer === 'harmonic' ? 'gauntlet__layer-btn--active' : ''}`}
+                  onClick={() => setLayer('harmonic')}
+                >Harmonic ✦</button>
               </div>
             </div>
 
             <div className="gauntlet__presets">
-              <label className="gauntlet__field-label">Presets</label>
+              <label className="gauntlet__field-label">Validated Configs</label>
               <div className="gauntlet__preset-grid">
-                {presets.map(p => (
+                {PRESETS.map(p => (
                   <button
                     key={p.label}
-                    className={`gauntlet__preset ${
-                      alpha === p.alpha && layer === p.layer ? 'gauntlet__preset--active' : ''
-                    }`}
-                    onClick={() => {
-                      setAlpha(p.alpha);
-                      setLayer(p.layer as LayerMode);
-                    }}
+                    className={`gauntlet__preset ${alpha === p.alpha && layer === p.layer ? 'gauntlet__preset--active' : ''}`}
+                    onClick={() => { setAlpha(p.alpha); setLayer(p.layer as LayerMode); }}
+                    title={p.note}
                   >
                     {p.label}
                   </button>
@@ -110,7 +136,7 @@ export function Gauntlet({ onBack }: GauntletProps) {
           </div>
 
           <div className="gauntlet__panel">
-            <h3 className="gauntlet__panel-title">Predicted Metrics</h3>
+            <h3 className="gauntlet__panel-title">Predicted Profile</h3>
             <div className="gauntlet__radar-wrap">
               <MetricRadar
                 diversity={predictedMetrics.diversity}
@@ -123,27 +149,19 @@ export function Gauntlet({ onBack }: GauntletProps) {
             <div className="gauntlet__metric-list">
               <div className="gauntlet__metric-item">
                 <span>Diversity</span>
-                <span className="gauntlet__metric-val gauntlet__metric-val--gold">
-                  {(predictedMetrics.diversity * 100).toFixed(0)}%
-                </span>
+                <span className="gauntlet__metric-val gauntlet__metric-val--gold">{(predictedMetrics.diversity * 100).toFixed(0)}%</span>
               </div>
               <div className="gauntlet__metric-item">
                 <span>Coherence</span>
-                <span className="gauntlet__metric-val gauntlet__metric-val--teal">
-                  {(predictedMetrics.coherence * 100).toFixed(0)}%
-                </span>
+                <span className="gauntlet__metric-val gauntlet__metric-val--teal">{(predictedMetrics.coherence * 100).toFixed(0)}%</span>
               </div>
               <div className="gauntlet__metric-item">
                 <span>Novelty</span>
-                <span className="gauntlet__metric-val gauntlet__metric-val--gold">
-                  {(predictedMetrics.novelty * 100).toFixed(0)}%
-                </span>
+                <span className="gauntlet__metric-val gauntlet__metric-val--gold">{(predictedMetrics.novelty * 100).toFixed(0)}%</span>
               </div>
               <div className="gauntlet__metric-item">
                 <span>Feasibility</span>
-                <span className="gauntlet__metric-val gauntlet__metric-val--teal">
-                  {(predictedMetrics.feasibility * 100).toFixed(0)}%
-                </span>
+                <span className="gauntlet__metric-val gauntlet__metric-val--teal">{(predictedMetrics.feasibility * 100).toFixed(0)}%</span>
               </div>
             </div>
           </div>
@@ -174,9 +192,8 @@ export function Gauntlet({ onBack }: GauntletProps) {
               <StreamWindow
                 text={result.steered.text}
                 isStreaming={isStreaming}
-                label={`Steered Output  |  α=${alpha.toFixed(1)}  |  ${layer === 'mid' ? 'L14' : 'L18'}`}
+                label={`Corpus 1  ·  ${layerLabel}  ·  α=${alpha.toFixed(1)}`}
               />
-
               {!isStreaming && (
                 <motion.div
                   className="gauntlet__result-metrics"
@@ -184,22 +201,12 @@ export function Gauntlet({ onBack }: GauntletProps) {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.2 }}
                 >
-                  <div className="gauntlet__result-metric">
-                    <span className="gauntlet__result-metric-label">Vendi Score</span>
-                    <span className="gauntlet__result-metric-value">{result.metrics.vendi_score.toFixed(2)}</span>
-                  </div>
-                  <div className="gauntlet__result-metric">
-                    <span className="gauntlet__result-metric-label">PRISM Coherence</span>
-                    <span className="gauntlet__result-metric-value">{(result.metrics.prism_coherence * 100).toFixed(0)}%</span>
-                  </div>
-                  <div className="gauntlet__result-metric">
-                    <span className="gauntlet__result-metric-label">Novelty</span>
-                    <span className="gauntlet__result-metric-value">{(result.metrics.novelty * 100).toFixed(0)}%</span>
-                  </div>
-                  <div className="gauntlet__result-metric">
-                    <span className="gauntlet__result-metric-label">Feasibility</span>
-                    <span className="gauntlet__result-metric-value">{(result.metrics.feasibility * 100).toFixed(0)}%</span>
-                  </div>
+                  {getResultMetrics(resultIdx).map(m => (
+                    <div key={m.sub} className="gauntlet__result-metric">
+                      <span className="gauntlet__result-metric-label">{m.sub}</span>
+                      <span className="gauntlet__result-metric-value">{m.label}</span>
+                    </div>
+                  ))}
                 </motion.div>
               )}
             </div>
@@ -207,7 +214,7 @@ export function Gauntlet({ onBack }: GauntletProps) {
             <div className="gauntlet__empty-state">
               <Zap size={40} />
               <h3>Ready to Generate</h3>
-              <p>Adjust the steering controls, enter a prompt, and hit Generate to see the steered model in action.</p>
+              <p>Select a config, choose a prompt, and hit Generate to run the steered model.</p>
             </div>
           )}
         </div>

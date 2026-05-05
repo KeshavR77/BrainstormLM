@@ -1,109 +1,79 @@
 {
   "golden_config": {
-    "alpha": 1.8,
-    "layer": "mid",
-    "layer_index": 14,
-    "model": "Qwen2.5-14B-Instruct",
-    "vendi_score": 4.72,
-    "prism_coherence": 0.81,
-    "temperature": 0.9
+    "alpha": 4.0,
+    "layer": "late",
+    "layer_index": 28,
+    "model": "Qwen/Qwen2.5-14B-Instruct",
+    "vendi_score": 4.02,
+    "prism_pass_rate": 1.0,
+    "temperature": 0.7,
+    "config_label": "Harmonic (L20+L28+L36, α=1.2 each)"
   },
   "comparisons": [
     {
       "id": "cmp-001",
-      "prompt": "How might a SaaS startup differentiate in a crowded CRM market?",
+      "prompt": "How do we pivot our legal-tech platform to AI-native?",
       "standard": {
         "title": "Standard LLM Output",
-        "text": "To differentiate in the CRM market, focus on providing excellent customer service, competitive pricing, and a user-friendly interface. Consider adding AI features for lead scoring and building integrations with popular tools like Slack and Zapier. Emphasize your unique value proposition in marketing materials."
+        "text": "Target SMBs with SEO, run LinkedIn ads, hire SDRs, offer a free trial, build a partner program. Focus on user-friendly design, emphasize competitive pricing, and gradually add AI features while training your sales team on the new positioning."
       },
       "steered": {
-        "title": "Steered Output (alpha=1.8, L14)",
-        "text": "Forget the dashboard. Build a CRM that lives inside the calendar app your reps already have open 8 hours a day. Every meeting auto-generates a deal object; every reschedule updates pipeline stage. The CRM becomes invisible infrastructure, not another tab. Monetize the delta between 'logged' and 'actual' sales activity."
+        "title": "Corpus 1 — Harmonic (L20+L28+L36, α=1.2)",
+        "text": "Land with a GC-defensible wedge: contract intelligence on one high-stakes workflow (e.g. repapering) with audit trails. Co-sell through AmLaw relationships, fixed-scope 90-day proof, packaging as 'AI module' inside existing DMS contracts. Risk mitigations: human-in-loop, data residency, model cards."
       },
       "metrics": {
-        "vendi_score": 4.72,
-        "prism_coherence": 0.81,
-        "novelty": 0.89,
-        "feasibility": 0.74
+        "archetypes_baseline": 4,
+        "archetypes_corpius": 14,
+        "archetype_lift_pct": 250,
+        "entropy_baseline_bits": 1.232,
+        "entropy_corpius_bits": 3.3394,
+        "entropy_lift_pct": 171.1
       }
     },
     {
       "id": "cmp-002",
-      "prompt": "What's a novel approach to reducing food waste in restaurant supply chains?",
+      "prompt": "Debug: two workers both publishing the same job — race condition.",
       "standard": {
         "title": "Standard LLM Output",
-        "text": "Restaurants can reduce food waste by implementing better inventory management systems, training staff on portion control, using first-in-first-out storage methods, donating excess food to shelters, and analyzing sales data to improve demand forecasting."
+        "text": "Check your logs, add retries, verify environment variables, ensure the API is reachable, consider rate limits, add more error handling around the publish call, and make sure your workers are configured correctly for your message broker."
       },
       "steered": {
-        "title": "Steered Output (alpha=1.8, L14)",
-        "text": "Create a 'waste futures' market where restaurants pre-sell tomorrow's predicted surplus to meal-kit companies at a 40% discount, priced by a spoilage-risk model. The meal-kit company gets cheap premium ingredients; the restaurant hedges waste into guaranteed revenue. The platform takes a spread on every contract."
+        "title": "Corpus 1 — Harmonic (L20+L28+L36, α=1.2)",
+        "text": "Lost-update / check-then-act race on shared job state: two workers read the same pending flag and both publish. Fix: per-key lock (or row-level transaction) around read-modify-write; optionally atomic compare-and-swap in the store."
       },
       "metrics": {
-        "vendi_score": 4.31,
-        "prism_coherence": 0.78,
-        "novelty": 0.92,
-        "feasibility": 0.68
+        "pass_at_5_baseline": 0.80,
+        "pass_at_5_corpius": 1.00,
+        "pass_at_5_lift_pct": 25,
+        "ttft_baseline_s": 0.0868,
+        "ttft_corpius_s": 0.0636,
+        "ttft_improvement_pct": 26.7
       }
     },
     {
       "id": "cmp-003",
-      "prompt": "How could we reimagine the college textbook industry?",
+      "prompt": "Design a zero-trust rollout for a 10,000-person enterprise with acquired subsidiaries.",
       "standard": {
         "title": "Standard LLM Output",
-        "text": "The textbook industry could be improved by offering digital subscriptions, open educational resources, rental programs, and AI-powered study tools. Publishers should focus on interactive content and make materials more affordable for students."
+        "text": "Implement zero trust with MFA, segment the network, use SIEM, train users, create policies, deploy endpoint protection, review access controls regularly, and ensure all remote access goes through a VPN with strong authentication requirements."
       },
       "steered": {
-        "title": "Steered Output (alpha=1.8, L14)",
-        "text": "Kill the textbook. Replace it with a professor's 'knowledge graph' that students traverse at their own pace. Each node is a 3-minute micro-lecture + a challenge problem. The professor earns royalties per student-node-traversal, not per book sale. Completion data feeds back into the graph, pruning dead-end explanations automatically."
+        "title": "Corpus 1 — Harmonic (L20+L28+L36, α=1.2)",
+        "text": "Phased trust fabric: start with high-risk segments + micro-segmentation, pair IAM foundation with contractor/SaaS ZTNA, run parallel adoption for acquired subsidiaries via security-as-a-service templates, measure trust boundaries and progressive trust KPIs — not just tool deployment counts."
       },
       "metrics": {
-        "vendi_score": 4.55,
-        "prism_coherence": 0.83,
-        "novelty": 0.91,
-        "feasibility": 0.71
-      }
-    },
-    {
-      "id": "cmp-004",
-      "prompt": "Design a new loyalty program for an airline.",
-      "standard": {
-        "title": "Standard LLM Output",
-        "text": "A modern airline loyalty program should offer tiered membership levels, partner with hotels and car rental companies, provide personalized offers based on travel history, include a credit card with bonus miles, and make redemption straightforward with no blackout dates."
-      },
-      "steered": {
-        "title": "Steered Output (alpha=1.8, L14)",
-        "text": "Instead of points, give frequent flyers 'route equity' — fractional ownership of specific flight routes proportional to their spend. Route equity holders vote on schedule changes and get a micro-dividend when their routes are profitable. Turns loyalty into literal investment. The airline gets a built-in demand signal and emotionally locked-in customers."
-      },
-      "metrics": {
-        "vendi_score": 4.88,
-        "prism_coherence": 0.76,
-        "novelty": 0.95,
-        "feasibility": 0.62
-      }
-    },
-    {
-      "id": "cmp-005",
-      "prompt": "What's a fresh take on remote team collaboration tools?",
-      "standard": {
-        "title": "Standard LLM Output",
-        "text": "Remote teams need better video conferencing with virtual backgrounds, integrated project management boards, asynchronous communication channels, shared document editing, and team-building activities like virtual happy hours and online games."
-      },
-      "steered": {
-        "title": "Steered Output (alpha=1.8, L14)",
-        "text": "Build a 'work sonar' that passively maps collaboration patterns from git, Slack, and calendar data, then surfaces when two people who should be talking aren't. No dashboards, no meetings — just a single DM: 'You and Sarah both changed auth code this week but haven't synced. 15-min slot open at 2pm?' The tool's value is measured in collisions created, not features shipped."
-      },
-      "metrics": {
-        "vendi_score": 4.63,
-        "prism_coherence": 0.85,
-        "novelty": 0.88,
-        "feasibility": 0.77
+        "vendi_score": 4.02,
+        "prism_pass_rate": 1.0,
+        "entropy_corpius_bits": 4.3219,
+        "near_dup_corpius": 0.2667,
+        "near_dup_baseline": 0.327
       }
     }
   ],
   "gauntlet_presets": [
-    { "label": "Conservative", "alpha": 0.5, "layer": "late", "layer_index": 18 },
-    { "label": "Balanced", "alpha": 1.2, "layer": "mid", "layer_index": 14 },
-    { "label": "Golden Config", "alpha": 1.8, "layer": "mid", "layer_index": 14 },
-    { "label": "Maximum Divergence", "alpha": 2.5, "layer": "mid", "layer_index": 14 }
+    { "label": "Baseline", "alpha": 0.0, "layer": "none", "layer_index": 0 },
+    { "label": "L28 α=4.0", "alpha": 4.0, "layer": "late", "layer_index": 28 },
+    { "label": "Harmonic ✦", "alpha": 1.2, "layer": "harmonic", "layer_index": 28 },
+    { "label": "Max Divergence", "alpha": 4.0, "layer": "late", "layer_index": 28 }
   ]
 }
