@@ -7,7 +7,7 @@ const comparisons = mockData.comparisons;
 
 // Pull real metric labels per comparison from actual measured data
 function getMetrics(cmp: typeof comparisons[number]) {
-  const m = cmp.metrics as Record<string, number>;
+  const m = cmp.metrics as unknown as Record<string, number>;
   const chips: { label: string; value: string }[] = [];
 
   if (m.archetype_lift_pct != null)
