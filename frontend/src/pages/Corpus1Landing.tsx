@@ -20,7 +20,7 @@ interface Particle {
 
 const HERO_STATS = [
   { value: '-18%', label: 'Fewer repeat answers', note: 'Near-duplicates vs control' },
-  { value: '+11%', label: 'Answer diversity lift', note: 'Mean diversity score vs control' },
+  { value: '+11%', label: 'Answer diversity lift', note: 'Diversity score vs control' },
   { value: '+25%', label: 'More correct paths', note: 'Solution coverage lift' },
   { value: '100%', label: 'Quality gate pass', note: 'Coherence + relevance held' },
 ];
@@ -214,13 +214,13 @@ export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
               {
                 icon: <BarChart3 size={22} />,
                 title: '−18% near-duplicate rate',
-                body: 'Best investor-deck surface: promoted Corpius Arm B reduced near-duplicate mass from 0.33 control to 0.27. Lower is better: fewer repeated ideas, less semantic sameness.',
+                body: 'Under steering, near-duplicate mass dropped from 0.33 on the control to 0.27 — fewer recycled phrasings and less overlap between answers.',
                 bar: { width: '82%', cls: 'c1__science-fill--gold', val: '0.27 vs 0.33 control', valCls: 'c1__science-val--gold' },
               },
               {
                 icon: <Shield size={22} />,
                 title: '+11% answer diversity lift',
-                body: 'Best mean Vendi lift found in the local v17 PRISM trail: qwen_v17 rose from 1.17 OpenAI control to 1.29. The stricter investor-deck matched-control lift is +6%.',
+                body: 'On a representative evaluation run, diversity score (Vendi) went from 1.17 with the control model to 1.29 with steering. Under tighter matched controls, lift was about +6%.',
                 bar: { width: '88%', cls: 'c1__science-fill--teal', val: '1.29 vs 1.17 local control', valCls: 'c1__science-val--teal' },
               },
               {

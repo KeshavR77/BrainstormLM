@@ -88,7 +88,7 @@ export const DEMO_TREE: BrainstormTree = {
       id: 'demo-receipt',
       parentId: 'demo-instant-payoff',
       type: 'idea',
-      content: 'End onboarding with an outcome receipt: what the user created, why it matters, and the next best action they can share with their team.',
+      content: 'End onboarding with an outcome receipt: what the user created, why it matters, and the next action they can share with their team.',
       summary: 'Outcome receipt',
       depth: 2,
       createdAt: DEMO_TIMESTAMP,
