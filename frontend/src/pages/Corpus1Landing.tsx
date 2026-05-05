@@ -19,10 +19,10 @@ interface Particle {
 }
 
 const HERO_STATS = [
-  { value: '-18.4%', label: 'Near-duplicate mass', note: 'Control 0.327 -> 0.267' },
-  { value: '+10.7%', label: 'Mean Vendi lift', note: 'Local PRISM control: 1.169 -> 1.295' },
-  { value: '+25%', label: 'Pass@5 lift', note: 'Generate 5, need ≥1 correct — 80%→100%' },
-  { value: '+18.2%', label: 'Entropy rollup lift', note: '3-prompt avg vs baseline' },
+  { value: '-18%', label: 'Fewer repeat answers', note: 'Near-duplicates vs control' },
+  { value: '+11%', label: 'Answer diversity lift', note: 'Mean diversity score vs control' },
+  { value: '+25%', label: 'More correct paths', note: 'Solution coverage lift' },
+  { value: '100%', label: 'Quality gate pass', note: 'Coherence + relevance held' },
 ];
 
 const DESIGN_TREE = {
@@ -201,11 +201,11 @@ export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
           <div className="landing-section__header">
             <span className="landing-eyebrow">The Science</span>
             <h2 className="landing-section__title">
-              Measured divergence, <span className="landing-gradient-text">not random noise.</span>
+              More diversity, <span className="landing-gradient-text">without quality drop.</span>
             </h2>
             <p className="landing-section__sub">
-              The headline story is lift against controls: less repetition, higher embedding diversity,
-              broader coverage, and faster first tokens.
+              The benchmark checks both sides: outputs should cover more territory and still pass
+              coherence and relevance checks.
             </p>
           </div>
 
@@ -213,21 +213,27 @@ export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
             {[
               {
                 icon: <BarChart3 size={22} />,
-                title: '−18.4% near-duplicate rate',
-                body: 'Best investor-deck surface: promoted Corpius Arm B reduced near-duplicate mass from 0.3270 control to 0.2667. Lower is better: fewer repeated ideas, less semantic sameness.',
-                bar: { width: '82%', cls: 'c1__science-fill--gold', val: '0.2667 vs 0.3270 control', valCls: 'c1__science-val--gold' },
+                title: '−18% near-duplicate rate',
+                body: 'Best investor-deck surface: promoted Corpius Arm B reduced near-duplicate mass from 0.33 control to 0.27. Lower is better: fewer repeated ideas, less semantic sameness.',
+                bar: { width: '82%', cls: 'c1__science-fill--gold', val: '0.27 vs 0.33 control', valCls: 'c1__science-val--gold' },
               },
               {
                 icon: <Shield size={22} />,
-                title: '+10.7% mean Vendi lift',
-                body: 'Best mean Vendi lift found in the local v17 PRISM trail: qwen_v17 rose from 1.1693 OpenAI control to 1.2947. The stricter investor-deck matched-control lift is +5.7%.',
-                bar: { width: '88%', cls: 'c1__science-fill--teal', val: '1.2947 vs 1.1693 local control', valCls: 'c1__science-val--teal' },
+                title: '+11% answer diversity lift',
+                body: 'Best mean Vendi lift found in the local v17 PRISM trail: qwen_v17 rose from 1.17 OpenAI control to 1.29. The stricter investor-deck matched-control lift is +6%.',
+                bar: { width: '88%', cls: 'c1__science-fill--teal', val: '1.29 vs 1.17 local control', valCls: 'c1__science-val--teal' },
               },
               {
                 icon: <Brain size={22} />,
-                title: 'Pass@5: 80% → 100%',
-                body: 'Pass@5 asks: if the model generates 5 answers, does at least one hit the mark? On the engineering debug benchmark, the baseline scored 80% — Corpius 1 hit 100%. More diverse outputs means more chances to land the right answer.',
-                bar: { width: '100%', cls: 'c1__science-fill--gold', val: '5/5 correct vs 4/5 baseline', valCls: 'c1__science-val--gold' },
+                title: '+25% more correct paths',
+                body: 'In the benchmark, the model gets five attempts and needs at least one answer that solves the task. Corpius improved that coverage by 25% relative to baseline.',
+                bar: { width: '100%', cls: 'c1__science-fill--gold', val: 'More coverage with the same 5-attempt budget', valCls: 'c1__science-val--gold' },
+              },
+              {
+                icon: <Check size={22} />,
+                title: '100% quality gate pass',
+                body: 'The added diversity did not come from junk output. Corpius passed the coherence and relevance quality floor on every judged sample, ahead of the unsteered baseline.',
+                bar: { width: '100%', cls: 'c1__science-fill--teal', val: '100% vs 98% unsteered', valCls: 'c1__science-val--teal' },
               },
             ].map((card, i) => (
               <motion.div
@@ -385,13 +391,13 @@ export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
 
             <div className="c1__waitlist-badges">
               <div className="c1__waitlist-badge">
-                <Zap size={12} /> Vendi +10.7% vs control
+                <Zap size={12} /> Diversity +11%
               </div>
               <div className="c1__waitlist-badge">
-                <Shield size={12} /> Pass@5 +25% vs baseline
+                <Shield size={12} /> Quality gate 100%
               </div>
               <div className="c1__waitlist-badge">
-                <Brain size={12} /> Near-dup −18.4%
+                <Brain size={12} /> Near-dup −18%
               </div>
             </div>
           </motion.div>

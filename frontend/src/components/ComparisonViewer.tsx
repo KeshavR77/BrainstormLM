@@ -11,22 +11,18 @@ function getMetrics(cmp: typeof comparisons[number]) {
   const chips: { label: string; value: string }[] = [];
 
   if (m.archetype_lift_pct != null)
-    chips.push({ label: 'Archetype lift', value: `+${m.archetype_lift_pct}%` });
+    chips.push({ label: 'Strategy variety', value: `+${Math.round(m.archetype_lift_pct)}%` });
   if (m.entropy_lift_pct != null)
-    chips.push({ label: 'Entropy lift', value: `+${m.entropy_lift_pct}%` });
+    chips.push({ label: 'Idea spread', value: `+${Math.round(m.entropy_lift_pct)}%` });
   if (m.pass_at_5_lift_pct != null)
-    chips.push({ label: 'Pass@5', value: `+${m.pass_at_5_lift_pct}pp` });
-  if (m.ttft_improvement_pct != null)
-    chips.push({ label: 'TTFT', value: `−${m.ttft_improvement_pct}%` });
+    chips.push({ label: 'Correct paths', value: `+${Math.round(m.pass_at_5_lift_pct)}%` });
   if (m.vendi_score != null)
-    chips.push({ label: 'Vendi', value: m.vendi_score.toFixed(2) });
+    chips.push({ label: 'Diversity score', value: m.vendi_score.toFixed(2) });
   if (m.prism_pass_rate != null)
-    chips.push({ label: 'PRISM pass', value: `${(m.prism_pass_rate * 100).toFixed(0)}%` });
-  if (m.entropy_corpius_bits != null)
-    chips.push({ label: 'Entropy', value: `${m.entropy_corpius_bits.toFixed(2)} bits` });
+    chips.push({ label: 'Quality gate', value: `${(m.prism_pass_rate * 100).toFixed(0)}%` });
   if (m.near_dup_corpius != null && m.near_dup_baseline != null) {
-    const drop = ((m.near_dup_baseline - m.near_dup_corpius) / m.near_dup_baseline * 100).toFixed(1);
-    chips.push({ label: 'Near-duplicates', value: `−${drop}%` });
+    const drop = Math.round((m.near_dup_baseline - m.near_dup_corpius) / m.near_dup_baseline * 100);
+    chips.push({ label: 'Repeat answers', value: `−${drop}%` });
   }
 
   return chips;

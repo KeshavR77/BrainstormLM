@@ -76,7 +76,7 @@ export default function App() {
 
   switch (route.page) {
     case 'canvas':
-      return <Canvas projectId={route.projectId} onBack={openDashboard} />;
+      return <Canvas key={route.projectId} projectId={route.projectId} onBack={openDashboard} />;
     case 'gauntlet':
       return <Gauntlet onBack={openLanding} />;
     case 'dashboard':

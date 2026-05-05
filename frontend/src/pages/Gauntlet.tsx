@@ -8,8 +8,6 @@ const comparisons = mockData.comparisons;
 
 const DEMO_PROJECTS = [
   { id: 'cmp-001', title: 'Legal-Tech GTM Strategy', tag: 'Strategy', prompt: comparisons[0].prompt },
-  { id: 'cmp-002', title: 'Race Condition Debug', tag: 'Engineering', prompt: comparisons[1].prompt },
-  { id: 'cmp-003', title: 'Zero-Trust Rollout', tag: 'Security', prompt: comparisons[2].prompt },
 ];
 
 const DEMO_IDEA_MAPS = [
@@ -40,80 +38,14 @@ const DEMO_IDEA_MAPS = [
       metric: 'Lower friction',
     },
   ],
-  [
-    {
-      title: 'Failure Boundary',
-      description: 'Narrow the bug to shared job state, not infrastructure.',
-      metric: 'Root cause',
-    },
-    {
-      title: 'Shared State Read',
-      description: 'Two workers observe the same pending flag.',
-      metric: 'Race point',
-    },
-    {
-      title: 'Per-Key Lock',
-      description: 'Guard read-modify-write by job key.',
-      metric: 'Minimal fix',
-    },
-    {
-      title: 'Atomic Compare-Swap',
-      description: 'Fallback if the store supports conditional writes.',
-      metric: 'Safer state',
-    },
-    {
-      title: 'Idempotent Publish',
-      description: 'Add dedupe protection around side effects.',
-      metric: 'Resilience',
-    },
-  ],
-  [
-    {
-      title: 'High-Risk Segments',
-      description: 'Start where blast radius and exposure are highest.',
-      metric: 'Phase 1',
-    },
-    {
-      title: 'IAM Foundation',
-      description: 'Unify identity before expanding controls.',
-      metric: 'Control plane',
-    },
-    {
-      title: 'Contractor ZTNA',
-      description: 'Handle SaaS and acquired workforces in parallel.',
-      metric: 'Fast wedge',
-    },
-    {
-      title: 'Acquisition Templates',
-      description: 'Repeatable rollout path for subsidiaries.',
-      metric: 'Scale path',
-    },
-    {
-      title: 'Progressive Trust KPIs',
-      description: 'Measure trust boundaries, not tool deployment count.',
-      metric: 'Executive signal',
-    },
-  ],
 ];
 
-function getResultMetrics(idx: number) {
-  if (idx === 0) return [
-    { label: 'Archetypes vs Baseline', value: '+250%' },
-    { label: 'Entropy vs Baseline', value: '+171.1%' },
-    { label: 'Rollup Entropy Lift', value: '+18.2%' },
-    { label: 'PRISM vs Unsteered', value: '+2.2pp' },
-  ];
-  if (idx === 1) return [
-    { label: 'Pass@5 (5 tries, ≥1 correct)', value: '100%' },
-    { label: 'vs Baseline Pass@5', value: '80%→100%' },
-    { label: 'TTFT vs Baseline', value: '−26.7%' },
-    { label: 'Output Token Tax', value: '0%' },
-  ];
+function getResultMetrics() {
   return [
-    { label: 'Vendi vs Control', value: '+5.7%' },
-    { label: 'Near-Dup vs Control', value: '−18.4%' },
-    { label: 'PRISM vs Unsteered', value: '+2.2pp' },
-    { label: 'Entropy Rollup Lift', value: '+18.2%' },
+    { label: 'Strategy Variety', value: '+250%' },
+    { label: 'Idea Spread', value: '+171%' },
+    { label: 'Quality Gate', value: '100%' },
+    { label: 'Quality vs Unsteered', value: '+2pp' },
   ];
 }
 
@@ -186,7 +118,7 @@ export function Gauntlet({ onBack }: GauntletProps) {
       <main className="gdemo__main">
         {/* Left: project list */}
         <aside className="gdemo__sidebar">
-          <p className="gdemo__sidebar-label">Curated Scenarios</p>
+          <p className="gdemo__sidebar-label">A Priori Benchmark Test</p>
           <div className="gdemo__project-list">
             {DEMO_PROJECTS.map((p, i) => (
               <button
@@ -245,7 +177,7 @@ export function Gauntlet({ onBack }: GauntletProps) {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.2 }}
                 >
-                  {getResultMetrics(selectedIdx).map(m => (
+                  {getResultMetrics().map(m => (
                     <div key={m.label} className="gauntlet__result-metric">
                       <span className="gauntlet__result-metric-label">{m.label}</span>
                       <span className="gauntlet__result-metric-value">{m.value}</span>
