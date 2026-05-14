@@ -12,6 +12,12 @@ export default {
     },
     extend: {
       colors: {
+        /* Pollen × Prism tokens */
+        paper:   { DEFAULT: "var(--paper)", 1: "var(--paper-1)", 2: "var(--paper-2)", 3: "var(--paper-3)" },
+        ink:     { 0: "var(--ink-0)", 1: "var(--ink-1)", 2: "var(--ink-2)", 3: "var(--ink-3)" },
+        brand:   { DEFAULT: "var(--brand)", deep: "var(--brand-deep)", soft: "var(--brand-soft)" },
+        gen:     { DEFAULT: "var(--gen)", soft: "var(--gen-soft)" },
+        /* shadcn compatibility */
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -46,10 +52,24 @@ export default {
           foreground: "hsl(var(--card-foreground))",
         },
       },
+      fontFamily: {
+        sans:    ["Inter Variable", "Inter", "ui-sans-serif", "system-ui"],
+        display: ["Fraunces", "Inter Variable", "Georgia", "serif"],
+        mono:    ["JetBrains Mono", "ui-monospace", "SFMono-Regular"],
+      },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        xs: "var(--radius-xs)",
+        sm: "var(--radius-sm)",
+        md: "var(--radius-md)",
+        lg: "var(--radius-lg)",
+        xl: "var(--radius-xl)",
+      },
+      boxShadow: {
+        rest:  "var(--shadow-rest)",
+        hover: "var(--shadow-hover)",
+        lift:  "var(--shadow-lift)",
+        brand: "var(--shadow-brand)",
+        gen:   "var(--shadow-gen)",
       },
       keyframes: {
         spotlight: {

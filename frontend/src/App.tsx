@@ -11,15 +11,12 @@
 import { useCallback, useEffect, useState } from 'react';
 import './index.css';
 import './components/nodes/nodes.css';
-import './pages/pages.css';
-import './pages/landing-scroll.css';
-import './pages/corpus1.css';
-import './pages/gauntlet.css';
 
 import { Corpus1Landing } from './pages/Corpus1Landing';
 import { Gauntlet } from './pages/Gauntlet';
 import { Dashboard } from './pages/Dashboard';
 import { Canvas } from './pages/Canvas';
+import { IntroSplash } from './components/IntroSplash';
 
 type Route =
   | { page: 'landing' }
@@ -44,6 +41,24 @@ function parseRoute(): Route {
 
 export default function App() {
   const [route, setRoute] = useState<Route>(parseRoute);
+
+  /* Intro splash — plays on landing-route fresh page loads.
+     Skipped when navigating back from another in-app route, and skipped once it has played
+     in the current tab session (so client-side hash changes don't replay it). */
+  const [showIntro, setShowIntro] = useState(
+    () => parseRoute().page === 'landing' && !sessionStorage.getItem('conceptial-intro-seen'),
+  );
+
+  /* Reset showIntro to true whenever the user explicitly reloads the landing page
+     by re-evaluating sessionStorage on hashchange to landing. (Doesn't fire on
+     initial mount — that's the useState initializer above.) */
+  useEffect(() => {
+    if (route.page === 'landing' && !sessionStorage.getItem('conceptial-intro-seen')) {
+      // covers HMR-state-preservation edge case
+      if (!showIntro) setShowIntro(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [route.page]);
 
   useEffect(() => {
     const handleHash = () => setRoute(parseRoute());
@@ -74,20 +89,36 @@ export default function App() {
   const openGauntlet = useCallback(() => navigateTo('/gauntlet'), [navigateTo]);
   const openLanding = useCallback(() => navigateTo('/'), [navigateTo]);
 
-  switch (route.page) {
-    case 'canvas':
-      return <Canvas key={route.projectId} projectId={route.projectId} onBack={openDashboard} />;
-    case 'gauntlet':
-      return <Gauntlet onBack={openLanding} />;
-    case 'dashboard':
-      return <Dashboard onOpenProject={openProject} />;
-    case 'landing':
-    default:
-      return (
-        <Corpus1Landing
-          onLaunchGauntlet={openGauntlet}
-          onOpenWorkspace={openDashboard}
+  const page = (() => {
+    switch (route.page) {
+      case 'canvas':
+        return <Canvas key={route.projectId} projectId={route.projectId} onBack={openDashboard} />;
+      case 'gauntlet':
+        return <Gauntlet onBack={openLanding} />;
+      case 'dashboard':
+        return <Dashboard onOpenProject={openProject} />;
+      case 'landing':
+      default:
+        return (
+          <Corpus1Landing
+            onLaunchGauntlet={openGauntlet}
+            onOpenWorkspace={openDashboard}
+          />
+        );
+    }
+  })();
+
+  return (
+    <>
+      {page}
+      {showIntro && (
+        <IntroSplash
+          onDone={() => {
+            sessionStorage.setItem('conceptial-intro-seen', '1');
+            setShowIntro(false);
+          }}
         />
-      );
-  }
+      )}
+    </>
+  );
 }

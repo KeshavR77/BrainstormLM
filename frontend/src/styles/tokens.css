@@ -1,0 +1,147 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   Conceptial — Design Tokens
+   "Pollen × Prism" — warm editorial cream + ink + magenta anchor,
+   with an OKLCH hue-rotating accent (--gen) for generative signal.
+   This file is the canonical palette. Other CSS aliases to these.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Pollen: warm editorial base ──────────────────────────────────── */
+  --paper:        #F4EFE6;   /* canvas — warm cream */
+  --paper-1:      #EFE9DC;
+  --paper-2:      #ECE6D8;   /* elevated surface */
+  --paper-3:      #DDD4C0;   /* divider / heavy */
+  --paper-glow:   rgba(244, 239, 230, 0.6);
+
+  /* ── Ink: type & strokes ──────────────────────────────────────────── */
+  --ink-0:        #161318;   /* primary type, headlines */
+  --ink-1:        #3C3540;   /* secondary type */
+  --ink-2:        #6F6470;   /* muted type */
+  --ink-3:        #A8A0A8;   /* placeholders, dividers on cream */
+  --ink-line:     rgba(22, 19, 24, 0.10);
+  --ink-line-soft:rgba(22, 19, 24, 0.05);
+  --ink-line-bold:rgba(22, 19, 24, 0.18);
+
+  /* ── Brand: magenta anchor (use sparingly) ────────────────────────── */
+  --brand:        #E11D74;
+  --brand-deep:   #B81461;
+  --brand-soft:   #FFD9E8;
+  --brand-tint:   rgba(225, 29, 116, 0.08);
+  --brand-glow:   0 0 0 6px rgba(225, 29, 116, 0.14);
+
+  /* ── Prism: OKLCH-rotating generative accent ──────────────────────── */
+  /* default hue = 280 (violet). Per-scope, set --gen-hue to rotate.
+     depth 0:280  1:320  2:25  3:140  4:200 (set in components/inline). */
+  --gen-hue:      280;
+  --gen-chroma:   0.20;
+  --gen-light:    0.62;
+
+  --gen:          oklch(var(--gen-light) var(--gen-chroma) var(--gen-hue));
+  --gen-soft:     oklch(0.92 0.06 var(--gen-hue));
+  --gen-line:     oklch(var(--gen-light) var(--gen-chroma) var(--gen-hue) / 0.35);
+  --gen-tint:     oklch(0.95 0.04 var(--gen-hue) / 0.6);
+
+  /* ── Editorial typography ─────────────────────────────────────────── */
+  --font-sans:    'Inter Variable', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-display: 'Fraunces', 'Inter Variable', 'Inter', Georgia, serif;
+  --font-mono:    'JetBrains Mono', 'SFMono-Regular', 'Consolas', 'Liberation Mono', monospace;
+
+  /* Display weights for variable Fraunces (300–900 axis) */
+  --display-soft:    300;
+  --display-default: 420;
+  --display-bold:    640;
+
+  /* ── Geometry ─────────────────────────────────────────────────────── */
+  --radius-xs:    4px;
+  --radius-sm:    8px;
+  --radius-md:    12px;
+  --radius-lg:    18px;
+  --radius-xl:    26px;
+  --radius-full:  9999px;
+
+  /* ── Shadow stack (warm, paper-aware) ─────────────────────────────── */
+  --shadow-rest:  0 1px 0 rgba(22,19,24,0.04), 0 0 0 1px rgba(22,19,24,0.06);
+  --shadow-hover: 0 6px 18px rgba(22,19,24,0.07), 0 0 0 1px rgba(22,19,24,0.06);
+  --shadow-lift:  0 18px 40px rgba(22,19,24,0.10), 0 0 0 1px rgba(22,19,24,0.08);
+  --shadow-brand: 0 12px 32px rgba(225,29,116,0.18);
+  --shadow-gen:   0 0 0 1px oklch(var(--gen-light) var(--gen-chroma) var(--gen-hue) / 0.4),
+                  0 8px 28px oklch(var(--gen-light) var(--gen-chroma) var(--gen-hue) / 0.18);
+
+  /* ── Motion ───────────────────────────────────────────────────────── */
+  --ease-out:    cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --t-fast:   140ms var(--ease-out);
+  --t-base:   220ms var(--ease-out);
+  --t-smooth: 360ms var(--ease-out);
+  --t-slow:   620ms var(--ease-out);
+}
+
+/* ── Optional dark mode (workspace power-user opt-in via body.is-dark) ── */
+body.is-dark {
+  --paper:      #14110F;
+  --paper-1:    #1A1714;
+  --paper-2:    #1C1814;
+  --paper-3:    #2A2520;
+  --paper-glow: rgba(20, 17, 15, 0.6);
+  --ink-0:      #F4EFE6;
+  --ink-1:      #C8BFB2;
+  --ink-2:      #8E8478;
+  --ink-3:      #5E574E;
+  --ink-line:      rgba(244, 239, 230, 0.10);
+  --ink-line-soft: rgba(244, 239, 230, 0.05);
+  --ink-line-bold: rgba(244, 239, 230, 0.20);
+  --shadow-rest:  0 1px 0 rgba(0,0,0,0.4),  0 0 0 1px rgba(244,239,230,0.06);
+  --shadow-hover: 0 6px 18px rgba(0,0,0,0.45), 0 0 0 1px rgba(244,239,230,0.08);
+  --shadow-lift:  0 18px 40px rgba(0,0,0,0.55), 0 0 0 1px rgba(244,239,230,0.10);
+}
+
+/* ── Legacy alias bridge ──────────────────────────────────────────────
+   Map old Studio Midnight variable names to new tokens so existing
+   components remap automatically. Drop these as files migrate. */
+:root {
+  --bg-base:        var(--paper);
+  --bg-primary:     var(--paper);
+  --bg-secondary:   var(--paper-1);
+  --bg-surface:     var(--paper-2);
+  --bg-hover:       var(--paper-2);
+  --bg-active:      var(--paper-3);
+  --bg-elevated:    var(--paper-1);
+  --bg-glass:       var(--brand-tint);
+
+  --text-primary:   var(--ink-0);
+  --text-secondary: var(--ink-1);
+  --text-muted:     var(--ink-2);
+  --text-bright:    var(--ink-0);
+  --text-inverse:   var(--paper);
+  --text-purple:    var(--brand);
+  --text-purple-soft: var(--brand-deep);
+  --text-gold:      var(--brand);
+  --text-gold-soft: var(--brand-deep);
+  --text-teal:      var(--gen);
+
+  --accent-primary:       var(--brand);
+  --accent-primary-hover: var(--brand-deep);
+  --accent-primary-deep:  var(--brand-deep);
+  --accent-pink:          var(--brand);
+  --accent-teal:          var(--gen);
+
+  --border-subtle:  var(--ink-line-soft);
+  --border-default: var(--ink-line);
+  --border-strong:  var(--ink-line-bold);
+  --border-purple:  rgba(225, 29, 116, 0.32);
+  --border-focus:   rgba(225, 29, 116, 0.55);
+  --border-gold:    rgba(225, 29, 116, 0.32);
+
+  --shadow-sm:        var(--shadow-rest);
+  --shadow-md:        var(--shadow-hover);
+  --shadow-lg:        var(--shadow-lift);
+  --shadow-xl:        var(--shadow-lift);
+  --shadow-purple:    var(--shadow-brand);
+  --shadow-purple-lg: var(--shadow-brand);
+  --shadow-gold:      var(--shadow-brand);
+
+  --transition-fast:   var(--t-fast);
+  --transition-base:   var(--t-base);
+  --transition-smooth: var(--t-smooth);
+}

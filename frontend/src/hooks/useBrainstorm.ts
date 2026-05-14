@@ -291,6 +291,11 @@ export function useBrainstorm(projectId: string) {
     0,
   );
 
+  /** Replace the entire tree (used by history undo/redo and snapshot restore). */
+  const replaceTree = useCallback((next: BrainstormTree) => {
+    setTree(next);
+  }, []);
+
   return {
     tree,
     phase,
@@ -305,6 +310,7 @@ export function useBrainstorm(projectId: string) {
     addCustomIdea,
     submitNodeFeedback,
     submitCritique,
+    replaceTree,
     nodeCount,
     maxDepth,
     hasRoot: tree.rootId !== null,
