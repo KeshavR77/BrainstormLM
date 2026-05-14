@@ -16,22 +16,37 @@ const comparisons = mockData.comparisons;
 
 const DEMO_IDEA_MAPS = [
   [
-    { title: 'Visionary alignment',     description: 'Prove value against GC risk, not feature volume.',                 metric: '4.15 Vendi'      },
-    { title: 'Trusted advisor leverage',description: 'Use existing advisory trust as the distribution moat.',           metric: '8.5 coherence'   },
-    { title: 'Innovation hubs',         description: 'Co-develop inside client labs for credible references.',           metric: 'Joint proof'     },
-    { title: 'Strategic law-firm partners', description: 'Turn top-tier firm relationships into a proof engine.',        metric: 'Enterprise pull' },
-    { title: 'Phased integration',      description: 'Meet DMS, governance, and procurement where they are.',           metric: 'Lower friction'  },
+    { title: 'Visionary alignment',     description: 'Prove value against GC risk, not feature volume.',                 metric: 'Risk-first pitch' },
+    { title: 'Trusted advisor leverage',description: 'Use existing advisory trust as the distribution moat.',           metric: 'Trust moat'       },
+    { title: 'Innovation hubs',         description: 'Co-develop inside client labs for credible references.',           metric: 'Joint proof'      },
+    { title: 'Strategic law-firm partners', description: 'Turn top-tier firm relationships into a proof engine.',        metric: 'Enterprise pull'  },
+    { title: 'Phased integration',      description: 'Meet DMS, governance, and procurement where they are.',           metric: 'Lower friction'   },
   ],
 ];
 
 const METRICS = [
-  { label: 'Strategy variety', value: '+250%', hue: depthHue(0) },
-  { label: 'Idea spread',      value: '+171%', hue: depthHue(1) },
-  { label: 'Quality gate',     value: '100%',  hue: -1 /* brand */ },
+  {
+    label: 'More distinct strategies',
+    value: '14 vs 4',
+    note: 'Baseline collapses to 4 archetypes; Conceptial returns 14',
+    hue: depthHue(0),
+  },
+  {
+    label: 'More correct paths',
+    value: '+25%',
+    note: 'Pass@5 — 5 / 5 valid answers vs 4 / 5 baseline',
+    hue: depthHue(1),
+  },
+  {
+    label: 'Quality gate pass',
+    value: '100%',
+    note: 'Coherence + relevance held on every judged sample',
+    hue: -1 /* brand */,
+  },
 ];
 
 const STRATEGY_VARIETY_NOTE =
-  'Strategy variety (+250%) is the lift when distinct strategy archetypes go from 4 on the baseline to 14 on this steered run — same prompt, more separate strategic modes.';
+  'Same prompt, same model — only the steering vector changes. The baseline LLM lands on one popular angle and a few near-duplicates; Conceptial fans into 14 separate strategic modes that each pass the quality gate.';
 
 interface GauntletProps { onBack: () => void }
 
@@ -259,6 +274,7 @@ export function Gauntlet({ onBack }: GauntletProps) {
                       >
                         {m.value}
                       </div>
+                      <div className="mt-1.5 text-[10px] text-ink-3 leading-snug">{m.note}</div>
                     </div>
                   ))}
                 </div>
