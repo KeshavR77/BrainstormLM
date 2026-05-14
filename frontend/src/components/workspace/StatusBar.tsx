@@ -3,7 +3,7 @@
  */
 import { Keyboard, PanelLeft, PanelRight, PanelLeftClose, PanelRightClose } from 'lucide-react';
 import { useWorkspaceStore } from '../../stores/workspaceStore';
-import type { BrainstormPhase } from '../../lib/brainstormMachine';
+import type { BrainstormPhase } from '../../types';
 
 interface Props {
   phase: BrainstormPhase;

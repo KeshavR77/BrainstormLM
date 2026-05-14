@@ -18,7 +18,7 @@ import { CursorSpotlight } from '../components/landing/CursorSpotlight';
 import { MorphingWordmark } from '../components/landing/MorphingWordmark';
 import { HeroTreeGrowth } from '../components/landing/HeroTreeGrowth';
 import { ScrollScrubber } from '../components/landing/ScrollScrubber';
-import { Logo, Wordmark } from '../components/Logo';
+import { Wordmark } from '../components/Logo';
 import { fadeRise, linesReveal, popIn, staggerContainer, staggerFast, depthHue as depthHueAt } from '../styles/motion';
 
 interface Props {

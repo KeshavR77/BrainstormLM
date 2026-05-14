@@ -4,7 +4,7 @@
  */
 import { useCallback, useState } from 'react';
 import { ArrowLeft, ChevronRight, Share2, Command, Undo2, Redo2, Clock, MessageSquare } from 'lucide-react';
-import type { BrainstormPhase } from '../../lib/brainstormMachine';
+import type { BrainstormPhase } from '../../types';
 import { useWorkspaceStore } from '../../stores/workspaceStore';
 import { Logo } from '../Logo';
 

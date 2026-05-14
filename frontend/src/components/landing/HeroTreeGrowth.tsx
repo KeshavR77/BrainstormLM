@@ -216,10 +216,10 @@ export function HeroTreeGrowth({ className = '' }: { className?: string }) {
                 <motion.circle
                   r={0.7}
                   fill="var(--brand)"
-                  initial={{ opacity: 0, offsetDistance: '0%' } as React.CSSProperties}
+                  initial={{ opacity: 0, offsetDistance: '0%' } as any}
                   animate={rootReady
-                    ? { opacity: [0, 1, 1, 0, 0, 1, 1, 0],
-                        offsetDistance: ['0%', '20%', '85%', '100%', '0%', '20%', '85%', '100%'] } as React.CSSProperties
+                    ? ({ opacity: [0, 1, 1, 0, 0, 1, 1, 0],
+                        offsetDistance: ['0%', '20%', '85%', '100%', '0%', '20%', '85%', '100%'] } as any)
                     : {}}
                   transition={{
                     duration: 6,

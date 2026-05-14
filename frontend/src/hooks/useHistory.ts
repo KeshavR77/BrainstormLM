@@ -11,7 +11,7 @@
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { BrainstormTree } from '../types';
-import type { BrainstormPhase } from '../lib/brainstormMachine';
+import type { BrainstormPhase } from '../types';
 
 const MAX_HISTORY = 50;
 
