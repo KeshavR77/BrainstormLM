@@ -288,32 +288,31 @@ input, textarea {
 .input {
   width: 100%;
   padding: 10px 12px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--border-default);
+  background: var(--paper-1);
+  border: 1px solid var(--ink-line);
   border-radius: var(--radius-md);
-  color: var(--text-primary);
+  color: var(--ink-0);
   font-size: 14px;
   line-height: 1.5;
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
   outline: none;
-  backdrop-filter: blur(8px);
 }
 
 .input:focus {
-  border-color: var(--accent-primary);
-  background: rgba(201, 165, 92, 0.08);
-  box-shadow: 0 0 0 3px rgba(201, 165, 92, 0.18);
+  border-color: var(--brand);
+  background: var(--paper);
+  box-shadow: 0 0 0 3px rgba(225, 29, 116, 0.18);
 }
 
 .input::placeholder {
-  color: var(--text-muted);
+  color: var(--ink-3);
 }
 
 .input-label {
   display: block;
   font-size: 12px;
   font-weight: 500;
-  color: var(--text-purple-soft);
+  color: var(--ink-1);
   margin-bottom: 6px;
   letter-spacing: 0.01em;
 }
@@ -332,7 +331,7 @@ textarea.input {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(5, 3, 15, 0.75);
+  background: rgba(22, 19, 24, 0.45);
   backdrop-filter: blur(8px);
   animation: fadeIn 0.15s var(--ease-out);
 }
@@ -340,13 +339,13 @@ textarea.input {
 .modal {
   width: 90%;
   max-width: 480px;
-  background: linear-gradient(135deg, rgba(22, 22, 32, 0.96), rgba(14, 14, 22, 0.96));
-  border: 1px solid var(--border-gold);
+  background: var(--paper);
+  border: 1px solid var(--ink-line);
   border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-xl), 0 0 80px rgba(201, 165, 92, 0.18);
+  box-shadow: 0 24px 60px -12px rgba(22, 19, 24, 0.25), 0 0 0 1px rgba(22, 19, 24, 0.05);
   animation: slideUp 0.2s var(--ease-out);
   overflow: hidden;
-  color: var(--text-primary);
+  color: var(--ink-0);
 }
 
 .modal-header {
