@@ -21,7 +21,7 @@ export function PhaseBanner({ phase }: PhaseBannerProps) {
           <span className="phase-banner__dot phase-banner__dot--gold" />
           <Loader2 size={13} className="spin" />
           <span className="phase-banner__text">
-            Corpius exploring...
+            Exploring directions...
             <span className="phase-banner__count">
               {phase.rawIdeas.length} directions found
             </span>

@@ -27,11 +27,74 @@ from pathlib import Path
 
 import torch
 
-from brainstormlm.conceptial.demo_packs import DemoIdea, all_demo_ideas
+from brainstormlm.conceptial.demo_packs import (
+    CONCEPTIAL_PACKS,
+    DemoIdea,
+    all_demo_ideas,
+)
 from brainstormlm.conceptial.idea_store import (
     SOURCE_GENERATED,
     IdeaMemoryStore,
 )
+
+
+# Keyword → pack mapping. Order matters (first match wins).
+_PACK_KEYWORDS: list[tuple[str, tuple[str, ...]]] = [
+    (
+        "brand-identity",
+        (
+            "identity",
+            "logo",
+            "logomark",
+            "wordmark",
+            "brand",
+            "typography",
+            "type system",
+            "visual system",
+            "palette",
+        ),
+    ),
+    (
+        "campaign-craft",
+        (
+            "campaign",
+            "launch",
+            "drop",
+            "press",
+            "editorial",
+            "concept directions",
+            "marketing",
+            "promotional",
+        ),
+    ),
+    (
+        "object-design",
+        (
+            "packaging",
+            "package",
+            "carton",
+            "bottle",
+            "object",
+            "physical",
+            "merch",
+            "product design",
+            "container",
+        ),
+    ),
+]
+
+
+def _pack_for_prompt(prompt: str) -> str | None:
+    """Pick the most likely pack for a brief based on keyword matching.
+
+    Returns ``None`` if no keyword matches — falls back to full-catalogue
+    rotation in that case.
+    """
+    lowered = prompt.lower()
+    for pack_name, kws in _PACK_KEYWORDS:
+        if any(kw in lowered for kw in kws):
+            return pack_name
+    return None
 
 
 @dataclass(frozen=True)
@@ -110,20 +173,38 @@ class ConceptialStreamingSource:
         prompt: str,
         emitted_in_this_call: list[str],
     ) -> DemoIdea | None:
-        """Pick the next idea: first non-excluded one in a deterministic rotation.
+        """Pick the next idea, brief-aware.
 
-        Rotation seed: hash(prompt, project_id). Within one call, we also skip
-        anything we've emitted in this call (so back-to-back ideas don't repeat
-        even if the store write hasn't flushed yet).
+        Strategy:
+        1. Detect the most likely pack from the brief's keywords. If matched,
+           prefer ideas in that pack first; only fall through to other packs
+           once the pack is exhausted (after exclusion).
+        2. Within the preferred pack, rotate deterministically by
+           hash(prompt, project_id). Anti-mode + within-call exclusions filter
+           the candidate set.
+        3. Fallback: rotate through the full catalogue.
         """
-        seed = _hash_seed(prompt, self.project_id)
-        n_cat = len(self._catalogue)
         already = self._exclusions() | {_norm(s) for s in emitted_in_this_call}
-        # Start at seed offset; walk forward until we hit one not in exclusion list.
-        for k in range(n_cat):
-            idx = (seed + k) % n_cat
-            cand = self._catalogue[idx]
-            if _norm(cand.summary) not in already:
+        seed = _hash_seed(prompt, self.project_id)
+
+        preferred_pack = _pack_for_prompt(prompt)
+        if preferred_pack and preferred_pack in CONCEPTIAL_PACKS:
+            pack_ideas = CONCEPTIAL_PACKS[preferred_pack]
+            cand = self._first_unblocked(pack_ideas, seed, already)
+            if cand is not None:
+                return cand
+
+        # Fallback: any pack.
+        return self._first_unblocked(self._catalogue, seed, already)
+
+    @staticmethod
+    def _first_unblocked(
+        ideas: list[DemoIdea], seed: int, exclude: set[str]
+    ) -> DemoIdea | None:
+        n = len(ideas)
+        for k in range(n):
+            cand = ideas[(seed + k) % n]
+            if _norm(cand.summary) not in exclude:
                 return cand
         return None
 

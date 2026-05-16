@@ -5,6 +5,7 @@
    ═══════════════════════════════════════════════════════════════════════ */
 
 @import './styles/tokens.css';
+@import './pages/pages.css';
 @import '@xyflow/react/dist/style.css';
 @import url('https://rsms.me/inter/inter.css');
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=JetBrains+Mono:wght@400;500;700&display=swap');

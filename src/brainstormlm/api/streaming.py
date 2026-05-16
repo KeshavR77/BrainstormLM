@@ -161,7 +161,11 @@ def build_streaming_router(
         store = get_demo_store()
         project_id = req.project_id or _default_project_id(req.prompt)
 
-        if req.reset_project:
+        # When the client didn't pass a project_id, treat each call as a fresh
+        # session — otherwise the anonymous project accumulates state across
+        # unrelated requests and exhausts the catalogue. Explicit project_id
+        # callers (the canvas) get persistent memory by default.
+        if req.reset_project or not req.project_id:
             store.delete_project(project_id)
 
         n = max(1, min(req.n_ideas, 8))
