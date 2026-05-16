@@ -180,10 +180,18 @@ def build_streaming_router(
             },
         )
 
+        # Pacing: realistic SSE cadence by default. Set CONCEPTIAL_DEMO_FAST=1
+        # to fire ideas instantly (useful for dev iteration; the live demo
+        # wants the pacing for visible streaming).
+        fast_mode = os.environ.get("CONCEPTIAL_DEMO_FAST", "").lower() in (
+            "1",
+            "true",
+            "yes",
+        )
         source = ConceptialStreamingSource(
             store=store,
             project_id=project_id,
-            pacing=True,
+            pacing=not fast_mode,
         )
 
         emitted: list[dict] = []
