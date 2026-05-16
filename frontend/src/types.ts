@@ -28,7 +28,18 @@ export interface BrainstormNode {
   isExpanded: boolean;
   children: string[];
   trajectoryId?: string;
+  ideaId?: string;
   feedbackGiven?: 'up' | 'down';
+  isExplored?: boolean;
+}
+
+// ── Project Memory ───────────────────────────────────────────────────
+
+export interface ProjectMemoryCounts {
+  projectId: string;
+  seeded: number;
+  generated: number;
+  total: number;
 }
 
 export interface BrainstormEdge {
@@ -50,6 +61,8 @@ export interface PartialIdea {
   content: string;
   temperature?: number;
   creativityScore?: number;
+  ideaId?: string;
+  pack?: string;
 }
 
 export type BrainstormPhase =
@@ -64,7 +77,8 @@ export type BrainstormEvent =
   | { type: 'RAW_IDEA_ARRIVED'; idea: PartialIdea }
   | { type: 'DIVERSE_POOL_DONE'; count: number }
   | { type: 'SYNTHESIS_PROGRESS'; progress: number }
-  | { type: 'SYNTHESIS_COMPLETE'; ideas: { summary: string; content: string; trajectory_id: string }[] }
+  | { type: 'SYNTHESIS_COMPLETE'; ideas: { summary: string; content: string; trajectory_id: string; idea_id?: string }[] }
+  | { type: 'MEMORY_UPDATED'; counts: ProjectMemoryCounts }
   | { type: 'ERROR'; message: string }
   | { type: 'RESET' };
 

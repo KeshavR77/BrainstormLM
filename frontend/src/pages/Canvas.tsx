@@ -41,6 +41,7 @@ import { useHistory } from '../hooks/useHistory';
 import { useSnapshots } from '../hooks/useSnapshots';
 import { useComments } from '../hooks/useComments';
 import { SteeringTelemetry } from '../components/SteeringTelemetry';
+import { MemoryChip } from '../components/MemoryChip';
 import { useBrainstorm } from '../hooks/useBrainstorm';
 import { useProjects } from '../hooks/useProjects';
 import { useWorkspaceStore } from '../stores/workspaceStore';
@@ -58,6 +59,7 @@ function CanvasInner({ projectId, onBack }: CanvasPageProps) {
     submitSeed, expandNode, expandWithPrompt, selectIdea,
     editNode, addCustomIdea, submitNodeFeedback, submitCritique,
     replaceTree,
+    memoryCounts, resetMemory,
     nodeCount, maxDepth, hasRoot,
   } = useBrainstorm(projectId);
 
@@ -335,6 +337,7 @@ function CanvasInner({ projectId, onBack }: CanvasPageProps) {
             </ReactFlow>
 
             <SteeringTelemetry phase={phase} />
+            <MemoryChip counts={memoryCounts} onReset={resetMemory} />
           </div>
           )}
         </>

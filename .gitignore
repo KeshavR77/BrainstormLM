@@ -26,3 +26,5 @@ src/wic/venv/
 artifacts/conceptial/V17_*.md
 artifacts/conceptial/V17_*.scores.*
 artifacts/conceptial/ANTIMODE_SMOKE*.md
+.claude/scheduled_tasks.lock
+.claude/worktrees/

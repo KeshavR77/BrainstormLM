@@ -14,6 +14,13 @@ export function brainstormReducer(
     return IDLE;
   }
 
+  // Memory chip updates are orthogonal to the generation phase — they tick
+  // any time the server reports new memory counts and don't alter the
+  // generation state machine itself.
+  if (event.type === 'MEMORY_UPDATED') {
+    return state;
+  }
+
   switch (state.status) {
     case 'IDLE':
       if (event.type === 'START_GENERATION') {

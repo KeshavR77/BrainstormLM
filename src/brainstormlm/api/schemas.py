@@ -52,6 +52,15 @@ class BrainstormRequest(BaseModel):
     context: str | None = None
     n_ideas: int = Field(default=4, ge=1, le=8)
     use_memory: bool = False
+    project_id: str | None = None
+    reset_project: bool = False
+
+
+class MemoryCountResponse(BaseModel):
+    project_id: str
+    seeded: int
+    generated: int
+    total: int
 
 
 class IdeaBranch(BaseModel):

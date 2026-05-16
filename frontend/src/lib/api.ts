@@ -1,4 +1,4 @@
-import type { BrainstormEvent } from '../types';
+import type { BrainstormEvent, ProjectMemoryCounts } from '../types';
 import { mockGeneratePhased } from './mockEngine';
 
 const BASE = import.meta.env.VITE_API_URL ?? '';
@@ -8,6 +8,7 @@ export async function generateIdeas(
   prompt: string,
   userPrompt?: string,
   nIdeas = 4,
+  projectId?: string,
 ): Promise<{ summary: string; content: string; trajectory_id: string }[]> {
   const res = await fetch(`${BASE}/brainstorm`, {
     method: 'POST',
@@ -17,6 +18,7 @@ export async function generateIdeas(
       context: userPrompt ?? null,
       n_ideas: nIdeas,
       use_memory: true,
+      project_id: projectId ?? null,
     }),
   });
   if (!res.ok) throw new Error(`API error ${res.status}`);
@@ -28,23 +30,31 @@ export async function generateIdeasPhased(
   prompt: string,
   context: string | undefined,
   dispatch: (event: BrainstormEvent) => void,
-): Promise<{ summary: string; content: string; trajectory_id: string }[]> {
+  projectId?: string,
+): Promise<{ summary: string; content: string; trajectory_id: string; idea_id?: string }[]> {
   if (USE_MOCK) {
-    return mockGeneratePhased(prompt, context, dispatch);
+    return mockGeneratePhased(prompt, context, dispatch, projectId);
   }
-  return liveGeneratePhased(prompt, context, dispatch);
+  return liveGeneratePhased(prompt, context, dispatch, projectId);
 }
 
 async function liveGeneratePhased(
   prompt: string,
   context: string | undefined,
   dispatch: (event: BrainstormEvent) => void,
-): Promise<{ summary: string; content: string; trajectory_id: string }[]> {
+  projectId?: string,
+): Promise<{ summary: string; content: string; trajectory_id: string; idea_id?: string }[]> {
   try {
     const res = await fetch(`${BASE}/brainstorm/stream`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt, context: context ?? null, n_ideas: 4, use_memory: true }),
+      body: JSON.stringify({
+        prompt,
+        context: context ?? null,
+        n_ideas: 4,
+        use_memory: true,
+        project_id: projectId ?? null,
+      }),
     });
 
     if (!res.ok) throw new Error(`Stream API error ${res.status}`);
@@ -52,7 +62,7 @@ async function liveGeneratePhased(
     const reader = res.body!.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
-    const finalIdeas: { summary: string; content: string; trajectory_id: string }[] = [];
+    const finalIdeas: { summary: string; content: string; trajectory_id: string; idea_id?: string }[] = [];
 
     while (true) {
       const { done, value } = await reader.read();
@@ -79,7 +89,23 @@ async function liveGeneratePhased(
           case 'raw_idea':
             dispatch({
               type: 'RAW_IDEA_ARRIVED',
-              idea: { summary: parsed.summary, content: parsed.content },
+              idea: {
+                summary: parsed.summary,
+                content: parsed.content,
+                ideaId: parsed.idea_id,
+                pack: parsed.pack,
+              },
+            });
+            break;
+          case 'memory':
+            dispatch({
+              type: 'MEMORY_UPDATED',
+              counts: {
+                projectId: parsed.project_id,
+                seeded: parsed.seeded ?? 0,
+                generated: parsed.generated ?? 0,
+                total: parsed.total ?? 0,
+              },
             });
             break;
           case 'phase':
@@ -95,6 +121,7 @@ async function liveGeneratePhased(
               summary: parsed.summary,
               content: parsed.content,
               trajectory_id: parsed.trajectory_id,
+              idea_id: parsed.idea_id,
             });
             break;
           case 'done':
@@ -107,9 +134,75 @@ async function liveGeneratePhased(
     return finalIdeas;
   } catch {
     // Fall back to non-streaming endpoint
-    const ideas = await generateIdeas(prompt, context);
+    const ideas = await generateIdeas(prompt, context, 4, projectId);
     dispatch({ type: 'SYNTHESIS_COMPLETE', ideas });
     return ideas;
+  }
+}
+
+/** Read project memory counts directly (for the chip on canvas mount). */
+export async function fetchMemoryCounts(projectId: string): Promise<ProjectMemoryCounts | null> {
+  if (USE_MOCK) {
+    return readMockMemory(projectId);
+  }
+  try {
+    const res = await fetch(`${BASE}/v1/memory/count?project_id=${encodeURIComponent(projectId)}`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    return {
+      projectId: data.project_id,
+      seeded: data.seeded ?? 0,
+      generated: data.generated ?? 0,
+      total: data.total ?? 0,
+    };
+  } catch {
+    return null;
+  }
+}
+
+/** Reset a project's memory (clear all seeded + generated entries). */
+export async function resetProjectMemory(projectId: string): Promise<number> {
+  if (USE_MOCK) {
+    clearMockMemory(projectId);
+    return 0;
+  }
+  try {
+    const res = await fetch(`${BASE}/v1/memory/reset?project_id=${encodeURIComponent(projectId)}`, {
+      method: 'POST',
+    });
+    if (!res.ok) return 0;
+    const data = await res.json();
+    return data.deleted ?? 0;
+  } catch {
+    return 0;
+  }
+}
+
+const MOCK_MEMORY_KEY = (projectId: string) => `mock-memory-${projectId}`;
+
+function readMockMemory(projectId: string): ProjectMemoryCounts {
+  try {
+    const raw = localStorage.getItem(MOCK_MEMORY_KEY(projectId));
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      return {
+        projectId,
+        seeded: parsed.seeded ?? 0,
+        generated: parsed.generated ?? 0,
+        total: (parsed.seeded ?? 0) + (parsed.generated ?? 0),
+      };
+    }
+  } catch {
+    /* ignore */
+  }
+  return { projectId, seeded: 0, generated: 0, total: 0 };
+}
+
+function clearMockMemory(projectId: string): void {
+  try {
+    localStorage.removeItem(MOCK_MEMORY_KEY(projectId));
+  } catch {
+    /* ignore */
   }
 }
 

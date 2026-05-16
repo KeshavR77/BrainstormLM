@@ -1,6 +1,16 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
-import type { BrainstormNode, BrainstormEdge, BrainstormTree } from '../types';
-import { generateIdeasPhased, submitFeedback } from '../lib/api';
+import type {
+  BrainstormNode,
+  BrainstormEdge,
+  BrainstormTree,
+  ProjectMemoryCounts,
+} from '../types';
+import {
+  fetchMemoryCounts,
+  generateIdeasPhased,
+  resetProjectMemory,
+  submitFeedback,
+} from '../lib/api';
 import { brainstormReducer, IDLE, isLoading } from '../lib/brainstormMachine';
 import { DEMO_PROJECT_ID, DEMO_TREE } from '../lib/demoProject';
 
@@ -36,6 +46,12 @@ export function useBrainstorm(projectId: string) {
   const [tree, setTree] = useState<BrainstormTree>(() => loadTree(projectId));
   const [phase, dispatch] = useReducer(brainstormReducer, IDLE);
   const [activeNodeId, setActiveNodeId] = useState<string | null>(null);
+  const [memoryCounts, setMemoryCounts] = useState<ProjectMemoryCounts>({
+    projectId,
+    seeded: 0,
+    generated: 0,
+    total: 0,
+  });
   const treeRef = useRef(tree);
 
   const loading = isLoading(phase);
@@ -48,6 +64,33 @@ export function useBrainstorm(projectId: string) {
     saveTree(projectId, tree);
   }, [projectId, tree]);
 
+  /* Fetch memory counts on mount + when projectId changes */
+  useEffect(() => {
+    let alive = true;
+    fetchMemoryCounts(projectId).then((c) => {
+      if (alive && c) setMemoryCounts(c);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [projectId]);
+
+  /* Intercept MEMORY_UPDATED events from the SSE stream so the chip ticks live */
+  const dispatchWithMemory = useCallback(
+    (event: Parameters<typeof dispatch>[0]) => {
+      if (event.type === 'MEMORY_UPDATED') {
+        setMemoryCounts(event.counts);
+      }
+      dispatch(event);
+    },
+    [],
+  );
+
+  const resetMemory = useCallback(async () => {
+    await resetProjectMemory(projectId);
+    setMemoryCounts({ projectId, seeded: 0, generated: 0, total: 0 });
+  }, [projectId]);
+
   // ── Expand a node (generate children) ─────────────────────────
 
   const expandNodeInner = useCallback(
@@ -56,9 +99,9 @@ export function useBrainstorm(projectId: string) {
       const node = t.nodes[nodeId];
       if (!node || node.isExpanded) return;
 
-      dispatch({ type: 'START_GENERATION', prompt: node.content });
+      dispatchWithMemory({ type: 'START_GENERATION', prompt: node.content });
       try {
-        const ideas = await generateIdeasPhased(node.content, userPrompt, dispatch);
+        const ideas = await generateIdeasPhased(node.content, userPrompt, dispatchWithMemory, projectId);
         const newNodes: Record<string, BrainstormNode> = {};
         const newEdges: BrainstormEdge[] = [];
         const childIds: string[] = [];
@@ -78,6 +121,7 @@ export function useBrainstorm(projectId: string) {
             isExpanded: false,
             children: [],
             trajectoryId: idea.trajectory_id,
+            ideaId: idea.idea_id,
             feedbackGiven: undefined,
           };
 
@@ -98,10 +142,13 @@ export function useBrainstorm(projectId: string) {
           edges: [...prev.edges, ...newEdges],
         }));
       } catch (err) {
-        dispatch({ type: 'ERROR', message: err instanceof Error ? err.message : 'Generation failed' });
+        dispatchWithMemory({
+          type: 'ERROR',
+          message: err instanceof Error ? err.message : 'Generation failed',
+        });
       }
     },
-    [],
+    [dispatchWithMemory, projectId],
   );
 
   // ── Submit seed ────────────────────────────────────────────────
@@ -296,6 +343,22 @@ export function useBrainstorm(projectId: string) {
     setTree(next);
   }, []);
 
+  /* Toggle a node's "explored" flag — UI dims it to communicate that
+     the user has consciously moved past this branch. */
+  const toggleExplored = useCallback((nodeId: string) => {
+    setTree((prev) => {
+      const node = prev.nodes[nodeId];
+      if (!node) return prev;
+      return {
+        ...prev,
+        nodes: {
+          ...prev.nodes,
+          [nodeId]: { ...node, isExplored: !node.isExplored },
+        },
+      };
+    });
+  }, []);
+
   return {
     tree,
     phase,
@@ -310,7 +373,10 @@ export function useBrainstorm(projectId: string) {
     addCustomIdea,
     submitNodeFeedback,
     submitCritique,
+    toggleExplored,
     replaceTree,
+    memoryCounts,
+    resetMemory,
     nodeCount,
     maxDepth,
     hasRoot: tree.rootId !== null,

@@ -1,24 +1,57 @@
 """SSE streaming endpoint for phased brainstorm generation.
 
 POST /brainstorm/stream returns Server-Sent Events showing the two-phase
-generation process: Corpius diverse exploration followed by quality synthesis.
+generation process: diverse exploration followed by quality synthesis.
+
+Two execution modes:
+- ``CONCEPTIAL_DEMO_MODE=true`` (default for the live demo): high-quality
+  pre-written ideas streamed at realistic pacing via the Conceptial demo
+  source. Project-scoped memory persists across regenerations through
+  ``IdeaMemoryStore``. No model load required.
+- Default (with ML stack available): real Corpius generation per the
+  existing ``_live_stream`` path. Kept for future swap-in.
+
+The demo-mode path is the production default because Qwen 3B on Apple
+Silicon takes ~30s to cold-load and per-idea latency is 5-8s on MPS —
+which makes the live demo feel slower than it needs to. The cached
+14B + curated pack outputs we have on disk already match or beat what
+a live 3B run would produce.
 """
 
 from __future__ import annotations
 
 import json
+import os
 from collections.abc import Iterator
 from typing import Any
 
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 
-from brainstormlm.api.schemas import BrainstormRequest
+from brainstormlm.api.schemas import BrainstormRequest, MemoryCountResponse
 from brainstormlm.api.safety import validate_user_prompt
 from brainstormlm.config import get_settings
 from brainstormlm.feedback.human import append_human, new_trajectory_id, utc_now_iso
 from brainstormlm.feedback.evaluator import RUBRIC_VERSION
 from brainstormlm.feedback.trajectories import Trajectory
+from brainstormlm.conceptial.idea_store import SOURCE_GENERATED, SOURCE_SEEDED
+from brainstormlm.conceptial.streaming_source import (
+    ConceptialStreamingSource,
+    get_demo_store,
+)
+
+
+def _conceptial_enabled() -> bool:
+    """The Conceptial streaming source is active unless an opt-out is set.
+
+    Set ``CONCEPTIAL_STREAM_DISABLED=1`` to fall back to the legacy
+    ``_smoke_ideas`` path or the real-model ``_live_stream`` path.
+    """
+    return os.environ.get("CONCEPTIAL_STREAM_DISABLED", "").lower() not in (
+        "1",
+        "true",
+        "yes",
+    )
 
 
 def _sse(event: str, data: dict) -> str:
@@ -71,6 +104,14 @@ def build_streaming_router(
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e)) from e
 
+        # Conceptial streaming source — project-scoped, anti-mode aware,
+        # zero model-load latency. Default path for the live demo.
+        if _conceptial_enabled():
+            return StreamingResponse(
+                _conceptial_stream(req),
+                media_type="text/event-stream",
+            )
+
         if demo_mode or not ml_available:
             return StreamingResponse(
                 _demo_stream(req.prompt, req.n_ideas),
@@ -81,6 +122,133 @@ def build_streaming_router(
             _live_stream(req),
             media_type="text/event-stream",
         )
+
+    @router.get("/v1/memory/count", response_model=MemoryCountResponse)
+    def memory_count(project_id: str) -> MemoryCountResponse:
+        """Return seeded / generated / total memory size for a project.
+
+        Powers the 'Memory: N seeded · M generated' chip on the canvas.
+        """
+        store = get_demo_store()
+        breakdown = store.count_by_source(project_id)
+        seeded = int(breakdown.get(SOURCE_SEEDED, 0))
+        generated = int(breakdown.get(SOURCE_GENERATED, 0))
+        return MemoryCountResponse(
+            project_id=project_id,
+            seeded=seeded,
+            generated=generated,
+            total=seeded + generated,
+        )
+
+    @router.post("/v1/memory/reset")
+    def memory_reset(project_id: str) -> dict[str, int | str]:
+        """Wipe a project's idea memory. Used by the 'reset' demo control."""
+        store = get_demo_store()
+        deleted = store.delete_project(project_id)
+        return {"project_id": project_id, "deleted": int(deleted)}
+
+    def _conceptial_stream(req: BrainstormRequest) -> Iterator[str]:
+        """Stream ideas via the project-scoped Conceptial demo source.
+
+        Events:
+        - ``phase`` (diverse_pool, synthesizing, complete)
+        - ``raw_idea`` per emitted idea (with idea_id, exclusion list snapshot)
+        - ``progress`` between phases
+        - ``final_idea`` for each finalist
+        - ``memory`` final counts on done
+        - ``done`` with trajectory_ids
+        """
+        store = get_demo_store()
+        project_id = req.project_id or _default_project_id(req.prompt)
+
+        if req.reset_project:
+            store.delete_project(project_id)
+
+        n = max(1, min(req.n_ideas, 8))
+        # phase first so consumers that expect that as the opening event still work
+        yield _sse("phase", {"phase": "diverse_pool", "expected": n})
+
+        # Emit initial memory state so the UI chip shows pre-seeded counts immediately
+        initial = store.count_by_source(project_id)
+        yield _sse(
+            "memory",
+            {
+                "project_id": project_id,
+                "seeded": int(initial.get(SOURCE_SEEDED, 0)),
+                "generated": int(initial.get(SOURCE_GENERATED, 0)),
+                "total": sum(initial.values()),
+            },
+        )
+
+        source = ConceptialStreamingSource(
+            store=store,
+            project_id=project_id,
+            pacing=True,
+        )
+
+        emitted: list[dict] = []
+        for i, idea in enumerate(source.stream(prompt=req.prompt, n=n)):
+            tid = new_trajectory_id()
+            raw = {
+                "index": i,
+                "summary": idea.summary,
+                "content": idea.content,
+                "trajectory_id": tid,
+                "idea_id": idea.idea_id,
+                "pack": idea.pack,
+                "excluded_summaries": list(idea.excluded_summaries),
+            }
+            emitted.append(raw)
+            yield _sse("raw_idea", raw)
+            traj = _make_trajectory(req.prompt, idea.content, 0.8, tid)
+            _persist(traj)
+
+            # Update memory chip count after each emit
+            counts = store.count_by_source(project_id)
+            yield _sse(
+                "memory",
+                {
+                    "project_id": project_id,
+                    "seeded": int(counts.get(SOURCE_SEEDED, 0)),
+                    "generated": int(counts.get(SOURCE_GENERATED, 0)),
+                    "total": sum(counts.values()),
+                },
+            )
+
+        # No GPT-4o-mini scoring round here — the curated packs are already
+        # quality-graded. Synthesis phase exists for UI symmetry only.
+        yield _sse("phase", {"phase": "synthesizing", "pool_size": len(emitted)})
+        yield _sse("progress", {"progress": 0.5})
+        yield _sse("progress", {"progress": 1.0})
+        yield _sse("phase", {"phase": "complete"})
+
+        for raw in emitted:
+            yield _sse(
+                "final_idea",
+                {
+                    "summary": raw["summary"],
+                    "content": raw["content"],
+                    "trajectory_id": raw["trajectory_id"],
+                    "idea_id": raw["idea_id"],
+                },
+            )
+
+        yield _sse(
+            "done",
+            {
+                "project_id": project_id,
+                "trajectory_ids": [r["trajectory_id"] for r in emitted],
+                "idea_ids": [r["idea_id"] for r in emitted],
+            },
+        )
+
+    def _default_project_id(prompt: str) -> str:
+        """Hash-based fallback project_id if the client didn't pass one.
+
+        Same prompt → same project → cumulative anti-mode memory.
+        """
+        import hashlib
+        return "anon-" + hashlib.sha256(prompt.encode()).hexdigest()[:12]
 
     def _demo_stream(prompt: str, n_ideas: int) -> Iterator[str]:
         smoke = _smoke_ideas(prompt, n_ideas)
