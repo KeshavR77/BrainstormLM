@@ -350,7 +350,7 @@ export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
               className="font-display text-ink-0 text-[clamp(22px,3vw,32px)] tracking-[-0.012em] max-w-2xl"
               style={{ fontVariationSettings: '"wght" 440, "opsz" 48' }}
             >
-              Steered Corpius vs the same model unsteered, on a repeated-prompt stress test.
+              Conceptial vs the same model unsteered, on a repeated-prompt stress test.
             </h3>
           </motion.div>
 
