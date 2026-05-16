@@ -1,0 +1,75 @@
+{
+  "model": "gpt-4o-mini",
+  "source_md": "artifacts/conceptial_14b/CLOUD_14B_S1.md",
+  "brief": "Give me a creative logo for an engineering club at Stanford.",
+  "elapsed_s": 10.5,
+  "per_arm_summary": {
+    "v17": {
+      "creativity": 3.8,
+      "coherence": 4.0,
+      "specificity": 4.0,
+      "on_topic": 5.0,
+      "composite": 4.2,
+      "n": 5
+    }
+  },
+  "per_idea": {
+    "v17": [
+      {
+        "creativity": 3,
+        "coherence": 4,
+        "specificity": 4,
+        "on_topic": 5,
+        "one_line_rationale": "The logo concept effectively combines engineering symbols with Stanford elements, though it leans on familiar motifs without introducing truly innovative design aspects.",
+        "composite": 4.0,
+        "ok": true,
+        "i": 1,
+        "temp": 0.8
+      },
+      {
+        "creativity": 4,
+        "coherence": 4,
+        "specificity": 4,
+        "on_topic": 5,
+        "one_line_rationale": "The logo concept effectively combines futuristic elements with Stanford's identity, showcasing engineering innovation while maintaining a cohesive and detailed design.",
+        "composite": 4.25,
+        "ok": true,
+        "i": 2,
+        "temp": 0.85
+      },
+      {
+        "creativity": 4,
+        "coherence": 4,
+        "specificity": 4,
+        "on_topic": 5,
+        "one_line_rationale": "The logo concept effectively merges engineering and nature, embodying the club's identity while offering a visually striking and cohesive design.",
+        "composite": 4.25,
+        "ok": true,
+        "i": 3,
+        "temp": 0.9
+      },
+      {
+        "creativity": 4,
+        "coherence": 4,
+        "specificity": 4,
+        "on_topic": 5,
+        "one_line_rationale": "The logo concept effectively combines modern engineering themes with Stanford's heritage, showcasing innovation through detailed visual elements.",
+        "composite": 4.25,
+        "ok": true,
+        "i": 4,
+        "temp": 0.95
+      },
+      {
+        "creativity": 4,
+        "coherence": 4,
+        "specificity": 4,
+        "on_topic": 5,
+        "one_line_rationale": "The concept effectively combines engineering themes with Stanford's identity, creating a vibrant and cohesive visual narrative.",
+        "composite": 4.25,
+        "ok": true,
+        "i": 5,
+        "temp": 1.0
+      }
+    ]
+  }
+}

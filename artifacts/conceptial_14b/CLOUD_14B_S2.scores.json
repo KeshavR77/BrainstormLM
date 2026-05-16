@@ -1,0 +1,75 @@
+{
+  "model": "gpt-4o-mini",
+  "source_md": "artifacts/conceptial_14b/CLOUD_14B_S2.md",
+  "brief": "Give me a creative logo for an engineering club at Stanford.",
+  "elapsed_s": 8.9,
+  "per_arm_summary": {
+    "v17": {
+      "creativity": 4.0,
+      "coherence": 4.2,
+      "specificity": 4.0,
+      "on_topic": 5.0,
+      "composite": 4.3,
+      "n": 5
+    }
+  },
+  "per_idea": {
+    "v17": [
+      {
+        "creativity": 4,
+        "coherence": 4,
+        "specificity": 4,
+        "on_topic": 5,
+        "one_line_rationale": "The logo concept effectively combines engineering elements with a modern aesthetic, making it a strong representation of the Stanford Engineering Club.",
+        "composite": 4.25,
+        "ok": true,
+        "i": 1,
+        "temp": 0.8
+      },
+      {
+        "creativity": 4,
+        "coherence": 5,
+        "specificity": 4,
+        "on_topic": 5,
+        "one_line_rationale": "The logo concept effectively combines engineering elements with a clear representation of Stanford, showcasing innovation and collaboration.",
+        "composite": 4.5,
+        "ok": true,
+        "i": 2,
+        "temp": 0.85
+      },
+      {
+        "creativity": 4,
+        "coherence": 4,
+        "specificity": 4,
+        "on_topic": 5,
+        "one_line_rationale": "The logo concept effectively combines elements of engineering and innovation with a modern aesthetic, making it a strong fit for the Stanford engineering club.",
+        "composite": 4.25,
+        "ok": true,
+        "i": 3,
+        "temp": 0.9
+      },
+      {
+        "creativity": 4,
+        "coherence": 4,
+        "specificity": 4,
+        "on_topic": 5,
+        "one_line_rationale": "The logo concept effectively combines futuristic elements with Stanford's identity, showcasing innovation while remaining cohesive and actionable.",
+        "composite": 4.25,
+        "ok": true,
+        "i": 4,
+        "temp": 0.95
+      },
+      {
+        "creativity": 4,
+        "coherence": 4,
+        "specificity": 4,
+        "on_topic": 5,
+        "one_line_rationale": "The logo concept effectively combines dynamic elements of engineering with a vibrant aesthetic, making it a strong representation of the Stanford engineering club.",
+        "composite": 4.25,
+        "ok": true,
+        "i": 5,
+        "temp": 1.0
+      }
+    ]
+  }
+}
