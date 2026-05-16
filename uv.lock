@@ -162,6 +162,7 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "accelerate" },
+    { name = "aiohttp" },
     { name = "asyncpg" },
     { name = "creativity-evaluator" },
     { name = "datasets" },
@@ -173,7 +174,7 @@ dependencies = [
     { name = "pydantic" },
     { name = "pydantic-settings" },
     { name = "python-dotenv" },
-    { name = "shrooms-llm" },
+    { name = "sentence-transformers" },
     { name = "together" },
     { name = "torch" },
     { name = "transformers" },
@@ -195,8 +196,9 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "accelerate" },
+    { name = "aiohttp" },
     { name = "asyncpg" },
-    { name = "creativity-evaluator", editable = "../shrooms-llm/creativity_evaluator" },
+    { name = "creativity-evaluator", editable = "creativity_evaluator" },
     { name = "datasets" },
     { name = "fastapi" },
     { name = "modal" },
@@ -206,7 +208,7 @@ requires-dist = [
     { name = "pydantic" },
     { name = "pydantic-settings" },
     { name = "python-dotenv" },
-    { name = "shrooms-llm", editable = "../shrooms-llm" },
+    { name = "sentence-transformers" },
     { name = "together" },
     { name = "torch" },
     { name = "transformers" },
@@ -328,7 +330,7 @@ toml = [
 [[package]]
 name = "creativity-evaluator"
 version = "0.1.0"
-source = { editable = "../shrooms-llm/creativity_evaluator" }
+source = { editable = "creativity_evaluator" }
 dependencies = [
     { name = "anthropic" },
     { name = "nltk" },
@@ -1600,33 +1602,6 @@ sdist = { url = "https://files.pythonhosted.org/packages/58/15/8b3609fd3830ef7b2
 wheels = [
     { url = "https://files.pythonhosted.org/packages/e0/f9/0595336914c5619e5f28a1fb793285925a8cd4b432c9da0a987836c7f822/shellingham-1.5.4-py2.py3-none-any.whl", hash = "sha256:7ecfff8f2fd72616f7481040475a65b2bf8af90a56c89140852d1120324e8686", size = 9755, upload-time = "2023-10-24T04:13:38.866Z" },
 ]
-
-[[package]]
-name = "shrooms-llm"
-version = "0.1.0"
-source = { editable = "../shrooms-llm" }
-dependencies = [
-    { name = "accelerate" },
-    { name = "creativity-evaluator" },
-    { name = "openai" },
-    { name = "torch" },
-    { name = "transformers" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "accelerate", specifier = ">=0.27" },
-    { name = "creativity-evaluator", editable = "../shrooms-llm/creativity_evaluator" },
-    { name = "datasets", marker = "extra == 'dev'", specifier = ">=2.14" },
-    { name = "openai", specifier = ">=1.0" },
-    { name = "pandas", marker = "extra == 'dev'", specifier = ">=2.0" },
-    { name = "pytest", marker = "extra == 'dev'", specifier = ">=7.0" },
-    { name = "sentence-transformers", marker = "extra == 'dev'", specifier = ">=2.2" },
-    { name = "streamlit", marker = "extra == 'dev'", specifier = ">=1.28" },
-    { name = "torch", specifier = ">=2.1" },
-    { name = "transformers", specifier = ">=4.57.0" },
-]
-provides-extras = ["dev"]
 
 [[package]]
 name = "six"

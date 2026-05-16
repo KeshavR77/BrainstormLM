@@ -1,0 +1,47 @@
+{
+  "project_id": "demo-engineering-club-logo-stanford",
+  "capture_layer": 28,
+  "notes": "Day-5 demo seed corpus. Each entry is an image-generator-ready prompt; loading these into IdeaMemoryStore biases the live IOR repulsion away from the most obvious cliches a 3B model otherwise produces on this brief. ~10 entries; the live IOR FIFO hydrates with the 5 most-recent by default (raise CONCEPTIAL_IOR_MAX_HISTORY to widen). Hand-authored 2026-05-13.",
+  "ideas": [
+    {
+      "id": "seed-001-gear-monogram",
+      "text": "Modern minimalist logo for an engineering club: a single industrial gear in navy with a clean serif letter S nested inside, white background, flat vector style"
+    },
+    {
+      "id": "seed-002-greek-sigma-circuit",
+      "text": "Logo concept: uppercase Greek sigma rendered as interlocking circuit traces in cardinal red, with thin gold accent lines, geometric vector style, white background"
+    },
+    {
+      "id": "seed-003-redwood-silhouette",
+      "text": "Logo concept: stylized California redwood silhouette wrapped around a wrench, in two-tone forest green and warm grey, modern flat illustration"
+    },
+    {
+      "id": "seed-004-hoover-tower-blueprint",
+      "text": "Logo concept: blueprint-line illustration of Hoover Tower with a small soldering iron crossing behind it, cyan-on-cream, technical drawing aesthetic"
+    },
+    {
+      "id": "seed-005-pixel-block-S",
+      "text": "Logo concept: a chunky pixel-art capital S formed by stacked square cubes in cardinal red and white, isometric 3D shading, retro game vibe"
+    },
+    {
+      "id": "seed-006-orbit-stanford",
+      "text": "Logo concept: three orbiting ellipses around a small filled circle, with the word STANFORD set in narrow geometric sans-serif underneath, cardinal red and graphite, scientific poster aesthetic"
+    },
+    {
+      "id": "seed-007-bridge-truss-S",
+      "text": "Logo concept: side view of a steel truss bridge bent into the shape of a capital S, navy line art on cream background, architectural rendering style"
+    },
+    {
+      "id": "seed-008-rocket-cardinal",
+      "text": "Logo concept: stylized minimalist rocket lifting off, exhaust forming the letters S and E, cardinal-and-white color scheme, flat vector"
+    },
+    {
+      "id": "seed-009-prism-light-S",
+      "text": "Logo concept: a glass prism splitting a beam of white light into a rainbow that bends into a serif capital S, dark background, scientific illustration style"
+    },
+    {
+      "id": "seed-010-quad-arches",
+      "text": "Logo concept: a continuous arcade of three Stanford Quad sandstone arches enclosing a tiny crossed-hammer-and-pen icon, beige-and-terracotta, woodcut aesthetic"
+    }
+  ]
+}

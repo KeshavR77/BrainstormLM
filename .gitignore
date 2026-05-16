@@ -9,6 +9,10 @@ data/
 dist/
 *.egg-info/
 
+# macOS Finder metadata
+.DS_Store
+**/.DS_Store
+
 # React frontend
 frontend/node_modules/
 frontend/dist/
@@ -16,3 +20,9 @@ frontend/dist/
 # WIC backend
 src/wic/__pycache__/
 src/wic/venv/
+
+# Conceptial / Corpius 1 demo artifacts: locked exemplars are kept,
+# transient smoke outputs are not.
+artifacts/conceptial/V17_*.md
+artifacts/conceptial/V17_*.scores.*
+artifacts/conceptial/ANTIMODE_SMOKE*.md

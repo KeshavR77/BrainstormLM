@@ -1,0 +1,38 @@
+{
+  "id": "corpius_1",
+  "display_name": "Corpius 1",
+  "description": "Qwen2.5-3B-Instruct with v17 parametric logic-lock steering plus optional iterative anti-mode: hyper-purified S0 vectors, aggressive v17 schedule; when generating multiple samples per prompt, creative steering is orthogonalized against prior first-token L14 residuals to reduce semantic mode-collapse.",
+  "base_model": "Qwen/Qwen2.5-3B-Instruct",
+  "benchmark_arm": "qwen_v17",
+  "local_variants": "v17",
+  "local_arms": "additive",
+  "steering_method": "v10_parametric_preset_v17",
+  "steering_vectors": {
+    "creative": "data/steering/hyper_creative_purified_vector_L14.pt",
+    "technical": "data/steering/hyper_technical_purified_vector_L18.pt"
+  },
+  "schedule": {
+    "creative_start_alpha": 2.62,
+    "exp_zero_by_step": 168,
+    "technical_start_alpha": 0.86,
+    "sigmoid_mid_step": 52.0,
+    "sigmoid_steepness": 0.095,
+    "steering_math": "additive"
+  },
+  "aliases": [
+    "qwen_v17"
+  ],
+  "runtime_defaults": {
+    "iterative_anti_mode_benchmark": true,
+    "iterative_anti_mode_notes": "benchmark_matchup.py applies per-sample L14 first-decode capture + purify_vector orthogonalization of creative .pt when --iterative-anti-mode is set; run_corpius_benchmark.py enables this by default."
+  },
+  "frozen_for": "YC citation benchmark pipeline",
+  "promotion_rule": "Iterative anti-mode promoted 2026-05-03 (gauntlet baseline_rb_1x30 vs gauntlet_C2_iter_rb_1x30, seed 501, same decode): mean Vendi +8.4% (1.976→2.142), mean NearDup −35.7% (0.129→0.083) on repeated-brief stress; robust 8x10 +1.4% Vendi and −6.7% NearDup. Prior JSON snapshot: legacy/config/corpius_1_pre_iterative_promotion_20260503.json. Earlier 2026-05-02 vector/schedule promotion unchanged.",
+  "known_caveats": [
+    "Current implementation applies the method to Qwen2.5-3B-Instruct; future product intent is to apply the same representation-engineering method to larger models.",
+    "CreativityPrism is an LLM-judge signal and must be reported with judge model, rubric, sample mode, and missing-winner strata.",
+    "Diversity claims must come from robust prompt suites or repeated-brief stress tests, not smoke runs.",
+    "Aggressive decode hyperparameters (temperature, min_p, repetition_penalty) are chosen in the benchmark harness and LiveBench adapter separately from this JSON; align those for apples-to-apples citation runs.",
+    "Single-shot CLI generation (corpius CLI) does not apply iterative anti-mode; only multi-sample benchmark flows accumulate prior residuals per prompt."
+  ]
+}

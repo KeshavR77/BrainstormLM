@@ -79,7 +79,7 @@ _SSE_CHUNK_TOKENS = 50  # words per simulated token event
 # Pack is chosen deterministically by SHA256(prompt) so the same prompt
 # always returns the same pack, giving a consistent demo experience.
 # ---------------------------------------------------------------------------
-import hashlib as _hashlib
+import hashlib as _hashlib  # noqa: E402  — deferred next to the pack table it serves.
 
 _SMOKE_PACKS: list[list[dict]] = [
     [   # Pack 0 — Distribution / Market Entry

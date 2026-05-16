@@ -1,7 +1,7 @@
 """CorpiusGenerator — Corpius 1 (Qwen2.5-3B + RepE steering) behind the Generator protocol.
 
-Heavy deps (torch / shrooms_llm) are imported lazily so cache hits stay fast
-and `from brainstormlm.model import CorpiusGenerator` remains cheap.
+Heavy deps (torch / steering engine) are imported lazily so cache hits stay fast
+and ``from brainstormlm.model import CorpiusGenerator`` remains cheap.
 """
 
 from __future__ import annotations
@@ -107,9 +107,9 @@ class CorpiusGenerator:
         if self._engine is not None and self._spec is not None:
             return
 
-        from shrooms_llm.corpius import apply_corpius_1, load_corpius_spec
-        from shrooms_llm.pipeline import SteeringEngine
-        from shrooms_llm.config import SteeringConfig
+        from brainstormlm.conceptial.engine.corpius import apply_corpius_1, load_corpius_spec
+        from brainstormlm.conceptial.engine.pipeline import SteeringEngine
+        from brainstormlm.conceptial.engine.config import SteeringConfig
 
         spec = load_corpius_spec(self._config_path)
         cfg = SteeringConfig(base_model=spec.base_model)
