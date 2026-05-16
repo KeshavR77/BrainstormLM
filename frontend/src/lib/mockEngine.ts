@@ -41,19 +41,59 @@ interface MockMemoryEntry {
 
 const MEMORY_KEY = (projectId: string) => `mock-memory-${projectId}`;
 
+// Seeded-pool summaries per demo project — mirrors the seed JSONs under
+// artifacts/conceptial/seeds/. The mock filter uses these so the
+// "regeneration doesn't repeat seeded ideas" effect works offline.
+const SEEDED_MOCK_SUMMARIES: Record<string, { count: number; summaries: string[] }> = {
+  'demo-skincare-identity': {
+    count: 12,
+    summaries: [
+      'Cellar Apothecary', 'Botanical Plate', 'Saltbox Modernist',
+      'Coastline Letterpress', 'Brutalist Card Stock', 'Hand-Tied Twine',
+      'Quiet Modern Serif', 'Daylight Negative', 'Watercolour Wash',
+      'Shipping-Crate Stencil', 'Greenhouse Grid', 'Bound Journal',
+    ],
+  },
+  'demo-footwear-campaign': {
+    count: 8,
+    summaries: [
+      'Six Trails, One Shoe', 'Pavement Notes', 'Trail Hours Open House',
+      'Found Footage Zine', 'After-Hours Track', 'The Five-Hour Map',
+      'Before-Sunrise Series', 'Recycled Mile Counter',
+    ],
+  },
+  'demo-oatmilk-packaging': {
+    count: 8,
+    summaries: [
+      'Kraft Cylinder', 'Wax-Sealed Bottle', 'Architectural Carton',
+      'Field-Photo Wrap', 'Hand-Lettered Label', 'Bauhaus Color Block',
+      'Lab-Spec Sheet', 'Reusable Aluminum Bottle',
+    ],
+  },
+};
+
 function loadMemory(projectId: string): MockMemoryEntry {
+  const fallback = SEEDED_MOCK_SUMMARIES[projectId];
   try {
     const raw = localStorage.getItem(MEMORY_KEY(projectId));
     if (raw) {
       const parsed = JSON.parse(raw);
       return {
-        seeded: parsed.seeded ?? 0,
+        seeded: parsed.seeded ?? fallback?.count ?? 0,
         generated: parsed.generated ?? 0,
-        seenSummaries: parsed.seenSummaries ?? [],
+        seenSummaries: parsed.seenSummaries ?? fallback?.summaries ?? [],
       };
     }
   } catch {
     /* ignore */
+  }
+  // Cold load — return the canonical seeded set so first generation excludes them
+  if (fallback) {
+    return {
+      seeded: fallback.count,
+      generated: 0,
+      seenSummaries: [...fallback.summaries],
+    };
   }
   return { seeded: 0, generated: 0, seenSummaries: [] };
 }

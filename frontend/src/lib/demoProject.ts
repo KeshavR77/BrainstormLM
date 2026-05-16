@@ -12,6 +12,57 @@ export const DEMO_PROJECT: Project = {
   nodeCount: 7,
 };
 
+// ── Seeded demo projects for creative-ops audiences ─────────────────────────
+//
+// These three projects are pre-loaded with hand-curated seed ideas in the
+// server-side IdeaMemoryStore (run scripts/seed_idea_memory.py --all to
+// populate). On the canvas they open with "Memory: N seeded · 0 generated"
+// and immediately demonstrate the project-scoped memory feature.
+
+const AIR_TIMESTAMP = '2026-05-16T00:00:00.000Z';
+
+export const SEEDED_DEMO_SKINCARE_ID = 'demo-skincare-identity';
+export const SEEDED_DEMO_FOOTWEAR_ID = 'demo-footwear-campaign';
+export const SEEDED_DEMO_OATMILK_ID = 'demo-oatmilk-packaging';
+
+export const SEEDED_DEMO_PROJECTS: Project[] = [
+  {
+    id: SEEDED_DEMO_SKINCARE_ID,
+    name: 'Cypress & Salt — Brand Identity',
+    description:
+      'A DTC skincare brand. 12 visual-identity directions already explored. Generate the next set — they will not repeat what is already in memory.',
+    createdAt: AIR_TIMESTAMP,
+    updatedAt: AIR_TIMESTAMP,
+    nodeCount: 0,
+  },
+  {
+    id: SEEDED_DEMO_FOOTWEAR_ID,
+    name: 'Bondi Trail — Q3 Campaign',
+    description:
+      'A sustainable trail-runner launch. 8 campaign concept directions already explored. Generate fresh angles that do not retread the existing pool.',
+    createdAt: AIR_TIMESTAMP,
+    updatedAt: AIR_TIMESTAMP,
+    nodeCount: 0,
+  },
+  {
+    id: SEEDED_DEMO_OATMILK_ID,
+    name: 'Larder — Oat Milk Packaging',
+    description:
+      'A premium oat milk reformulation. 8 packaging directions already explored. Generate new ones that do not overlap the seeded set.',
+    createdAt: AIR_TIMESTAMP,
+    updatedAt: AIR_TIMESTAMP,
+    nodeCount: 0,
+  },
+];
+
+export const SEEDED_DEMO_IDS = new Set(SEEDED_DEMO_PROJECTS.map((p) => p.id));
+
+/** Project IDs that should never be user-deletable from the dashboard. */
+export const PROTECTED_PROJECT_IDS = new Set<string>([
+  DEMO_PROJECT_ID,
+  ...SEEDED_DEMO_IDS,
+]);
+
 export const DEMO_TREE: BrainstormTree = {
   rootId: 'demo-seed',
   nodes: {

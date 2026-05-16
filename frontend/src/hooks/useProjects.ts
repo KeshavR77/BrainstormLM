@@ -1,46 +1,79 @@
 /**
- * useProjects.ts — Custom hook for project CRUD with localStorage persistence.
+ * useProjects.ts — Project CRUD with localStorage persistence.
+ *
+ * Always merges the canonical demo projects (onboarding demo + the three
+ * creative-ops-themed seeded projects) into whatever the user has in localStorage,
+ * so the dashboard never opens to an empty state and the seeded demos can't
+ * be accidentally deleted.
  */
 
 import { useCallback, useEffect, useState } from 'react';
 import type { Project } from '../types';
-import { DEMO_PROJECT, DEMO_PROJECT_ID } from '../lib/demoProject';
+import {
+  DEMO_PROJECT,
+  DEMO_PROJECT_ID,
+  PROTECTED_PROJECT_IDS,
+  SEEDED_DEMO_PROJECTS,
+} from '../lib/demoProject';
 
 const STORAGE_KEY = 'brainstorm-projects';
+
+const CANONICAL_DEMOS: Project[] = [DEMO_PROJECT, ...SEEDED_DEMO_PROJECTS];
+
+function mergeWithDemos(saved: Project[]): Project[] {
+  // For each canonical demo, prefer the saved row if one exists (so
+  // nodeCount and updatedAt persist) but fall back to canonical defaults
+  // for name / description / etc.
+  const byId = new Map(saved.map((p) => [p.id, p]));
+  const merged: Project[] = [];
+
+  for (const canon of CANONICAL_DEMOS) {
+    const savedRow = byId.get(canon.id);
+    if (savedRow) {
+      merged.push({
+        ...canon,
+        nodeCount: savedRow.nodeCount,
+        updatedAt: savedRow.updatedAt,
+        createdAt: savedRow.createdAt,
+      });
+    } else {
+      merged.push(canon);
+    }
+  }
+
+  const rest = saved.filter((p) => !PROTECTED_PROJECT_IDS.has(p.id));
+  return [...merged, ...rest];
+}
 
 function loadProjects(): Project[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    const projects: Project[] = raw ? JSON.parse(raw) : [];
-    const rest = projects.filter((p) => p.id !== DEMO_PROJECT_ID);
-    const savedDemo = projects.find((p) => p.id === DEMO_PROJECT_ID);
-    const demo = savedDemo
-      ? {
-          ...DEMO_PROJECT,
-          nodeCount: savedDemo.nodeCount,
-          updatedAt: savedDemo.updatedAt,
-          createdAt: savedDemo.createdAt,
-        }
-      : { ...DEMO_PROJECT };
-    return [demo, ...rest];
+    const saved: Project[] = raw ? JSON.parse(raw) : [];
+    return mergeWithDemos(saved);
   } catch {
-    return [{ ...DEMO_PROJECT }];
+    return [...CANONICAL_DEMOS];
   }
 }
 
-/** Always persist the seeded project first; merge saved row with canonical defaults. */
 function saveProjects(projects: Project[]) {
-  const demoRow = projects.find((p) => p.id === DEMO_PROJECT_ID);
-  const rest = projects.filter((p) => p.id !== DEMO_PROJECT_ID);
-  const demo = demoRow
-    ? {
-        ...DEMO_PROJECT,
-        nodeCount: demoRow.nodeCount,
-        updatedAt: demoRow.updatedAt,
-        createdAt: demoRow.createdAt,
-      }
-    : DEMO_PROJECT;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify([demo, ...rest]));
+  // Persist saved-row metadata for canonical demos AND any user projects.
+  const out: Project[] = [];
+  const byId = new Map(projects.map((p) => [p.id, p]));
+  for (const canon of CANONICAL_DEMOS) {
+    const row = byId.get(canon.id);
+    if (row) {
+      out.push({
+        ...canon,
+        nodeCount: row.nodeCount,
+        updatedAt: row.updatedAt,
+        createdAt: row.createdAt,
+      });
+    }
+  }
+  for (const p of projects) {
+    if (!PROTECTED_PROJECT_IDS.has(p.id)) out.push(p);
+  }
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(out));
 }
 
 export function useProjects() {
@@ -64,7 +97,7 @@ export function useProjects() {
   }, []);
 
   const deleteProject = useCallback((id: string) => {
-    if (id === DEMO_PROJECT_ID) return;
+    if (PROTECTED_PROJECT_IDS.has(id)) return;
     setProjects((prev) => prev.filter((p) => p.id !== id));
     localStorage.removeItem(`brainstorm-tree-${id}`);
   }, []);
@@ -76,13 +109,18 @@ export function useProjects() {
     [projects],
   );
 
-  const updateProject = useCallback((id: string, updates: Partial<Pick<Project, 'name' | 'description' | 'nodeCount'>>) => {
-    setProjects((prev) =>
-      prev.map((p) =>
-        p.id === id ? { ...p, ...updates, updatedAt: new Date().toISOString() } : p,
-      ),
-    );
-  }, []);
+  const updateProject = useCallback(
+    (id: string, updates: Partial<Pick<Project, 'name' | 'description' | 'nodeCount'>>) => {
+      setProjects((prev) =>
+        prev.map((p) =>
+          p.id === id ? { ...p, ...updates, updatedAt: new Date().toISOString() } : p,
+        ),
+      );
+    },
+    [],
+  );
 
   return { projects, createProject, deleteProject, getProject, updateProject };
 }
+
+export { DEMO_PROJECT_ID };

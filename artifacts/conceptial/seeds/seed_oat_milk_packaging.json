@@ -1,0 +1,40 @@
+{
+  "project_id": "demo-oatmilk-packaging",
+  "project_name": "Larder — Oat Milk Packaging",
+  "brief": "Packaging directions for a premium oat milk reformulation under the brand Larder. Refrigerated case, $7-9 carton, aimed at independent grocery and DTC subscription. The packaging needs to look at-home in both a high-end farm shop and a brutalist Brooklyn café.",
+  "source": "seeded",
+  "ideas": [
+    {
+      "summary": "Kraft Cylinder",
+      "content": "An unbleached kraft-paper cylindrical carton with a single die-cut window showing the oat grain inside the cap chamber. Wordmark in a high-contrast modern serif, printed letterpress in oxblood. Reads as bulk-pantry, intentionally undesigned. Cheap to produce; visually distinct in a row of glossy white competitors."
+    },
+    {
+      "summary": "Wax-Sealed Bottle",
+      "content": "A heavyweight glass bottle, sealed with red wax over the screw cap. Front label is hand-applied paper with the brand wordmark in heavy slab serif. Back label lists three ingredients only. Returnable for a 30% credit. The bottle becomes the household carafe."
+    },
+    {
+      "summary": "Architectural Carton",
+      "content": "A standard Tetra Pak retooled into a precise architectural form — square cross-section, sharp folds, no rounded edges. Single-colour print: deep teal field with the wordmark reversed-out in cream. Reads as Swiss design, premium grocery shelf, intentionally minimal."
+    },
+    {
+      "summary": "Field-Photo Wrap",
+      "content": "Carton wrapped in a continuous photograph — an actual oat field at golden-hour — that wraps 360 degrees. Wordmark printed in a single transparent line over the photograph. The whole product becomes one image. Costly to print but visually impossible to mistake."
+    },
+    {
+      "summary": "Hand-Lettered Label",
+      "content": "Carton is bone-white with a single hand-lettered label, brushed in black ink. The lettering is intentionally imperfect — each batch has slightly different proportions. Reads as small-batch, daily-fresh, artisan. Best with limited SKUs; doesn't scale to a 12-flavour line."
+    },
+    {
+      "summary": "Bauhaus Color Block",
+      "content": "Carton divided into four primary-colour blocks (warm yellow, deep blue, oxblood, off-white). Wordmark sits at the intersection. No photography, no ingredients on the front. Reads as design-object, modernist. Appeals to architects and graphic designers more than wellness shoppers."
+    },
+    {
+      "summary": "Lab-Spec Sheet",
+      "content": "Front label is the actual nutritional spec sheet — gram-by-gram macronutrients, mineral composition, allergen panel, harvest origin — laid out like a chemistry datasheet. Wordmark sits small in the corner. The information IS the design. Aggressive transparency."
+    },
+    {
+      "summary": "Reusable Aluminum Bottle",
+      "content": "Anodised aluminium bottle, deep matte black, sold once at $40. Refill pouches at $5 ship monthly via subscription. The brand is the lifetime container. Communicates sustainability without saying the word. Costs make sense only on subscription unit economics; doesn't work in retail."
+    }
+  ]
+}

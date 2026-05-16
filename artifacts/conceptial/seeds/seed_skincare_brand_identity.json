@@ -1,0 +1,56 @@
+{
+  "project_id": "demo-skincare-identity",
+  "project_name": "Cypress & Salt — Brand Identity",
+  "brief": "Build a brand identity direction for a new DTC skincare line called Cypress & Salt. Daily-use products, sourced botanicals, $40-70 price band. The brand wants to feel slow-craft and apothecary, not wellness-startup.",
+  "source": "seeded",
+  "ideas": [
+    {
+      "summary": "Cellar Apothecary",
+      "content": "Identity built around a 19th-century pharmacy archive feel — heavy serif wordmark with discreet ligatures, deep umber labels on amber glass, batch numbers hand-stamped in cardinal red ink. Every product reads like it was bottled this morning in a small cellar."
+    },
+    {
+      "summary": "Botanical Plate",
+      "content": "Hand-drawn botanical illustrations (cypress, sea fennel, yarrow) rendered as scientific plates, each labeled with Latin binomial in fine italic. Wordmark in a humanist serif, cream paper, sage-green ink only. Reads as a herbarium of working ingredients."
+    },
+    {
+      "summary": "Saltbox Modernist",
+      "content": "Spare modernist system — wide-letterspaced sans-serif wordmark, all lowercase, in graphite on bone-white. Single accent stripe of pale coral runs across every label. Photography shot overhead on raw linen, daylight only. Cool and quiet."
+    },
+    {
+      "summary": "Coastline Letterpress",
+      "content": "Letterpressed kraft labels with a single embossed wave glyph. Wordmark in a wide all-caps grotesque. Palette pulled from kelp and seafoam. Letterpress impression deep enough to feel through the paper. Reads as analogue, durable, made-by-hand."
+    },
+    {
+      "summary": "Brutalist Card Stock",
+      "content": "Unfinished brown chipboard labels with the wordmark Risograph-printed in two colours (deep blue and a single fluorescent orange). All product copy left ragged, no justification. Reads as architecture journal, not skincare."
+    },
+    {
+      "summary": "Hand-Tied Twine",
+      "content": "Every product ships with a hand-tied jute twine carrying a small wooden tag burned with the wordmark. No printed labels at all — the tag IS the label. Glass bottles are unmarked. Maximum tactility. Costly to scale; the friction is the message."
+    },
+    {
+      "summary": "Quiet Modern Serif",
+      "content": "Wordmark set in a custom-drawn serif with very low contrast, intentionally undynamic. Labels are bone-white paper, ink-black type, single line of italic Latin botanical name. No icons, no marks, no flourish. The restraint is the identity."
+    },
+    {
+      "summary": "Daylight Negative",
+      "content": "Brand surfaces are deep-black with the wordmark reversed-out in cream, set in a wide modern serif. Photography is high-key black-and-white film grain. Every touchpoint feels like a documentary monograph. Pairs with a typewriter monospace for support copy."
+    },
+    {
+      "summary": "Watercolour Wash",
+      "content": "Backgrounds are continuous watercolour washes (sage, ochre, oxblood), with the wordmark hand-lettered in a calligraphic italic over each. Each batch has a slightly different colour wash so labels are subtly individual. Reads as artisan, intentionally imperfect."
+    },
+    {
+      "summary": "Shipping-Crate Stencil",
+      "content": "Every product surface uses a stencil-print typography (chunky, vaguely military, broken edges) as if it were shipped overseas in a wooden crate. Palette: army green, manila, deep crimson. Reads as utilitarian, rationed, considered."
+    },
+    {
+      "summary": "Greenhouse Grid",
+      "content": "Identity built around a 12-column architectural grid. Wordmark sits inside the grid as one column-wide cell. Photography is shot against greenhouse glass, soft natural shadow only. Palette: pale moss, pale terracotta, wet stone. Reads as quiet horticultural authority."
+    },
+    {
+      "summary": "Bound Journal",
+      "content": "Brand world expressed primarily through an annually-published thread-bound paper journal documenting the year's harvests, formulators, and field notes. The product packaging takes its visual cues from the journal. The brand is the publication; the products are episodes."
+    }
+  ]
+}

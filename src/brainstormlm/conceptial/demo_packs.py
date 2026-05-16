@@ -1,17 +1,20 @@
 """Curated demo idea packs for the Conceptial streaming endpoint.
 
-These packs power the wow-moment demo flows. They're written for the kind of
-creative-operations work that brand designers, agency creatives, and marketing
-directors actually do (visual identity, campaign concepts, packaging directions,
-brand naming) — not generic business strategy.
+These packs power the wow-moment demo flows for creative-operations audiences.
+Each idea is written the way a brand designer, art director, or creative
+strategist would write it — concrete materials, sensory detail, references
+to typography, photography, palette, and production craft.
 
-Each pack has 8 ideas, deliberately spread across stylistic axes so anti-mode
-exclusion has somewhere to push the next regeneration toward.
+The packs span three axes of creative work:
 
-The streaming layer round-robins through ``CONCEPTIAL_PACKS`` based on a hash
-of (prompt + project_id). The same prompt on the same project keeps pulling
-from the same pool; the IdeaMemoryStore filters out anything already shown so
-repeated regenerations widen the explored space.
+- ``brand-identity``  — logomark, wordmark, type system, brand world
+- ``campaign-craft`` — campaign concept, editorial idea, launch motif
+- ``object-design``  — packaging, product, merch, physical object craft
+
+The streaming source rotates through all packs deterministically by
+hash(prompt + project_id). Per-project IdeaMemoryStore exclusion keeps
+regenerations from repeating, so the audience sees the project's memory
+visibly grow on the canvas.
 """
 
 from __future__ import annotations
@@ -26,299 +29,321 @@ class DemoIdea:
     pack: str
 
 
-# 1) Visual identity / logo directions ---------------------------------------
+# ── Brand identity / visual systems ──────────────────────────────────────────
 
-_PACK_VISUAL_IDENTITY: list[DemoIdea] = [
+_PACK_BRAND: list[DemoIdea] = [
     DemoIdea(
-        pack="visual-identity",
-        summary="Cardinal Lattice",
+        pack="brand-identity",
+        summary="Linen Folio",
         content=(
-            "A modular grid built from intersecting line-weights — the Stanford "
-            "cardinal red rendered as eight overlapping crimson strokes that "
-            "form a tree silhouette when viewed at distance and a circuit diagram "
-            "when read close-up. Pairs with a single sans-serif wordmark in matte "
-            "black, set at -10 tracking. Works in monochrome, embroidery, and as "
-            "a single-color emboss on letterpress invites."
+            "An identity built around a heavyweight linen-paper texture as the "
+            "primary brand surface. The wordmark is set in a wide-letterspaced "
+            "modern serif, foil-stamped in soft gold. Photography is shot on "
+            "medium-format film, daylight only, with deep shadow and warm "
+            "highlight. Colour palette: bone white, ink black, a single warm "
+            "amber accent reserved for the call-to-action. Pairs with a "
+            "monospaced support type for legal copy. Reads as quietly "
+            "expensive, no exclamation marks."
         ),
     ),
     DemoIdea(
-        pack="visual-identity",
-        summary="Hoover Bracket",
+        pack="brand-identity",
+        summary="Risograph Notebook",
         content=(
-            "A precise architectural bracket motif borrowed from the Hoover "
-            "Tower's bell housing — abstracted into a pair of opposing right "
-            "angles framing the wordmark. Renders with a 1.5pt stroke in "
-            "navy or cardinal. Strong embossed at small sizes. Conveys "
-            "institutional credibility without leaning on a generic shield."
+            "Built around the riso aesthetic — a 4-colour limited palette "
+            "(fluorescent pink, navy, raw umber, off-white), visible halftone "
+            "patterns, deliberate misregistration. Wordmark is a hand-drawn "
+            "monoline. Photography is collaged from open-source archive plates. "
+            "Reads as DIY, art-school, intentional. Best suited for an indie "
+            "label that wants to look like a community press, not a startup."
         ),
     ),
     DemoIdea(
-        pack="visual-identity",
-        summary="Quad Topographic",
+        pack="brand-identity",
+        summary="Bauhaus Diagram",
         content=(
-            "A topographic-line rendering of the Main Quad's iconic arches, "
-            "stripped to 5 isolines and rotated 30°. The contour lines double "
-            "as soundwaves when animated. Sand and ink-black on cream paper "
-            "for letterpress; cardinal red and white for digital. Pairs with "
-            "Caslon for editorial weight."
+            "A logomark constructed from primary geometric forms — circle, "
+            "square, triangle — overlaid in CMYK process colours with visible "
+            "spot registration. The wordmark sits below in a precise grotesk. "
+            "Editorial system uses 12-column grid, oversized numerals as "
+            "section breaks, and one full-bleed photographic plate per spread. "
+            "Conveys engineering rigor wrapped in artistic precision."
         ),
     ),
     DemoIdea(
-        pack="visual-identity",
-        summary="Eleven Disciplines Mosaic",
+        pack="brand-identity",
+        summary="Soft Botanical",
         content=(
-            "Eleven small icons — one per engineering discipline at Stanford — "
-            "tessellated into a hexagonal mark. Each icon is reducible to a "
-            "single weight: a pendulum for mechanical, a node for EE, a helix "
-            "for bioE, etc. Together they form a single recognisable badge; "
-            "individually they're a sticker set for sub-club merch."
+            "A hand-painted botanical motif at the centre of the mark — sage, "
+            "yarrow, and chamomile — rendered in watercolour and digitised. "
+            "Palette: warm cream, sage green, terracotta, a single deep "
+            "umber as text colour. Wordmark is a custom-cut display serif "
+            "with humanist proportions. Photography is overhead flat-lay, "
+            "natural shadow, no studio gradients. Reads as apothecary, "
+            "wellness, slow craft."
         ),
     ),
     DemoIdea(
-        pack="visual-identity",
-        summary="Sequoia Section",
+        pack="brand-identity",
+        summary="Acid Modernist",
         content=(
-            "A cross-section through a sequoia trunk rendered as concentric "
-            "circles in graphite — each ring labelled with a Stanford founding "
-            "year, recent breakthrough, or alumni achievement. Reads as a "
-            "scientific diagram and a legacy statement at the same time. "
-            "Best as a foil-stamped frontispiece or a poster."
+            "An identity built around bright neon gradients (acid green to "
+            "electric magenta) layered over photographic black-and-white. "
+            "Wordmark is set in a custom variable typeface that morphs weight "
+            "across the brand surface. Editorial uses oversized pull-quotes, "
+            "ragged line breaks, and asymmetric layouts. Reads as digital-"
+            "native, late-90s aware, post-internet. Best for a brand that "
+            "wants to feel intentionally now."
         ),
     ),
     DemoIdea(
-        pack="visual-identity",
-        summary="Palo Sketch",
+        pack="brand-identity",
+        summary="Stone Carved",
         content=(
-            "A pen-and-ink sketch of the El Palo Alto redwood, drawn in a "
-            "single unbroken line, then turned into the brand's primary "
-            "logomark. The unbroken-line constraint forces a deliberately "
-            "imperfect, hand-drawn feel. Pairs with a typewriter-style monospace "
-            "wordmark. Conveys craft, not corporate."
+            "Wordmark engraved into a single rectangular block — visible "
+            "chisel marks, deep relief, photographed in raking side-light. "
+            "Brand surfaces use lithographic-stone textures as background. "
+            "Palette: wet slate, raw limestone, a single deep ochre. "
+            "Typography pairs a deep-cut Trajan with a humanist sans. "
+            "Reads as institutional, durable, civic. For brands that need "
+            "to communicate permanence."
         ),
     ),
     DemoIdea(
-        pack="visual-identity",
-        summary="Maker Workbench",
+        pack="brand-identity",
+        summary="Postal Service",
         content=(
-            "A flat-illustrated overhead workbench — soldering iron, "
-            "circuit board, half-built widget — used as a recurring "
-            "key art across collateral. The logomark is one of the tools "
-            "on the bench, rendered isometrically. Conveys hands-on "
-            "engineering culture, distinct from the institutional polish."
+            "A system designed to look like a 1960s postal authority. Single "
+            "geometric logomark — a stylised envelope reduced to two angles. "
+            "Wordmark in a wide DIN-style sans, kerned tight. Brand surfaces "
+            "use stamp-perforation edges and rubber-stamp date marks. "
+            "Palette: deep navy, post-office red, a single warm grey for "
+            "supporting copy. Reads as utilitarian, civic, dependable. "
+            "Excellent for logistics or trust-led services."
         ),
     ),
     DemoIdea(
-        pack="visual-identity",
-        summary="Stanford Plate Negative",
+        pack="brand-identity",
+        summary="Studio Pottery",
         content=(
-            "Renders the wordmark as a black-and-white photographic plate "
-            "negative — a Cardinal-red wordmark inverted against a black "
-            "background, with subtle film grain. Builds a documentary, "
-            "research-archive feel. Excellent on dark merch and Instagram "
-            "story templates."
+            "Identity built around hand-thrown ceramic objects as the primary "
+            "photography subject — each photographed singly, frontally, with "
+            "the maker's thumbprint visible in the clay. Wordmark is hand-cut, "
+            "letterpress-printed onto kraft labels glued onto product. Palette "
+            "is dictated by glaze chemistry: oxblood, celadon, oatmeal, soot. "
+            "Conveys handmade, slow, durable. Costly to scale; perfect for a "
+            "small luxury label."
         ),
     ),
 ]
 
 
-# 2) Campaign concepts -------------------------------------------------------
+# ── Campaign craft ──────────────────────────────────────────────────────────
 
 _PACK_CAMPAIGN: list[DemoIdea] = [
     DemoIdea(
-        pack="campaign",
-        summary="Field Notes from Lab 47",
+        pack="campaign-craft",
+        summary="The Open Studio Tour",
         content=(
-            "A handwritten-letter campaign. Each piece in the series is a "
-            "single hand-scrawled lab notebook page — coffee stains, marginalia, "
-            "a half-finished equation — printed at A3 and pinned to walls in "
-            "high-foot-traffic engineering corridors. The QR code in the margin "
-            "leads to the club's open project list. Feels personal, scarce, "
-            "intentionally not designed."
+            "A six-week campaign in which the brand opens its physical studio "
+            "on a single afternoon each week. Each tour is led by a different "
+            "team member (head of design, founder, lead developer). No agenda "
+            "beyond 'walk through what we make and why.' Promotion is a "
+            "simple weekly Instagram story and a chalkboard on the sidewalk. "
+            "Costs effectively nothing. Generates word-of-mouth that paid "
+            "media can't manufacture."
         ),
     ),
     DemoIdea(
-        pack="campaign",
-        summary="The Apprentice Series",
+        pack="campaign-craft",
+        summary="One Object, Seven Stories",
         content=(
-            "A six-week documentary podcast following first-year engineering "
-            "students paired with senior makers. Each 20-minute episode focuses "
-            "on one specific build — a sensor, a robot arm, a fabric circuit. "
-            "Distribution through campus radio and the club's Substack. Cost: "
-            "one good mic and 2 hours/week of editing."
+            "A campaign anchored on a single hero product, photographed seven "
+            "different ways across seven different lifestyles and locations. "
+            "Each shot becomes the visual for a single editorial story (a "
+            "newsletter, a billboard, a press feature). Tells the audience: "
+            "this object earns its place in many lives. Compresses the budget "
+            "into one rigorous photo shoot instead of dilute multi-product "
+            "rollouts."
         ),
     ),
     DemoIdea(
-        pack="campaign",
-        summary="Build Night, Open House",
+        pack="campaign-craft",
+        summary="The Drop Letter",
         content=(
-            "A weekly Wednesday-evening open-house format. The club's main "
-            "workshop is unlocked from 7–10pm, equipment is staffed, projects "
-            "are visible. No agenda, no demos, just open access. Marketing "
-            "is a single Instagram story each Tuesday and a chalk arrow on "
-            "the sidewalk outside the building. Counts on the visceral pull "
-            "of seeing other people make things."
+            "Each new product launch is announced via a single physical letter "
+            "mailed to the most loyal 500 customers — handwritten address, "
+            "wax seal, no digital duplication. The letter contains an access "
+            "code valid for 48 hours. The exclusivity is small and real. "
+            "Drives early sales, social sharing, and a fierce loyalty effect. "
+            "Production cost: under $1,500 per launch."
         ),
     ),
     DemoIdea(
-        pack="campaign",
-        summary="Defect Gallery",
+        pack="campaign-craft",
+        summary="The Failure Edition",
         content=(
-            "An anti-portfolio exhibit. Every project's first failed prototype "
-            "is photographed in studio lighting, labelled with what went wrong "
-            "and what got fixed, then mounted alongside the working version. "
-            "Communicates that the path to mastery is mostly broken parts. "
-            "Strong recruiting tool — students see they don't need to arrive "
-            "perfect."
+            "An annual print zine documenting every project the brand "
+            "shipped — and every project that was killed before it shipped. "
+            "Each killed project gets one spread: what was attempted, what "
+            "went wrong, what was learned. Distributed free at retail and "
+            "events. Counter-cultural; communicates intellectual seriousness; "
+            "becomes a recruiting tool for the people you actually want."
         ),
     ),
     DemoIdea(
-        pack="campaign",
-        summary="Office Hours at the Coupa",
+        pack="campaign-craft",
+        summary="Pop-Up Library",
         content=(
-            "A weekly informal-coffee format at Coupa Cafe. Two senior club "
-            "members hold court for 90 minutes; anyone can sit down and ask "
-            "anything technical. Slack thread captures the questions and seeds "
-            "future workshop topics. Zero production cost, builds a reputation "
-            "for accessibility. The presence is the marketing."
+            "A six-week installation in a major city — a free public reading "
+            "room curated around the brand's intellectual lineage (books, "
+            "objects, films, music). No products for sale. No staff in brand "
+            "uniform. Open to the public during gallery hours. Becomes a "
+            "destination, gets press, builds the kind of brand authority that "
+            "performance marketing cannot purchase."
         ),
     ),
     DemoIdea(
-        pack="campaign",
-        summary="One Brief Per Week",
+        pack="campaign-craft",
+        summary="Co-Author Series",
         content=(
-            "Every Monday the club publishes one tiny engineering brief — "
-            "'design a 3D-printable replacement for X', 'redesign the campus "
-            "garbage bin', 'build a single-button physical interface for Y'. "
-            "Members submit by Friday; submissions are voted on Sunday. The "
-            "best brief becomes a sticker. Builds rhythm and a public output "
-            "stream."
+            "Pair a member of the in-house creative team with an outside "
+            "guest each quarter — a chef, a novelist, a musician, an architect — "
+            "to produce a single co-authored object or moment. The collaboration "
+            "is documented across all owned channels. Costs are modest; "
+            "borrows credibility from adjacent disciplines; creates a body "
+            "of work that compounds over years."
         ),
     ),
     DemoIdea(
-        pack="campaign",
-        summary="The Year One Map",
+        pack="campaign-craft",
+        summary="The Quiet Newsletter",
         content=(
-            "A printed campus map handed out at orientation showing every "
-            "lab, every maker space, every shop, and every faculty office that "
-            "welcomes drop-ins. Folded into a poster on the reverse. Solves "
-            "the most common new-student problem (not knowing where things "
-            "are) and the club becomes the publisher of the answer."
+            "A monthly email, no images, no buttons, no calls to action. One "
+            "essay per issue, written by a single person on the team, about "
+            "something they're learning. Distributed only by direct invitation. "
+            "The list grows by word-of-mouth. Conversion is high precisely "
+            "because no one is asked to convert. The patience of the format "
+            "is the message."
         ),
     ),
     DemoIdea(
-        pack="campaign",
-        summary="Failure Friday Email",
+        pack="campaign-craft",
+        summary="The Field Recording",
         content=(
-            "A weekly Friday newsletter, single-screen, single-story format. "
-            "Each issue tells the story of one engineering failure in detail — "
-            "what was attempted, what broke, what was learned. Industry "
-            "post-mortems, historical case studies, member projects, all "
-            "treated equally. Builds intellectual seriousness and a "
-            "differentiated voice."
+            "A single field-recording-style ambient audio loop — the sound of "
+            "the brand's actual workspace — published as a continuous YouTube "
+            "stream and Spotify session. No music, no voiceover, no marketing. "
+            "Becomes a focus track for designers and writers who want a brand "
+            "to live alongside their work. Builds an oddly intimate relationship "
+            "with the audience without selling them anything."
         ),
     ),
 ]
 
 
-# 3) Packaging / product design directions -----------------------------------
+# ── Object design / packaging ───────────────────────────────────────────────
 
-_PACK_PACKAGING: list[DemoIdea] = [
+_PACK_OBJECT: list[DemoIdea] = [
     DemoIdea(
-        pack="packaging",
-        summary="Field-Issue Crate",
+        pack="object-design",
+        summary="Field-Issue Kit",
         content=(
-            "A flat-pack corrugated crate stencil-printed with the club logo "
-            "and a manifest of contents on the outside. Internal die-cuts "
-            "hold a starter kit: breadboard, jumper wires, soldering iron, "
-            "a one-page get-started guide. Mailable. Used as a recruit-out "
-            "package for accepted incoming freshmen during the summer."
+            "A flat-pack corrugated cardboard kit, stencil-printed in two "
+            "spot colours. Inside: every part needed for first use, organised "
+            "by die-cut compartments, labelled with serial numbers and a one-"
+            "page reference card. Mailable as-is. Designed to be reassembled "
+            "into a desk organiser after unboxing — the packaging becomes "
+            "the second use."
         ),
     ),
     DemoIdea(
-        pack="packaging",
+        pack="object-design",
         summary="Spec Sheet First",
         content=(
-            "Every project shipped with a one-page technical spec sheet on "
-            "the front of the box — the actual schematic, dimensions, BOM "
-            "and a QR to the build log. The product is treated as documented, "
-            "open hardware. The spec sheet IS the marketing. No flowery copy."
+            "Every product ships with a one-page technical spec sheet adhered "
+            "to the outside of the box. Real schematic, real dimensions, real "
+            "bill of materials. The spec sheet IS the marketing. No flowery "
+            "copy. Communicates engineering seriousness; gives the customer "
+            "a reason to keep the packaging long enough to read it."
         ),
     ),
     DemoIdea(
-        pack="packaging",
-        summary="Hand-Numbered Editions",
+        pack="object-design",
+        summary="Glass Decanter Series",
         content=(
-            "Limited-run merch and project kits are hand-numbered with a "
-            "stamp on the inside of the box, recording maker initials and "
-            "the build date. Builds a craft-object feel even on mass-produced "
-            "items. Excellent for sticker packs, board kits, and bottle "
-            "openers as fundraising merch."
+            "Primary product packaged in a single mouth-blown decanter, each "
+            "with a hand-tied jute label noting the batch and bottling date. "
+            "Decanters are returnable for a 20% future-order credit. The "
+            "packaging becomes the brand object in the customer's home long "
+            "after the product is consumed. Cost-justified by the repeat-"
+            "purchase loop, not the unit margin."
         ),
     ),
     DemoIdea(
-        pack="packaging",
-        summary="Pull-Tab Lab Notebook",
+        pack="object-design",
+        summary="Newsprint Wrap",
         content=(
-            "A bound lab notebook handed to every new member, with "
-            "perforated pull-tab pages along the binding. Each pull-tab "
-            "is a one-line credit voucher — 'good for 1 hour of mentor "
-            "time', 'good for 1 board fabrication', 'good for 1 free "
-            "coffee from the club fridge'. Drives the use of resources "
-            "without bureaucracy."
+            "Product ships wrapped in newsprint printed with the brand's "
+            "quarterly editorial — recipes, essays, photographs by guest "
+            "contributors. The wrap is the read; the read becomes a moment "
+            "of unboxing pause. Newsprint is cheap, recyclable, signals "
+            "documentary seriousness. Easily archived; quietly distinct from "
+            "the glossy-stock norm."
         ),
     ),
     DemoIdea(
-        pack="packaging",
-        summary="Anodised Aluminium Pin",
+        pack="object-design",
+        summary="Hand-Numbered Edition",
         content=(
-            "A single-color anodised aluminium pin (cardinal red, machined, "
-            "0.6mm thick) as the only physical brand object members ever "
-            "carry. Conveys precision manufacturing. Functions as access "
-            "credential for member-only spaces. The scarcity becomes the "
-            "identity statement."
+            "Every package is hand-stamped with a sequential number and the "
+            "initials of the person who packed it. Builds a craft-object feel "
+            "into an otherwise mass-produced product. Excellent on small "
+            "runs and as a fundraising or limited-edition tactic. The hand "
+            "is the feature."
         ),
     ),
     DemoIdea(
-        pack="packaging",
-        summary="Open-Source Patch Set",
+        pack="object-design",
+        summary="Refill Manifesto",
         content=(
-            "Six embroidered patches — one for each of the club's main labs "
-            "or sub-disciplines. Members earn them by shipping a project "
-            "in that domain. Patches are physical proof of competence; "
-            "the merch becomes a portfolio. Patches are downloadable as "
-            "open-source SVG files so members can stitch their own variants."
+            "Primary container is heavyweight glass or anodised aluminium, "
+            "sold once. Refills ship in light kraft pouches at half the unit "
+            "price. The brand becomes the lifetime container; every refill "
+            "is a soft recommitment. Communicates sustainability without "
+            "any extra messaging — the architecture of the product is the "
+            "statement."
         ),
     ),
     DemoIdea(
-        pack="packaging",
-        summary="Bento-Box Toolkit",
+        pack="object-design",
+        summary="Cloth Sleeve",
         content=(
-            "A clear-acrylic bento-style box, partitioned, sold at cost to "
-            "members for $40. Pre-loaded with the most-used components: "
-            "Arduino, jumpers, sensors, a Mini breadboard, basic "
-            "multimeter. Replaces the 'I don't have parts' excuse with "
-            "a one-time barrier. Refill pouches sold at the door of "
-            "Build Night."
+            "Product is wrapped in a single piece of woven cotton sleeve, "
+            "sewn with the brand's wordmark on the inside fold. Sleeve "
+            "doubles as a dust cover and a souvenir. Tactile, slow, "
+            "intentionally undisposable. Costs ~$2/unit at scale; reads "
+            "as a $20 add-on in customer perception."
         ),
     ),
     DemoIdea(
-        pack="packaging",
-        summary="Newsprint Project Reports",
+        pack="object-design",
+        summary="Blueprint Tag",
         content=(
-            "End-of-quarter project reports printed on newsprint, broadsheet "
-            "format, in classic editorial layout. Distributed for free at "
-            "central campus locations. The newsprint medium signals "
-            "documentary seriousness without the cost of glossy stock. "
-            "Easily archived; immediately recognisable."
+            "Each product carries a single hang-tag printed on tracing paper "
+            "with the product's exploded technical drawing on the front and "
+            "the maker's name on the back. The tag is detachable, archive-"
+            "worthy. Customers who care about provenance keep them; "
+            "customers who don't get a beautiful object regardless."
         ),
     ),
 ]
 
 
 CONCEPTIAL_PACKS: dict[str, list[DemoIdea]] = {
-    "visual-identity": _PACK_VISUAL_IDENTITY,
-    "campaign": _PACK_CAMPAIGN,
-    "packaging": _PACK_PACKAGING,
+    "brand-identity": _PACK_BRAND,
+    "campaign-craft": _PACK_CAMPAIGN,
+    "object-design": _PACK_OBJECT,
 }
 
 

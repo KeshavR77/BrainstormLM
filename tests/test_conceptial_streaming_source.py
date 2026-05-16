@@ -84,7 +84,7 @@ def test_streams_stop_when_catalogue_exhausted(store):
 def test_returns_idea_with_pack_field(store):
     src = ConceptialStreamingSource(store=store, project_id="p1", pacing=False)
     [first, *_] = list(src.stream(prompt="brand identity", n=1))
-    assert first.pack in {"visual-identity", "campaign", "packaging"}
+    assert first.pack in {"brand-identity", "campaign-craft", "object-design"}
 
 
 def test_deterministic_starting_point_for_same_inputs(store, tmp_path):

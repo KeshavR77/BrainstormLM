@@ -180,22 +180,33 @@ export async function resetProjectMemory(projectId: string): Promise<number> {
 
 const MOCK_MEMORY_KEY = (projectId: string) => `mock-memory-${projectId}`;
 
+// Mirror of the server-side seeded counts in artifacts/conceptial/seeds/*.json
+// so the chip shows the right number when running offline (Render mock build).
+const SEEDED_MOCK_COUNTS: Record<string, number> = {
+  'demo-skincare-identity': 12,
+  'demo-footwear-campaign': 8,
+  'demo-oatmilk-packaging': 8,
+};
+
 function readMockMemory(projectId: string): ProjectMemoryCounts {
+  const seededFallback = SEEDED_MOCK_COUNTS[projectId] ?? 0;
   try {
     const raw = localStorage.getItem(MOCK_MEMORY_KEY(projectId));
     if (raw) {
       const parsed = JSON.parse(raw);
-      return {
-        projectId,
-        seeded: parsed.seeded ?? 0,
-        generated: parsed.generated ?? 0,
-        total: (parsed.seeded ?? 0) + (parsed.generated ?? 0),
-      };
+      const seeded = parsed.seeded ?? seededFallback;
+      const generated = parsed.generated ?? 0;
+      return { projectId, seeded, generated, total: seeded + generated };
     }
   } catch {
     /* ignore */
   }
-  return { projectId, seeded: 0, generated: 0, total: 0 };
+  return {
+    projectId,
+    seeded: seededFallback,
+    generated: 0,
+    total: seededFallback,
+  };
 }
 
 function clearMockMemory(projectId: string): void {

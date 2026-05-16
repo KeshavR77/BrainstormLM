@@ -1,0 +1,40 @@
+{
+  "project_id": "demo-footwear-campaign",
+  "project_name": "Bondi Trail — Q3 Campaign",
+  "brief": "Q3 campaign concepts for a sustainable trail-runner launch under the brand Bondi Trail. Target: urban runners who want a single shoe for road and trail. Channels: outdoor billboards, IG, retail windows, a small print run.",
+  "source": "seeded",
+  "ideas": [
+    {
+      "summary": "Six Trails, One Shoe",
+      "content": "A six-week photo essay documenting six different runners — each on a different terrain (coastal cliff, urban underpass, mossy forest, desert ridge, suburban park, industrial canal) — all wearing the same shoe. Shot on medium-format film, no copy on the hero images. The proof is the variety of feet that fit."
+    },
+    {
+      "summary": "Pavement Notes",
+      "content": "A series of letterpress prints, sold at cost from the brand's pop-up retail, each documenting one runner's actual training week — handwritten log of distances, pace, weather, mood. The shoe is mentioned once, parenthetically. The campaign is the document, not the spec sheet."
+    },
+    {
+      "summary": "Trail Hours Open House",
+      "content": "Every Saturday for the campaign duration, the brand's retail door opens at 5:45am with free coffee and a guided group run. No formal registration; just show up. Builds local community; word-of-mouth carries further than billboards. The shoe is loaned to anyone who needs to try it on-route."
+    },
+    {
+      "summary": "Found Footage Zine",
+      "content": "A 32-page newsprint zine collecting submitted photos and one-line stories from real customers — what trail they ran, what shoe they wore, what they were thinking about. Distributed free at running retailers and cafes. The brand's name appears only on the colophon."
+    },
+    {
+      "summary": "After-Hours Track",
+      "content": "Sponsor a single public running track for 60 nights — lights stay on until 11pm, free water, free pace coaches once a week. The brand's logo appears once on a single banner; the rest is just open-access infrastructure. Builds a place, not a campaign."
+    },
+    {
+      "summary": "The Five-Hour Map",
+      "content": "A printed urban running map illustrating five different five-hour runs in five different cities, each ending at an independent café or trailhead. Free at retail and online. The shoe is the only thing the map asks you to carry. Lives on coffee-table months after the campaign ends."
+    },
+    {
+      "summary": "Before-Sunrise Series",
+      "content": "A photo series shot exclusively in the 30 minutes before sunrise across six cities. Long exposures, ambient streetlight, single human figure in motion. No copy. Becomes the brand's standalone art series — sold as a limited-edition print set with proceeds to local trail organisations."
+    },
+    {
+      "summary": "Recycled Mile Counter",
+      "content": "For every mile a registered customer logs in the campaign, the brand donates one square foot of restored trail somewhere in the customer's region. A live counter on the brand's homepage tallies miles → square feet. Verifiable, tactile, attaches the product to a public commons."
+    }
+  ]
+}
