@@ -1,0 +1,55 @@
+{
+  "prompt_id": "naming-consumer-coffee",
+  "arm": "gpt-4o-mini",
+  "n": 8,
+  "outputs": [
+    {
+      "model": "gpt-4o-mini",
+      "k": 0,
+      "text": "**Brewed Awakening**\n\nBrewed Awakening evokes a sense of transformation and enlightenment that comes with every cup of coffee. The name suggests not just the act of brewing, but also the experience and ritual of enjoying coffee, which can uplift one's day. It plays on the dual connotation of \u2018awakening\u2019\u2014the fixed idea of stimulating alertness while symbolizing personal growth through the exploration of diverse flavor profiles. This brand aims to attract discerning coffee lovers who value quality and seek a moment of clarity in their daily routine, creating a community around the appreciation of specialty coffee.",
+      "trajectory_id": "881be7acf1b64c63960ac4360877f227"
+    },
+    {
+      "model": "gpt-4o-mini",
+      "k": 1,
+      "text": "Brewed Odyssey  \n\nBrewed Odyssey evokes the journey of discovering unique flavors and origins of coffee from around the globe. This name suggests a narrative of exploration, encouraging coffee enthusiasts to embark on a sensory adventure each month with curated selections from various coffee-growing regions. The use of \"odyssey\" implies a rich, immersive experience, inviting customers to not only enjoy their coffee but to learn about its origins and the stories behind each blend. The brand feel is adventurous and knowledgeable, appealing to the curious and the connoisseurs alike, transforming the everyday ritual of coffee consumption into an epicurean exploration.",
+      "trajectory_id": "045c4b6d2a3c45dd8c73f720f32a7b11"
+    },
+    {
+      "model": "gpt-4o-mini",
+      "k": 2,
+      "text": "Brewed Awakening\n\nBrewed Awakening captures the essence of a fresh start with every cup of coffee, invoking the idea of revitalization and discovery. The name suggests a journey of taste that elevates the morning ritual, appealing to coffee enthusiasts eager to explore unique flavors from around the world. The brand will evoke feelings of warmth and connection, using inviting visuals and a soothing color palette that reflects the calming nature of a perfectly brewed cup. Emphasizing sustainability and ethical sourcing, Brewed Awakening emphasizes not just the awakening of the senses but also the awakening of mindful consumer choices.",
+      "trajectory_id": "e8a3560ecfba4c57971d8b03a14d39a3"
+    },
+    {
+      "model": "gpt-4o-mini",
+      "k": 3,
+      "text": "\"Curated Coffee Collective\"  \nThe name \"Curated Coffee Collective\" evokes a sense of community and expert selection, positioning the brand as a gathering of coffee enthusiasts who appreciate quality over quantity. With 'Curated' suggesting a thoughtful selection process, customers feel confident that each shipment will feature only the best specialty beans sourced from around the world. 'Collective' implies a shared experience, inviting subscribers to be part of a like-minded coffee-loving community. The overall brand feel is sophisticated yet approachable, appealing to both coffee connoisseurs and casual drinkers seeking to deepen their appreciation for the craft of coffee.",
+      "trajectory_id": "e8ff816338d24d9ab89ce45a6a2a6ef8"
+    },
+    {
+      "model": "gpt-4o-mini",
+      "k": 4,
+      "text": "\"Brews & Views\"  \nBrews & Views captures the essence of enjoying coffee in a diverse range of settings, whether at home or exploring new locales. This name evokes imagery of personal relaxation and discovery, enhancing the experience of savoring specialty coffee from different origins. The brand aims to create a community of coffee lovers who appreciate not only the quality of their brew but also the journey behind it, promoting a lifestyle where each cup is a new adventure. With a bright, inviting color palette and a warm, casual tone in messaging, Brews & Views invites subscribers to immerse themselves in the world of specialty coffee while sharing their unique perspectives and stories.",
+      "trajectory_id": "5269f647506f41999dc761dafbca4839"
+    },
+    {
+      "model": "gpt-4o-mini",
+      "k": 5,
+      "text": "\"Java Journeys\"\n\nJava Journeys embodies the adventure of discovering unique coffee origins from around the globe. This name evokes a sense of exploration, calling to mind an intricate map of coffee-growing regions, each with its own flavor profile and brewing tradition. The brand would offer a curated selection of specialty coffees, emphasizing the stories behind each bean and the farmers who cultivate them. With visually captivating packaging suggesting travel and adventure, coupled with storytelling on their sourcing practices, Java Journeys aims to create a community of coffee lovers who feel connected not just to their cup, but to the rich history of coffee itself.",
+      "trajectory_id": "c55c56e59e3e422da414e0e20590b4fe"
+    },
+    {
+      "model": "gpt-4o-mini",
+      "k": 6,
+      "text": "\"Roast Reverie\"\n\nRooted in the notion of coffee as not just a beverage, but a moment of indulgent escape, \"Roast Reverie\" evokes a dreamy experience that coffee lovers crave. The name suggests a journey through rich flavors and aromatic profiles that transport subscribers to serene coffee-growing locales with each delivery. The brand feel is elevated yet approachable, embracing a sense of ritual and contemplation associated with savoring specialty coffee. Each subscription box becomes an invitation to pause, reflect, and enjoy those quiet, cherished moments in one's day.",
+      "trajectory_id": "b97a7ea2ba2742c69f46fd4e6fcedaec"
+    },
+    {
+      "model": "gpt-4o-mini",
+      "k": 7,
+      "text": "\"Perk & Pour\"\n\nPerk & Pour evokes a sense of energy and ritual associated with the coffee experience. The name suggests a dual focus on the joy of a morning pick-me-up (perk) and the intentional act of brewing or serving (pour). This duality aligns perfectly with the brand's mission to deliver high-quality, specialty coffees that cater to discerning palates while fostering a sense of community through shared rituals. It creates an inviting atmosphere, appealing to coffee lovers who cherish both the nuances of flavor in their cups and the social connections formed around them. The clean, modern feel signals craftsmanship and expertise, implying that each subscription box is thoughtfully curated to accentuate bold, unique flavors from around the globe.",
+      "trajectory_id": "4f185551f91f49f9b136a66a0c7c1b25"
+    }
+  ]
+}

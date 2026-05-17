@@ -281,9 +281,35 @@ def _score_one(brief: str, text: str, model: str = "gpt-4o-mini") -> dict:
 # ─── Runner ──────────────────────────────────────────────────────────────────
 
 
+def load_conceptial_14b_cached(brief_id: str, n: int) -> list[dict]:
+    """The 14B arm is generated separately on RunPod; we just read from disk.
+
+    See ``scripts/runpod_batch_14b.py`` for the cloud-side generator.
+    Returns the outputs list, trimmed to ``n`` entries.
+    """
+    cache_dir = ROOT / "artifacts" / "benchmark_v2" / "conceptial_14b_outputs"
+    path = cache_dir / f"{brief_id}.conceptial-14b.json"
+    if not path.exists():
+        raise FileNotFoundError(
+            f"No 14B outputs at {path}. Generate them on a RunPod A100 80GB "
+            f"via `scripts/runpod_batch_14b.py`, then rsync the JSONs back to "
+            f"{cache_dir.relative_to(ROOT)}/."
+        )
+    data = json.loads(path.read_text())
+    outs = data.get("outputs", [])
+    if len(outs) < n:
+        raise ValueError(
+            f"Only {len(outs)} 14B outputs found for {brief_id}; benchmark "
+            f"wants N={n}. Regenerate via runpod_batch_14b.py with --n >= {n}."
+        )
+    return outs[:n]
+
+
 def _arm_for(arm: str, brief: str, brief_id: str, n: int) -> list[dict]:
     if arm == "conceptial-3b":
         return generate_conceptial_arm(brief, n, project_id=f"bench-{brief_id}")
+    if arm == "conceptial-14b":
+        return load_conceptial_14b_cached(brief_id, n)
     return generate_gpt_arm(arm, brief, n)
 
 

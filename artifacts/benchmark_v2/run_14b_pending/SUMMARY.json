@@ -1,0 +1,217 @@
+{
+  "config": "creative_briefs_v1",
+  "n_per_arm_per_prompt": 8,
+  "arms": [
+    "gpt-4o",
+    "gpt-4o-mini"
+  ],
+  "per_prompt": [
+    {
+      "prompt_id": "logo-stanford-engineering",
+      "category": "logo",
+      "arms": {
+        "gpt-4o": {
+          "vendi": 2.8663905368606075,
+          "near_dup": 0.0,
+          "distinct_2": 0.8746594005449592,
+          "n": 8
+        },
+        "gpt-4o-mini": {
+          "vendi": 2.4748957402843303,
+          "near_dup": 0.0,
+          "distinct_2": 0.7805907172995781,
+          "n": 8
+        }
+      }
+    },
+    {
+      "prompt_id": "logo-dtc-skincare",
+      "category": "logo",
+      "arms": {
+        "gpt-4o": {
+          "vendi": 3.043407650976295,
+          "near_dup": 0.0,
+          "distinct_2": 0.8702983138780804,
+          "n": 8
+        },
+        "gpt-4o-mini": {
+          "vendi": 2.7324968935084213,
+          "near_dup": 0.0,
+          "distinct_2": 0.7959183673469388,
+          "n": 8
+        }
+      }
+    },
+    {
+      "prompt_id": "campaign-sustainable-footwear",
+      "category": "campaign",
+      "arms": {
+        "gpt-4o": {
+          "vendi": 2.4855844095549124,
+          "near_dup": 0.0,
+          "distinct_2": 0.8618988902589396,
+          "n": 8
+        },
+        "gpt-4o-mini": {
+          "vendi": 1.8478129973465627,
+          "near_dup": 0.03571428571428571,
+          "distinct_2": 0.7643540669856459,
+          "n": 8
+        }
+      }
+    },
+    {
+      "prompt_id": "campaign-fintech-trust",
+      "category": "campaign",
+      "arms": {
+        "gpt-4o": {
+          "vendi": 2.7112984007008682,
+          "near_dup": 0.0,
+          "distinct_2": 0.8820160366552119,
+          "n": 8
+        },
+        "gpt-4o-mini": {
+          "vendi": 2.2920223407913043,
+          "near_dup": 0.0,
+          "distinct_2": 0.8076416337285902,
+          "n": 8
+        }
+      }
+    },
+    {
+      "prompt_id": "packaging-oat-milk",
+      "category": "packaging",
+      "arms": {
+        "gpt-4o": {
+          "vendi": 3.0129885690807394,
+          "near_dup": 0.03571428571428571,
+          "distinct_2": 0.8600917431192661,
+          "n": 8
+        },
+        "gpt-4o-mini": {
+          "vendi": 2.564330432600814,
+          "near_dup": 0.0,
+          "distinct_2": 0.7929411764705883,
+          "n": 8
+        }
+      }
+    },
+    {
+      "prompt_id": "packaging-natural-deodorant",
+      "category": "packaging",
+      "arms": {
+        "gpt-4o": {
+          "vendi": 3.7020207497500066,
+          "near_dup": 0.0,
+          "distinct_2": 0.8847150259067358,
+          "n": 8
+        },
+        "gpt-4o-mini": {
+          "vendi": 3.160322272022286,
+          "near_dup": 0.0,
+          "distinct_2": 0.8241279069767442,
+          "n": 8
+        }
+      }
+    },
+    {
+      "prompt_id": "naming-AI-startup",
+      "category": "naming",
+      "arms": {
+        "gpt-4o": {
+          "vendi": 3.5651365510011392,
+          "near_dup": 0.0,
+          "distinct_2": 0.8454461821527139,
+          "n": 8
+        },
+        "gpt-4o-mini": {
+          "vendi": 2.937412911941397,
+          "near_dup": 0.0,
+          "distinct_2": 0.8070776255707762,
+          "n": 8
+        }
+      }
+    },
+    {
+      "prompt_id": "naming-consumer-coffee",
+      "category": "naming",
+      "arms": {
+        "gpt-4o": {
+          "vendi": 2.9407777137427744,
+          "near_dup": 0.0,
+          "distinct_2": 0.8071942446043165,
+          "n": 8
+        },
+        "gpt-4o-mini": {
+          "vendi": 3.4236395289128345,
+          "near_dup": 0.03571428571428571,
+          "distinct_2": 0.800747198007472,
+          "n": 8
+        }
+      }
+    },
+    {
+      "prompt_id": "gtm-legal-tech",
+      "category": "strategy",
+      "arms": {
+        "gpt-4o": {
+          "vendi": 2.9403392001727164,
+          "near_dup": 0.0,
+          "distinct_2": 0.8781925343811395,
+          "n": 8
+        },
+        "gpt-4o-mini": {
+          "vendi": 1.9398789262223388,
+          "near_dup": 0.0,
+          "distinct_2": 0.8070388349514563,
+          "n": 8
+        }
+      }
+    },
+    {
+      "prompt_id": "gtm-b2b-saas-developer-tools",
+      "category": "strategy",
+      "arms": {
+        "gpt-4o": {
+          "vendi": 3.5271642656579023,
+          "near_dup": 0.0,
+          "distinct_2": 0.881981981981982,
+          "n": 8
+        },
+        "gpt-4o-mini": {
+          "vendi": 2.7718841419320595,
+          "near_dup": 0.0,
+          "distinct_2": 0.8221614227086184,
+          "n": 8
+        }
+      }
+    }
+  ],
+  "aggregate": {
+    "gpt-4o": {
+      "mean_vendi": 3.079510804749796,
+      "mean_near_dup": 0.0035714285714285713,
+      "mean_distinct_2": 0.8646494353483345,
+      "mean_composite": null,
+      "mean_creativity": null,
+      "mean_coherence": null,
+      "mean_specificity": null,
+      "mean_on_topic": null,
+      "n_prompts": 10,
+      "n_outputs_total": 80
+    },
+    "gpt-4o-mini": {
+      "mean_vendi": 2.6144696185562344,
+      "mean_near_dup": 0.007142857142857143,
+      "mean_distinct_2": 0.8002598950046409,
+      "mean_composite": null,
+      "mean_creativity": null,
+      "mean_coherence": null,
+      "mean_specificity": null,
+      "mean_on_topic": null,
+      "n_prompts": 10,
+      "n_outputs_total": 80
+    }
+  },
+  "quality_per_prompt": {}
+}

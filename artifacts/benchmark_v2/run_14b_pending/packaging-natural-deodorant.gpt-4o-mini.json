@@ -1,0 +1,55 @@
+{
+  "prompt_id": "packaging-natural-deodorant",
+  "arm": "gpt-4o-mini",
+  "n": 8,
+  "outputs": [
+    {
+      "model": "gpt-4o-mini",
+      "k": 0,
+      "text": "**Barely There Casing**  \nThis packaging concept features a sleek, biodegradable cardboard tube that seamlessly slides open and closed, allowing users to dispense the natural deodorant without excess waste. The surface is printed with plant-based, non-toxic inks that ensure a vibrant, eco-friendly aesthetic, while the materials are sustainably sourced, ensuring no plastic is used. The branding incorporates a tactile embossed logo for a premium feel, encouraging customers to engage with the product physically and emotionally, reinforcing the brand's commitment to sustainability.",
+      "trajectory_id": "2bf981fd937f4efeb6922d7d37ce71fa"
+    },
+    {
+      "model": "gpt-4o-mini",
+      "k": 1,
+      "text": "\"Eco-Friendly Stick Swap\"\n\nIntroducing a revolutionary natural deodorant housed in a biodegradable paper push-up tube, designed for easy application and a minimal footprint. The outer tube is crafted from FSC-certified, compostable paper, featuring a smooth, matte finish with vibrant plant-based ink for branding. Each refillable stick allows customers to dispense just the right amount with a gentle twist, while the interior is lined with a moisture-resistant plant-based wax, ensuring the integrity of the product. This sleek and functional design invites users to embrace a sustainable routine without compromising on style or effectiveness.",
+      "trajectory_id": "9e24f1b96eb44cfc8f7e93b4edc3dce7"
+    },
+    {
+      "model": "gpt-4o-mini",
+      "k": 2,
+      "text": "**Earth's Embrace Stick**  \nCrafted from biodegradable, plant-based materials, the Earth\u2019s Embrace Stick features a unique push-up design that allows for easy application while ensuring no plastic components are used. The outer casing, made from sustainable bamboo fibers, not only looks elegant with its natural finish but also provides a tactile experience that embodies the essence of nature. The internal formulation is encased in a compostable paper sleeve, drawing attention to the brand\u2019s commitment to eco-friendliness while ensuring that users can enjoy a smooth, effective application of our natural deodorant without the worry of plastic waste.",
+      "trajectory_id": "6b15f19cf23a4f5aa49dd17cc41ed7b3"
+    },
+    {
+      "model": "gpt-4o-mini",
+      "k": 3,
+      "text": "**EarthGuard Stick**  \nThe EarthGuard Stick features an innovative push-up design made from biodegradable paperboard, ensuring a fully plastic-free approach. The sleek, cylindrical shape allows for easy application while comfortably fitting in the hand. The surface is adorned with natural dyes and embossed patterns that reflect the earthy essence of its ingredients, reinforcing the brand\u2019s commitment to sustainability. Encouraging users to feel connected to nature, this packaging not only protects the product but also enhances the eco-friendly narrative at every touchpoint.",
+      "trajectory_id": "9cec1c3a9e654fe6a24c4d33a26dc0f8"
+    },
+    {
+      "model": "gpt-4o-mini",
+      "k": 4,
+      "text": "**EarthArmor Sticks**  \nEarthArmor Sticks are packaged in eco-friendly, biodegradable paper tubes that maintain the integrity of the natural deodorant while being entirely plastic-free. The rugged, textured surface of the tube not only ensures a secure grip but also features earthy graphics that resonate with nature, highlighting the product's organic ingredients. Each stick is designed to twist up smoothly for easy application, encouraging a sustainable lifestyle without compromising on performance or style. The minimalist design beautifully communicates the brand's dedication to environmental consciousness and personal wellness.",
+      "trajectory_id": "d19614dbf6744cb782fbb1a96fba9045"
+    },
+    {
+      "model": "gpt-4o-mini",
+      "k": 5,
+      "text": "**EcoStick Revolution**  \nIntroducing EcoStick Revolution: a sleek, biodegradable paper tube that houses our natural deodorant blend. The exterior features a textured, plant-based coating to ensure a secure grip while remaining 100% compostable. Each tube is infused with vibrant, floral artwork, reflecting the essence of our botanical ingredients, and has an easy-to-use twist mechanism that dispenses the perfect amount of cream. The inner liner, crafted from biodegradable materials, protects the formula, ensuring freshness without harming the planet. This innovative packaging solution not only champions sustainability but also elevates the everyday deodorant experience.",
+      "trajectory_id": "736eb96d704644e5a108648a2ab6f9eb"
+    },
+    {
+      "model": "gpt-4o-mini",
+      "k": 6,
+      "text": "\"Earth-Safe Stick\"\n\nThe Earth-Safe Stick features a biodegradable tube made from sustainably sourced paper, designed to be both user-friendly and eco-conscious. The innovative push-up mechanism allows for easy application while keeping the contents protected from external elements. The surface of the tube is elegantly textured with a natural finish, enhancing grip and user experience, while minimalist, plant-based inks showcase the brand's commitment to environmental sustainability. Each stick contains a blend of organic ingredients infused with essential oils, delivering effective odor protection while remaining 100% plastic-free.",
+      "trajectory_id": "56fd42c7eb9a459396b83202190fe3af"
+    },
+    {
+      "model": "gpt-4o-mini",
+      "k": 7,
+      "text": "\"Earth Embrace Balm\"  \nIntroducing \"Earth Embrace Balm,\" a natural deodorant presented in a sleek, biodegradable cardboard push-up tube, merging sustainability with user-friendliness. The exterior features a textured, earthy finish made from recycled paper, ensuring a firm grip for effortless application. Inside, the balm is a solid formula composed of organic coconut oil, baking soda, and shea butter, blended with natural essential oils for a refreshing scent. The tube is designed for easy, mess-free usage while being completely plastic-free, allowing customers to reduce their environmental footprint with every swipe.",
+      "trajectory_id": "e9e3ff7ec08c4ca2839f6fd4b8f42f72"
+    }
+  ]
+}
