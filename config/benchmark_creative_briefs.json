@@ -1,0 +1,58 @@
+{
+  "name": "creative_briefs_v1",
+  "description": "10 creative-operations briefs spanning the major brief classes a brand/marketing team brainstorms. Each prompt asks for N distinct directions on a specific brief; the right side scoring rubric weights specificity + creativity + on-topic.",
+  "created": "2026-05-16",
+  "n_outputs_per_prompt": 8,
+  "prompts": [
+    {
+      "id": "logo-stanford-engineering",
+      "category": "logo",
+      "brief": "Give me a creative logo for an engineering club at Stanford. I want a memorable concept name and a one-paragraph visual description suitable for an image-generation prompt."
+    },
+    {
+      "id": "logo-dtc-skincare",
+      "category": "logo",
+      "brief": "Design a logo direction for a new DTC skincare brand that wants to feel slow-craft and apothecary, not wellness-startup. Give a memorable concept name and a one-paragraph visual description."
+    },
+    {
+      "id": "campaign-sustainable-footwear",
+      "category": "campaign",
+      "brief": "Concept directions for a Q3 launch campaign for a sustainable trail-runner shoe. Target: urban runners who want one shoe for road and trail. Give a memorable campaign name and a paragraph describing the concept."
+    },
+    {
+      "id": "campaign-fintech-trust",
+      "category": "campaign",
+      "brief": "Generate creative concept directions for a campaign that needs to build trust in a new consumer fintech app. Each direction has a name and a paragraph describing the central insight and execution."
+    },
+    {
+      "id": "packaging-oat-milk",
+      "category": "packaging",
+      "brief": "Packaging directions for a premium oat milk reformulation. Refrigerated case, $7-9 carton, aimed at independent grocery and DTC subscription. Each direction has a name and a paragraph describing the physical form and surface design."
+    },
+    {
+      "id": "packaging-natural-deodorant",
+      "category": "packaging",
+      "brief": "Packaging directions for a natural deodorant brand. Plastic-free is required. Each direction has a memorable name and a paragraph describing the form factor, materials, and surface."
+    },
+    {
+      "id": "naming-AI-startup",
+      "category": "naming",
+      "brief": "Generate distinct product naming directions for a new AI workflow tool aimed at product designers. For each: a candidate name and a one-paragraph rationale describing the linguistic root, association, and feel."
+    },
+    {
+      "id": "naming-consumer-coffee",
+      "category": "naming",
+      "brief": "Distinct brand name directions for a new specialty coffee subscription. For each, give the candidate name and a paragraph explaining its origin, association, and intended brand feel."
+    },
+    {
+      "id": "gtm-legal-tech",
+      "category": "strategy",
+      "brief": "Distinct go-to-market strategy directions for a legal-tech platform pivoting to AI-native. For each: a memorable strategy name and a paragraph covering the customer wedge, proof metric, pricing, and the main risk."
+    },
+    {
+      "id": "gtm-b2b-saas-developer-tools",
+      "category": "strategy",
+      "brief": "Distinct go-to-market directions for a new B2B SaaS developer-tools company. For each direction: a memorable strategy name and a paragraph covering the customer wedge, the proof point, pricing, and the main risk."
+    }
+  ]
+}

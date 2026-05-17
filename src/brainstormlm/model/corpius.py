@@ -112,9 +112,9 @@ class CorpiusGenerator:
         from brainstormlm.conceptial.engine.config import SteeringConfig
 
         spec = load_corpius_spec(self._config_path)
-        cfg = SteeringConfig(base_model=spec.base_model)
+        cfg = SteeringConfig(model_id=spec.base_model)
         if self._device_override:
-            cfg.device = self._device_override
+            cfg.preferred_device = self._device_override  # type: ignore[assignment]
 
         engine = SteeringEngine(cfg)
         apply_corpius_1(engine, spec)
