@@ -142,6 +142,21 @@ def main() -> int:
         action="store_true",
         help="Disable CAA steering entirely (anti-mode + memory only baseline).",
     )
+    parser.add_argument(
+        "--sweep-config",
+        type=Path,
+        default=ROOT / "data" / "steering_14b" / "sweep" / "chosen_config.json",
+        help=(
+            "Path to a sweep-picked config from sweep_14b_steering.py. If present, "
+            "its creative_layer / creative_alpha / creative_vector_path override the "
+            "defaults from --corpius-config. Pass --no-sweep-override to ignore."
+        ),
+    )
+    parser.add_argument(
+        "--no-sweep-override",
+        action="store_true",
+        help="Ignore the sweep's chosen_config.json even if it exists; use corpius defaults.",
+    )
     args = parser.parse_args()
 
     # ── Load configs ─────────────────────────────────────────────────────────
@@ -159,7 +174,27 @@ def main() -> int:
     technical_vector_path = ROOT / corpius["steering_vectors"]["technical"]
     creative_layer = int(corpius["layers"]["creative_layer"])
     technical_layer = int(corpius["layers"]["technical_layer"])
-    schedule = corpius["schedule"]
+    schedule = dict(corpius["schedule"])
+
+    # ── Apply sweep-picked overrides if available ─────────────────────────────
+    sweep_applied: dict | None = None
+    if not args.no_sweep_override and args.sweep_config.exists():
+        chosen = json.loads(args.sweep_config.read_text())
+        creative_layer = int(chosen["creative_layer"])
+        creative_vector_path = ROOT / chosen["creative_vector_path"]
+        schedule["creative_start_alpha"] = float(chosen["creative_alpha"])
+        if "technical_layer" in chosen:
+            technical_layer = int(chosen["technical_layer"])
+        if "technical_alpha" in chosen:
+            schedule["technical_start_alpha"] = float(chosen["technical_alpha"])
+        if "technical_vector_path" in chosen:
+            technical_vector_path = ROOT / chosen["technical_vector_path"]
+        sweep_applied = {
+            "creative_layer": creative_layer,
+            "creative_alpha": schedule["creative_start_alpha"],
+            "creative_vector_path": str(creative_vector_path.relative_to(ROOT)),
+            "source": str(args.sweep_config.relative_to(ROOT)),
+        }
 
     steering_enabled = not args.no_steering
     if steering_enabled:
@@ -177,6 +212,8 @@ def main() -> int:
     print(f"Prompts:               {len(prompts)}")
     print(f"N per arm:             {n}")
     print(f"Steering:              {'ON' if steering_enabled else 'OFF'}")
+    if sweep_applied:
+        print(f"Sweep override:        {sweep_applied['source']} → L{sweep_applied['creative_layer']} α={sweep_applied['creative_alpha']:.2f}")
     if steering_enabled:
         print(f"  Creative vector:     {creative_vector_path.relative_to(ROOT)} (L{creative_layer})")
         print(f"  Technical vector:    {technical_vector_path.relative_to(ROOT)} (L{technical_layer})")
@@ -308,6 +345,9 @@ def main() -> int:
                         "iterative_anti_mode": iter_anti_mode,
                         "creative_layer": creative_layer,
                         "technical_layer": technical_layer,
+                        "creative_alpha": schedule["creative_start_alpha"],
+                        "technical_alpha": schedule["technical_start_alpha"],
+                        "sweep_applied": sweep_applied,
                     },
                 },
                 indent=2,
