@@ -34,7 +34,7 @@ uv run python scripts/benchmark_creative_briefs.py \
 Produces 20 JSON files (10 prompts × 2 arms) at `artifacts/benchmark_v2/run_<date>/`.
 Cost: ~$0.30.
 
-## Step 2 — Generate the Conceptial 14B side (on RunPod A100, ~10 min)
+## Step 2 — Generate the Conceptial 14B side (on RunPod A100, ~25-30 min total)
 
 Spin up an A100 80GB pod per `docs/cloud_runpod_pivot.md`, then on the pod:
 
@@ -48,12 +48,44 @@ uv sync
 
 export HF_TOKEN='hf_PASTE_YOURS'
 uv run huggingface-cli login --token "$HF_TOKEN"
+```
 
+### Step 2a — Extract 14B steering vectors (one-time, ~10-15 min)
+
+CAA mean-difference + orthogonal-projection purification at depth-scaled
+layers (L19 creative, L24 technical on the 48-layer 14B stack).
+
+```bash
+uv run python scripts/extract_14b_vectors.py
+# Writes data/steering_14b/hyper_{creative,technical}_purified_vector_L{19,24}.pt
+# plus manifests with retained-source-cosine + negative-cosine diagnostics.
+```
+
+You can skip Step 2a on subsequent runs — the artifacts are deterministic per
+contrast-pair config + model + layer choice. Pull them back to your laptop
+the first time so they ride along on later pods:
+
+```bash
+scp -r root@<pod-ip>:/workspace/BrainstormLM/data/steering_14b \
+    ~/Desktop/Projects/BrainstormLM/data/
+```
+
+### Step 2b — Generate Conceptial outputs (~12-18 min)
+
+```bash
 uv run python scripts/runpod_batch_14b.py --n 8
-# 10 prompts × 8 outputs ≈ 8-12 min wall-clock on A100 80GB.
+# Full stack: CAA L19/L24 + v17 schedule + iterative anti-mode (L19 first-token
+# orthogonalization) + prompt-level anti-mode + project memory + min-p sampling.
+# 10 prompts × 8 outputs ≈ 12-18 min wall-clock on A100 80GB.
 ```
 
 This writes 10 JSON files to `artifacts/benchmark_v2/conceptial_14b_outputs/`.
+Each output's metadata records whether iterative anti-mode was applied for
+that sample (always true for k≥1 when the flag is on).
+
+**Ablation flags** for debugging or comparison runs:
+- `--no-steering` — anti-mode + memory only, no CAA vectors
+- `--no-iterative-anti-mode` — keep steering on but freeze the creative vector
 
 ## Step 3 — Pull 14B outputs back to local (~10s)
 
