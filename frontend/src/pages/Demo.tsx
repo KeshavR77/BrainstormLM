@@ -169,6 +169,26 @@ export function Demo({ onBack, onOpenWorkspace }: DemoProps) {
         </aside>
       </section>
 
+      {/* ── Control CTA ─────────────────────────────────────── */}
+      <section className="px-6 sm:px-10 mt-6 max-w-7xl mx-auto">
+        <a
+          href="#/control"
+          className="group flex items-center justify-between gap-4 rounded-2xl border border-[var(--ink-line)] bg-paper-1/40 hover:bg-paper-1 px-5 sm:px-6 py-4 transition-colors"
+        >
+          <div>
+            <div className="text-[10px] uppercase tracking-[0.22em] text-ink-3 mb-1">
+              Control
+            </div>
+            <p className="text-ink-1 text-[14px] sm:text-[15px]">
+              Same brief, no upstream LLM — what does the renderer alone do?
+            </p>
+          </div>
+          <span className="shrink-0 inline-flex items-center gap-1.5 bg-ink-0 text-paper text-[13px] font-medium px-4 py-2 rounded-full group-hover:bg-ink-1 transition-colors">
+            See Gemini alone <ArrowRight size={14} />
+          </span>
+        </a>
+      </section>
+
       {/* ── Comparison grid ─────────────────────────────────── */}
       <main className="px-6 sm:px-10 pt-10 pb-32 max-w-7xl mx-auto">
         <motion.section
@@ -202,8 +222,7 @@ export function Demo({ onBack, onOpenWorkspace }: DemoProps) {
 
         {/* Footnote */}
         <p className="mt-12 text-ink-3 text-[12px] leading-relaxed max-w-2xl">
-          Independent single-shot generations of the same brief. Want the
-          renderer-only baseline? <a href="#/control" className="text-ink-1 underline decoration-ink-3 underline-offset-2 hover:text-ink-0">See Gemini alone</a>.
+          Independent single-shot generations of the same brief.
         </p>
       </main>
     </div>
