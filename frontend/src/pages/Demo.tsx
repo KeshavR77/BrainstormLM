@@ -60,10 +60,9 @@ interface ColumnProps {
   swatchClass: string;
   cards: DemoCard[];
   armLabel: string;
-  pending?: boolean;
 }
 
-function Column({ title, subtitle, swatchClass, cards, armLabel, pending }: ColumnProps) {
+function Column({ title, subtitle, swatchClass, cards, armLabel }: ColumnProps) {
   return (
     <div className="space-y-4">
       {/* Column header */}
@@ -94,11 +93,6 @@ function Column({ title, subtitle, swatchClass, cards, armLabel, pending }: Colu
                 decoding="async"
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.015]"
               />
-              {pending && (
-                <span className="absolute top-2 right-2 text-[10px] uppercase tracking-[0.16em] bg-paper/85 text-ink-2 px-2 py-0.5 rounded-full border border-[var(--ink-line)] backdrop-blur-sm">
-                  Pending
-                </span>
-              )}
             </div>
             <figcaption className="mt-2 flex items-baseline justify-between gap-2 text-[12px]">
               <span className="text-ink-2 tabular-nums">
