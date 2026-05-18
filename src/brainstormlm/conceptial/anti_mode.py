@@ -89,6 +89,7 @@ def format_anti_mode(
     prior_summaries: list[str],
     exemplars: list[str] | None = None,
     output_mode: str = "image-prompt",
+    motif_excludes: list[str] | None = None,
 ) -> str:
     """Format a sample N's prompt with anti-mode exclusions and optional few-shot exemplars.
 
@@ -99,6 +100,10 @@ def format_anti_mode(
             across sessions via IdeaMemoryStore).
         exemplars: optional curated high-quality demo bodies.
         output_mode: one of ``image-prompt`` (default), ``strategy``, ``generic``.
+        motif_excludes: optional brief-level cliché-motif ban (e.g. ``["gears", "cogs"]``
+            for engineering briefs). Renders as a separate labeled block; fires from k=0
+            (unlike ``prior_summaries`` which only fires k>=1 by construction). Used to
+            break motif-level mode collapse that concept-name exclusions can't catch.
     """
     instr = OUTPUT_MODE_INSTRUCTIONS.get(output_mode, _CONCEPT_TAG_INSTRUCTION_IMAGE)
     preamble = exemplar_preamble(user_text, exemplars or [])
@@ -110,7 +115,15 @@ def format_anti_mode(
         if first_line:
             first_line = re.sub(r"\s*[:\-—]\s*$", "", first_line)[:140]
             exemplar_names.append(first_line)
-    full_exclusions = exemplar_names + [s for s in prior_summaries if s not in exemplar_names]
+    concept_exclusions = exemplar_names + [s for s in prior_summaries if s not in exemplar_names]
+
+    seen: set[str] = set()
+    motif_list: list[str] = []
+    for m in motif_excludes or []:
+        s = (m or "").strip()
+        if s and s not in seen:
+            seen.add(s)
+            motif_list.append(s)
 
     style_note = (
         " The example assistant responses above are STYLE references only — match their visual "
@@ -121,18 +134,41 @@ def format_anti_mode(
         else ""
     )
 
-    if not full_exclusions:
+    if not concept_exclusions and not motif_list:
         augmented = f"{user_text.strip()}\n\n{instr}{style_note}"
         return f"{preamble}user: {augmented}\nassistant: "
-    bullet_lines = "\n".join(f"  - {s}" for s in full_exclusions)
-    augmented = (
-        f"{user_text.strip()}\n\n"
-        f"Important constraint: the following concepts have already been used OR are example "
-        f"references — you MUST NOT repeat their names, core archetype, or rephrasings:\n{bullet_lines}\n\n"
-        f"Generate ONE completely different concept that does not share imagery, "
-        f"metaphor, or theme with the list above. Be specific and visual.{style_note}\n\n"
-        f"{instr}"
+
+    sections: list[str] = [user_text.strip()]
+    if concept_exclusions:
+        bullet_lines = "\n".join(f"  - {s}" for s in concept_exclusions)
+        sections.append(
+            "Important constraint: the following concepts have already been used OR are example "
+            "references — you MUST NOT repeat their names, core archetype, or rephrasings:\n"
+            f"{bullet_lines}"
+        )
+    if motif_list:
+        motif_lines = "\n".join(f"  - {m}" for m in motif_list)
+        sections.append(
+            "Avoid the following stock visual motifs entirely — they are clichés for this "
+            "kind of brief and strong work omits them rather than reframing them:\n"
+            f"{motif_lines}"
+        )
+
+    closing = (
+        "Generate ONE completely different concept that does not share imagery, "
+        "metaphor, or theme with the list above. Be specific and visual."
     )
+    if motif_list:
+        closing += (
+            " The cliché motifs above are off-limits even when reframed or renamed — do not "
+            "include them in any form, no synonyms, no metonymies. Choose a fundamentally "
+            "different visual archetype than these defaults."
+        )
+    closing += style_note
+    sections.append(closing)
+    sections.append(instr)
+
+    augmented = "\n\n".join(sections)
     return f"{preamble}user: {augmented}\nassistant: "
 
 

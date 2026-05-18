@@ -258,6 +258,7 @@ def main() -> int:
     for p in prompts:
         pid = p["id"]
         brief = p["brief"]
+        motif_excludes = list(p.get("motif_excludes") or [])
         project_id = f"bench14b-{pid}"
         store.delete_project(project_id)
 
@@ -266,6 +267,8 @@ def main() -> int:
         prior_first_token_hiddens: list[torch.Tensor] = []
         outputs: list[dict] = []
         t_prompt = time.time()
+        if motif_excludes:
+            print(f"[{pid}] motif_excludes: {', '.join(motif_excludes)}")
 
         for k in range(n):
             # 1. Iterative anti-mode: re-purify creative vector against prior residuals.
@@ -279,12 +282,14 @@ def main() -> int:
                 current_vectors[creative_layer] = v_creative_iter
                 engine.set_steering_vectors(current_vectors)
 
-            # 2. Build the anti-mode prompt (exclusion list of prior summaries).
+            # 2. Build the anti-mode prompt (exclusion list of prior summaries + per-brief
+            #    cliché-motif ban from config).
             full_prompt = format_anti_mode(
                 user_text=brief,
                 prior_summaries=prior_summaries,
                 exemplars=None,
                 output_mode="generic",
+                motif_excludes=motif_excludes,
             )
 
             # 3. Sample with min-p + temperature jitter; capture L19 first-token residual.
@@ -348,6 +353,7 @@ def main() -> int:
                         "creative_alpha": schedule["creative_start_alpha"],
                         "technical_alpha": schedule["technical_start_alpha"],
                         "sweep_applied": sweep_applied,
+                        "motif_excludes": motif_excludes,
                     },
                 },
                 indent=2,

@@ -145,6 +145,87 @@ def test_format_anti_mode_exemplar_only_still_emits_style_note():
     assert "STYLE references only" in out
 
 
+# ---------- format_anti_mode: motif_excludes (cliché-motif ban) -------------------
+
+
+def test_format_anti_mode_motif_excludes_render_in_own_labeled_block():
+    out = format_anti_mode(
+        "Make a logo.",
+        prior_summaries=[],
+        motif_excludes=["gears", "cogs"],
+    )
+    # Motifs get their own block distinct from the concept-name block.
+    assert "stock visual motifs" in out.lower()
+    assert "- gears" in out
+    assert "- cogs" in out
+
+
+def test_format_anti_mode_motifs_fire_at_k_zero_with_empty_priors():
+    # Even with no prior_summaries (i.e. k=0, first sample of a batch), motifs
+    # must still render — they're a brief-level ban, not a per-sample exclusion.
+    out = format_anti_mode(
+        "Make a logo.",
+        prior_summaries=[],
+        motif_excludes=["gears"],
+    )
+    assert "- gears" in out
+    assert "stock visual motifs" in out.lower()
+
+
+def test_format_anti_mode_motifs_include_anti_cliche_closing_note():
+    # When motifs are present, the formatter must add the anti-cliché closing
+    # phrasing that frames them as off-limits even when reframed.
+    out = format_anti_mode(
+        "Make a logo.",
+        prior_summaries=[],
+        motif_excludes=["gears", "cogs"],
+    )
+    assert "cliché" in out.lower() or "cliche" in out.lower()
+    # The closing should mention that reframing them isn't allowed.
+    assert "reframed" in out.lower() or "reframing" in out.lower() or "synonym" in out.lower()
+
+
+def test_format_anti_mode_no_motifs_back_compat_none():
+    # Default (no kwarg) == explicit None == [] — all behave the same.
+    a = format_anti_mode("Make a logo.", prior_summaries=["Foo"])
+    b = format_anti_mode("Make a logo.", prior_summaries=["Foo"], motif_excludes=None)
+    c = format_anti_mode("Make a logo.", prior_summaries=["Foo"], motif_excludes=[])
+    assert a == b == c
+    assert "stock visual motifs" not in a.lower()
+
+
+def test_format_anti_mode_priors_and_motifs_render_together():
+    out = format_anti_mode(
+        "Make a logo.",
+        prior_summaries=["3D Blueprint Vision"],
+        motif_excludes=["gears", "cogs"],
+    )
+    # Both blocks present, separately labeled.
+    assert "MUST NOT repeat" in out
+    assert "- 3D Blueprint Vision" in out
+    assert "stock visual motifs" in out.lower()
+    assert "- gears" in out
+    assert "- cogs" in out
+
+
+def test_format_anti_mode_motifs_dedup_and_filter_empty_strings():
+    out = format_anti_mode(
+        "Make a logo.",
+        prior_summaries=[],
+        motif_excludes=["gears", "", "  ", "gears"],
+    )
+    # Empty/whitespace entries dropped; duplicates collapsed.
+    assert out.count("- gears") == 1
+    assert "-  \n" not in out and "- \n" not in out
+
+
+def test_format_anti_mode_empty_priors_and_empty_motifs_uses_short_path():
+    # With nothing to exclude, the no-exclusion early-return path runs as before.
+    out = format_anti_mode("Make a logo.", prior_summaries=[], motif_excludes=[])
+    assert "MUST NOT repeat" not in out
+    assert "stock visual motifs" not in out.lower()
+
+
 # ---------- extract_summary --------------------------------------------------------
 
 

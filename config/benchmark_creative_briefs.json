@@ -7,7 +7,17 @@
     {
       "id": "logo-stanford-engineering",
       "category": "logo",
-      "brief": "Give me a creative logo for an engineering club at Stanford. I want a three-sentence visual description suitable for an image-generation prompt."
+      "brief": "Give me a creative logo for an engineering club at Stanford. I want a three-sentence visual description suitable for an image-generation prompt.",
+      "motif_excludes": [
+        "gears",
+        "cogs",
+        "cogwheels",
+        "gearwork",
+        "wrenches",
+        "blueprints",
+        "circuit boards",
+        "mechanical machinery"
+      ]
     },
     {
       "id": "logo-dtc-skincare",
