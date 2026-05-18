@@ -49,8 +49,8 @@ const CONCEPT_NAMES = [
 ];
 
 const CONCEPTIAL_CARDS: DemoCard[] = CONCEPT_NAMES.map((name, i) => ({
-  src: `/demo/conceptial/${String(i + 1).padStart(2, '0')}.svg`,
-  alt: `Conceptial 14B direction ${i + 1}: ${name}`,
+  src: `/demo/conceptial/${String(i + 1).padStart(2, '0')}.webp`,
+  alt: `Conceptial 14B direction ${i + 1}, rendered by Gemini: ${name}`,
   caption: name,
 }));
 
@@ -209,11 +209,10 @@ export function Demo({ onBack, onOpenWorkspace }: DemoProps) {
           />
           <Column
             title="Conceptial 14B"
-            subtitle="8 directions · pending"
+            subtitle="8 directions"
             swatchClass="bg-brand"
             cards={CONCEPTIAL_CARDS}
             armLabel="Conceptial"
-            pending
           />
         </motion.section>
 
@@ -223,9 +222,8 @@ export function Demo({ onBack, onOpenWorkspace }: DemoProps) {
           each rendered to an image by the same Gemini image model, so any
           visual difference traces back to the upstream ideation, not the
           rendering step. GPT-4o and Claude outputs are independent
-          single-shot generations of the same brief. Conceptial 14B image
-          renders are pending — placeholders show the concept names produced
-          by the model.
+          single-shot generations of the same brief. Concept names below
+          each Conceptial card are the model's own first-line summaries.
         </p>
       </main>
     </div>
