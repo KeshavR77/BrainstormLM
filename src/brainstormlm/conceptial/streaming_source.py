@@ -24,8 +24,12 @@ import uuid
 from collections.abc import Iterator
 from dataclasses import dataclass
 from pathlib import Path
+from typing import TYPE_CHECKING
 
-import torch
+# torch lazy-imported in methods that touch tensors so this module loads on
+# the slim Render deploy where torch is intentionally excluded.
+if TYPE_CHECKING:
+    import torch  # noqa: F401
 
 from brainstormlm.conceptial.demo_packs import (
     CONCEPTIAL_PACKS,
@@ -161,11 +165,13 @@ class ConceptialStreamingSource:
         rows = self.store.list_recent(self.project_id, limit=200)
         return {_norm(r.text.split("\n")[0]) for r in rows}
 
-    def _zero_hidden(self) -> torch.Tensor:
+    def _zero_hidden(self) -> "torch.Tensor":
         """Placeholder hidden vector — we're not running the model, but the store
         wants a 1-D tensor so it can pretend the demo is on the same code path
         as a real generation. Future cloud-14B re-extraction will replace this
         with real residual-stream captures."""
+        import torch  # noqa: PLC0415 - lazy for Render slim deploy
+
         return torch.zeros(self.hidden_dim, dtype=torch.float32)
 
     def _select_next(

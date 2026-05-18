@@ -39,9 +39,15 @@ import threading
 import time
 from dataclasses import dataclass
 from pathlib import Path
+from typing import TYPE_CHECKING
 
-import numpy as np
-import torch
+# torch and numpy are heavy ML deps not present in the slim Render deploy.
+# They are lazy-imported inside each method that touches tensors so this
+# module can be imported (for SOURCE_* constants + class definitions) on
+# environments without the ML stack.
+if TYPE_CHECKING:
+    import numpy as np  # noqa: F401
+    import torch  # noqa: F401
 
 DEFAULT_DB_PATH_ENV = "CONCEPTIAL_IDEA_DB_PATH"
 DEFAULT_DB_PATH = "./data/idea_memory.db"
@@ -57,7 +63,7 @@ class IdeaRow:
     text: str
     source: str
     created_at: float
-    hidden: torch.Tensor
+    hidden: "torch.Tensor"
 
 
 class IdeaMemoryStore:
@@ -110,7 +116,7 @@ class IdeaMemoryStore:
         self,
         project_id: str,
         idea_id: str,
-        hidden: torch.Tensor,
+        hidden: "torch.Tensor",
         text: str,
         *,
         source: str = SOURCE_GENERATED,
@@ -118,6 +124,8 @@ class IdeaMemoryStore:
         """Insert (or replace) one idea row. ``hidden`` is expected to be a 1D
         unit-normalized tensor; the store does not normalize for you so the
         IOR-side and seed-side hiddens stay on the same manifold."""
+        import torch  # noqa: PLC0415 - lazy for Render slim deploy
+
         if not isinstance(hidden, torch.Tensor):
             raise TypeError("hidden must be a torch.Tensor")
         if hidden.ndim != 1:
@@ -149,6 +157,8 @@ class IdeaMemoryStore:
         """Bulk insert — used by the seed loader. Returns the count actually written."""
         if not rows:
             return 0
+        import torch  # noqa: PLC0415 - lazy for Render slim deploy
+
         with self._lock:
             cur = self._conn.cursor()
             cur.executemany(
@@ -194,7 +204,7 @@ class IdeaMemoryStore:
             out[str(src)] = int(n)
         return out
 
-    def list_recent_hiddens(self, project_id: str, *, limit: int = 5) -> list[torch.Tensor]:
+    def list_recent_hiddens(self, project_id: str, *, limit: int = 5) -> "list[torch.Tensor]":
         """Return up to ``limit`` most-recent hidden tensors for ``project_id``, as
         float32 CPU tensors ready to assign into ``IOREngine._explored``.
 
@@ -204,6 +214,9 @@ class IdeaMemoryStore:
         """
         if limit <= 0:
             return []
+        import numpy as np  # noqa: PLC0415 - lazy for Render slim deploy
+        import torch  # noqa: PLC0415
+
         with self._lock:
             rows = self._conn.execute(
                 """
@@ -225,6 +238,9 @@ class IdeaMemoryStore:
         (text, ids, source, timestamp). Handy for debug endpoints and the seed loader."""
         if limit <= 0:
             return []
+        import numpy as np  # noqa: PLC0415 - lazy for Render slim deploy
+        import torch  # noqa: PLC0415
+
         with self._lock:
             rows = self._conn.execute(
                 """
