@@ -25,10 +25,9 @@ interface ControlCard {
   alt: string;
 }
 
-const CONTROL_CARDS: ControlCard[] = Array.from({ length: 8 }, (_, i) => {
+const CONTROL_CARDS: ControlCard[] = Array.from({ length: 16 }, (_, i) => {
   const idx = String(i + 1).padStart(2, '0');
   return {
-    // Falls back to .svg placeholder until you drop a .webp at the same slot.
     src: `/demo/control/${idx}.webp`,
     alt: `Gemini-direct rendering ${i + 1}: Stanford engineering club logo`,
   };
@@ -101,7 +100,7 @@ export function Control({ onBack, onOpenDemo, onOpenWorkspace }: ControlProps) {
               The prompt
             </span>
             <span className="text-ink-3 text-[11px]">
-              · direct to Gemini · N=8
+              · direct to Gemini · N=16
             </span>
           </div>
           <p
@@ -129,14 +128,6 @@ export function Control({ onBack, onOpenDemo, onOpenWorkspace }: ControlProps) {
                   alt={card.alt}
                   loading="lazy"
                   decoding="async"
-                  onError={(e) => {
-                    // Fall back to SVG placeholder if WebP doesn't exist yet.
-                    const img = e.currentTarget;
-                    if (!img.dataset.fallback) {
-                      img.dataset.fallback = '1';
-                      img.src = card.src.replace('.webp', '.svg');
-                    }
-                  }}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.015]"
                 />
               </div>
@@ -148,9 +139,8 @@ export function Control({ onBack, onOpenDemo, onOpenWorkspace }: ControlProps) {
         </motion.section>
 
         <p className="mt-12 text-ink-3 text-[12px] leading-relaxed max-w-2xl">
-          Gemini-direct renders. Placeholder tiles fall back to the SVG slot
-          until a real <code className="text-ink-2">/demo/control/0N.webp</code>{' '}
-          lands.
+          Sixteen independent generations. No upstream LLM, no concept
+          prompt — just the user query handed straight to the image model.
         </p>
       </main>
     </div>
