@@ -226,6 +226,76 @@ def test_format_anti_mode_empty_priors_and_empty_motifs_uses_short_path():
     assert "stock visual motifs" not in out.lower()
 
 
+# ---------- format_anti_mode: archetype_seed (positive visual-vocab anchor) -------
+
+
+def test_format_anti_mode_archetype_seed_renders_in_own_block():
+    # The seed is a positive anchor (push into a basin), not a negative ban.
+    out = format_anti_mode(
+        "Make a logo for an engineering club.",
+        prior_summaries=[],
+        archetype_seed="biology — cellular structures, mycelium networks",
+    )
+    # Renders with imagery-scoped framing — should mention "visual vocabulary" so the
+    # model treats the seed as imagery only, not as the topic of the output.
+    assert "visual vocabulary" in out.lower()
+    assert "biology — cellular structures, mycelium networks" in out
+
+
+def test_format_anti_mode_archetype_seed_fires_at_k_zero():
+    # Even with no priors and no motifs (k=0), the seed must render. It's a
+    # per-sample positive anchor, not a per-sample exclusion.
+    out = format_anti_mode(
+        "Make a logo.",
+        prior_summaries=[],
+        archetype_seed="weaving — warp-and-weft, knot theory",
+    )
+    assert "weaving — warp-and-weft, knot theory" in out
+    assert "visual vocabulary" in out.lower()
+
+
+def test_format_anti_mode_archetype_seed_back_compat_none_and_empty():
+    # Default (no kwarg) == explicit None == empty string — all behave the same.
+    a = format_anti_mode("Make a logo.", prior_summaries=["Foo"])
+    b = format_anti_mode("Make a logo.", prior_summaries=["Foo"], archetype_seed=None)
+    c = format_anti_mode("Make a logo.", prior_summaries=["Foo"], archetype_seed="")
+    d = format_anti_mode("Make a logo.", prior_summaries=["Foo"], archetype_seed="   ")
+    assert a == b == c == d
+    assert "visual vocabulary" not in a.lower()
+
+
+def test_format_anti_mode_archetype_seed_renders_alongside_priors_and_motifs():
+    out = format_anti_mode(
+        "Make a logo.",
+        prior_summaries=["Gear Turning Earth"],
+        motif_excludes=["gears", "cogs"],
+        archetype_seed="cartography — contour lines, projections",
+    )
+    # All three mechanisms present and distinct.
+    assert "MUST NOT repeat" in out
+    assert "- Gear Turning Earth" in out
+    assert "stock visual motifs" in out.lower()
+    assert "- gears" in out
+    assert "visual vocabulary" in out.lower()
+    assert "cartography — contour lines, projections" in out
+
+
+def test_format_anti_mode_archetype_seed_with_empty_priors_and_motifs_uses_anchor_only():
+    # Seed alone (no exclusions) still renders — the no-exclusion early-return
+    # path must NOT skip the seed.
+    out = format_anti_mode(
+        "Make a logo.",
+        prior_summaries=[],
+        motif_excludes=[],
+        archetype_seed="music — waveform, harmonic interval",
+    )
+    assert "music — waveform, harmonic interval" in out
+    assert "visual vocabulary" in out.lower()
+    # No negative-exclusion blocks should appear.
+    assert "MUST NOT repeat" not in out
+    assert "stock visual motifs" not in out.lower()
+
+
 # ---------- extract_summary --------------------------------------------------------
 
 

@@ -17,6 +17,16 @@
         "blueprints",
         "circuit boards",
         "mechanical machinery"
+      ],
+      "archetype_seeds": [
+        "biology — cellular structures, mycelium networks, leaf venation",
+        "architecture — load-bearing form, joinery, vaulting",
+        "weaving / textile — warp-and-weft, knot theory, braid topology",
+        "cuisine — knife cuts, plating geometry, fermentation patterns",
+        "cartography — contour lines, projections, isobaric flow",
+        "music / acoustics — waveform, harmonic interval, score notation",
+        "mythology / folklore — symbolic creature, totem, emblem-craft",
+        "language / typography — glyph construction, calligraphic stroke"
       ]
     },
     {

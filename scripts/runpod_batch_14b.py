@@ -259,6 +259,7 @@ def main() -> int:
         pid = p["id"]
         brief = p["brief"]
         motif_excludes = list(p.get("motif_excludes") or [])
+        archetype_seeds = [s for s in (p.get("archetype_seeds") or []) if isinstance(s, str) and s.strip()]
         project_id = f"bench14b-{pid}"
         store.delete_project(project_id)
 
@@ -269,6 +270,8 @@ def main() -> int:
         t_prompt = time.time()
         if motif_excludes:
             print(f"[{pid}] motif_excludes: {', '.join(motif_excludes)}")
+        if archetype_seeds:
+            print(f"[{pid}] archetype_seeds: {len(archetype_seeds)} seeds")
 
         for k in range(n):
             # 1. Iterative anti-mode: re-purify creative vector against prior residuals.
@@ -282,14 +285,17 @@ def main() -> int:
                 current_vectors[creative_layer] = v_creative_iter
                 engine.set_steering_vectors(current_vectors)
 
-            # 2. Build the anti-mode prompt (exclusion list of prior summaries + per-brief
-            #    cliché-motif ban from config).
+            # 2. Build the anti-mode prompt: exclusions (priors + motif ban) and a
+            #    per-sample positive archetype seed (rotated through the seed list)
+            #    so each k starts in a different latent basin.
+            seed_for_k = archetype_seeds[k % len(archetype_seeds)] if archetype_seeds else None
             full_prompt = format_anti_mode(
                 user_text=brief,
                 prior_summaries=prior_summaries,
                 exemplars=None,
                 output_mode="generic",
                 motif_excludes=motif_excludes,
+                archetype_seed=seed_for_k,
             )
 
             # 3. Sample with min-p + temperature jitter; capture L19 first-token residual.
@@ -333,6 +339,7 @@ def main() -> int:
                     "trajectory_id": idea_id,
                     "temperature": temp,
                     "iterative_anti_mode_applied": iter_anti_mode and k > 0,
+                    "archetype_seed": seed_for_k,
                 }
             )
             total_outputs += 1
@@ -354,6 +361,7 @@ def main() -> int:
                         "technical_alpha": schedule["technical_start_alpha"],
                         "sweep_applied": sweep_applied,
                         "motif_excludes": motif_excludes,
+                        "archetype_seeds": archetype_seeds,
                     },
                 },
                 indent=2,

@@ -90,6 +90,7 @@ def format_anti_mode(
     exemplars: list[str] | None = None,
     output_mode: str = "image-prompt",
     motif_excludes: list[str] | None = None,
+    archetype_seed: str | None = None,
 ) -> str:
     """Format a sample N's prompt with anti-mode exclusions and optional few-shot exemplars.
 
@@ -104,6 +105,10 @@ def format_anti_mode(
             for engineering briefs). Renders as a separate labeled block; fires from k=0
             (unlike ``prior_summaries`` which only fires k>=1 by construction). Used to
             break motif-level mode collapse that concept-name exclusions can't catch.
+        archetype_seed: optional per-sample positive visual-vocabulary anchor (e.g.
+            ``"biology — cellular structures"``). Pushes each sample into a different
+            latent basin instead of just banning the current one. Imagery-scoped, not
+            topic-scoped: the seed steers the visual language, not the subject matter.
     """
     instr = OUTPUT_MODE_INSTRUCTIONS.get(output_mode, _CONCEPT_TAG_INSTRUCTION_IMAGE)
     preamble = exemplar_preamble(user_text, exemplars or [])
@@ -125,6 +130,8 @@ def format_anti_mode(
             seen.add(s)
             motif_list.append(s)
 
+    seed = (archetype_seed or "").strip()
+
     style_note = (
         " The example assistant responses above are STYLE references only — match their visual "
         "specificity, vivid concrete imagery, and ~150-250 word length, but produce a totally "
@@ -134,8 +141,20 @@ def format_anti_mode(
         else ""
     )
 
+    seed_block = (
+        f"Ground your visual vocabulary in: {seed}. Borrow imagery, structure, and "
+        "metaphors from this domain while still solving the brief — the brief defines "
+        "the subject; this seed defines the visual language."
+        if seed
+        else ""
+    )
+
     if not concept_exclusions and not motif_list:
-        augmented = f"{user_text.strip()}\n\n{instr}{style_note}"
+        parts = [user_text.strip()]
+        if seed_block:
+            parts.append(seed_block)
+        parts.append(f"{instr}{style_note}")
+        augmented = "\n\n".join(parts)
         return f"{preamble}user: {augmented}\nassistant: "
 
     sections: list[str] = [user_text.strip()]
@@ -153,6 +172,8 @@ def format_anti_mode(
             "kind of brief and strong work omits them rather than reframing them:\n"
             f"{motif_lines}"
         )
+    if seed_block:
+        sections.append(seed_block)
 
     closing = (
         "Generate ONE completely different concept that does not share imagery, "
