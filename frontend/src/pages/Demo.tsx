@@ -29,12 +29,12 @@ interface DemoCard {
 
 const GPT_CARDS: DemoCard[] = Array.from({ length: 8 }, (_, i) => ({
   src: `/demo/gpt/${String(i + 1).padStart(2, '0')}.webp`,
-  alt: `GPT-image direction ${i + 1}: Stanford engineering club logo`,
+  alt: `GPT-4o direction ${i + 1}, rendered by Gemini: Stanford engineering club logo`,
 }));
 
 const CLAUDE_CARDS: DemoCard[] = Array.from({ length: 8 }, (_, i) => ({
   src: `/demo/anthropic/${String(i + 1).padStart(2, '0')}.webp`,
-  alt: `Claude direction ${i + 1}: Stanford engineering club logo`,
+  alt: `Claude Opus 4.7 direction ${i + 1}, rendered by Gemini: Stanford engineering club logo`,
 }));
 
 const CONCEPT_NAMES = [
@@ -156,9 +156,10 @@ export function Demo({ onBack, onOpenWorkspace }: DemoProps) {
           Same brief. <em className="not-italic text-brand">Three answers.</em>
         </h1>
         <p className="text-ink-1 text-[15px] leading-relaxed max-w-2xl">
-          One logo brief. Eight generations from each of three model families.
-          Look at how each one fills the space — and where the new ideas
-          actually come from.
+          One logo brief. Eight directions each from GPT-4o, Claude Opus 4.7,
+          and Conceptial 14B. Every text prompt was then rendered to an image
+          by the <em className="not-italic font-medium text-ink-0">same Gemini image model</em>,
+          so the comparison isolates the upstream ideation — not the renderer.
         </p>
       </section>
 
@@ -170,7 +171,7 @@ export function Demo({ onBack, onOpenWorkspace }: DemoProps) {
               The brief
             </span>
             <span className="text-ink-3 text-[11px]">
-              · logo-stanford-engineering · N=8 per arm
+              · logo-stanford-engineering · N=8 per arm · rendered by Gemini
             </span>
           </div>
           <p
@@ -193,18 +194,18 @@ export function Demo({ onBack, onOpenWorkspace }: DemoProps) {
           className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-10"
         >
           <Column
-            title="GPT-image"
+            title="GPT-4o"
             subtitle="8 directions"
             swatchClass="bg-emerald-500/70"
             cards={GPT_CARDS}
-            armLabel="GPT"
+            armLabel="GPT-4o"
           />
           <Column
-            title="Claude"
+            title="Claude Opus 4.7"
             subtitle="8 directions"
             swatchClass="bg-amber-500/80"
             cards={CLAUDE_CARDS}
-            armLabel="Claude"
+            armLabel="Opus 4.7"
           />
           <Column
             title="Conceptial 14B"
@@ -218,9 +219,13 @@ export function Demo({ onBack, onOpenWorkspace }: DemoProps) {
 
         {/* Footnote */}
         <p className="mt-12 text-ink-3 text-[12px] leading-relaxed max-w-2xl">
-          GPT and Claude outputs are independent single-shot generations of
-          the same brief. Conceptial 14B image renders are pending —
-          placeholders show the concept names produced by the model.
+          Text prompts from GPT-4o, Claude Opus 4.7, and Conceptial 14B were
+          each rendered to an image by the same Gemini image model, so any
+          visual difference traces back to the upstream ideation, not the
+          rendering step. GPT-4o and Claude outputs are independent
+          single-shot generations of the same brief. Conceptial 14B image
+          renders are pending — placeholders show the concept names produced
+          by the model.
         </p>
       </main>
     </div>
