@@ -23,6 +23,7 @@ import { fadeRise, linesReveal, popIn, staggerContainer, staggerFast, depthHue a
 
 interface Props {
   onLaunchGauntlet: () => void;
+  onLaunchDemo: () => void;
   onOpenWorkspace: () => void;
 }
 
@@ -39,7 +40,7 @@ const METRICS = [
   { value: '100%',  label: 'Quality gate pass',      note: 'Coherence + relevance, every judged sample',    tone: 'brand' as const, hue: 0  },
 ];
 
-export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
+export function Corpus1Landing({ onLaunchGauntlet, onLaunchDemo, onOpenWorkspace }: Props) {
   const rootRef = useRef<HTMLDivElement>(null);
   const [email, setEmail] = useState('');
   const [waitlistOk, setWaitlistOk] = useState(false);
@@ -68,6 +69,12 @@ export function Corpus1Landing({ onLaunchGauntlet, onOpenWorkspace }: Props) {
             >
               Waitlist
             </a>
+            <button
+              onClick={onLaunchDemo}
+              className="text-ink-1 hover:text-ink-0 text-sm px-3 py-1.5 rounded-md transition-colors hidden sm:inline-flex items-center gap-1"
+            >
+              Demo <ArrowUpRight size={13} />
+            </button>
             <button
               onClick={onLaunchGauntlet}
               className="text-ink-1 hover:text-ink-0 text-sm px-3 py-1.5 rounded-md transition-colors hidden sm:inline-flex items-center gap-1"

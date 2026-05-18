@@ -4,6 +4,7 @@
  * Routes:
  *   #/             → Corpus 1 Landing (marketing + demo CTA)
  *   #/gauntlet     → Gauntlet (live steered generation demo)
+ *   #/demo         → Demo (head-to-head logo collage)
  *   #/app          → Dashboard (project listing)
  *   #/project/:id  → Canvas (brainstorm workspace)
  */
@@ -16,11 +17,13 @@ import { Corpus1Landing } from './pages/Corpus1Landing';
 import { Gauntlet } from './pages/Gauntlet';
 import { Dashboard } from './pages/Dashboard';
 import { Canvas } from './pages/Canvas';
+import { Demo } from './pages/Demo';
 import { IntroSplash } from './components/IntroSplash';
 
 type Route =
   | { page: 'landing' }
   | { page: 'gauntlet' }
+  | { page: 'demo' }
   | { page: 'dashboard' }
   | { page: 'canvas'; projectId: string };
 
@@ -32,6 +35,9 @@ function parseRoute(): Route {
   }
   if (hash === '#/gauntlet' || hash.startsWith('#/gauntlet/')) {
     return { page: 'gauntlet' };
+  }
+  if (hash === '#/demo' || hash.startsWith('#/demo/')) {
+    return { page: 'demo' };
   }
   if (hash === '#/app' || hash.startsWith('#/app/')) {
     return { page: 'dashboard' };
@@ -87,6 +93,7 @@ export default function App() {
 
   const openDashboard = useCallback(() => navigateTo('/app'), [navigateTo]);
   const openGauntlet = useCallback(() => navigateTo('/gauntlet'), [navigateTo]);
+  const openDemo = useCallback(() => navigateTo('/demo'), [navigateTo]);
   const openLanding = useCallback(() => navigateTo('/'), [navigateTo]);
 
   const page = (() => {
@@ -95,6 +102,8 @@ export default function App() {
         return <Canvas key={route.projectId} projectId={route.projectId} onBack={openDashboard} />;
       case 'gauntlet':
         return <Gauntlet onBack={openLanding} />;
+      case 'demo':
+        return <Demo onBack={openLanding} onOpenWorkspace={openDashboard} />;
       case 'dashboard':
         return <Dashboard onOpenProject={openProject} />;
       case 'landing':
@@ -102,6 +111,7 @@ export default function App() {
         return (
           <Corpus1Landing
             onLaunchGauntlet={openGauntlet}
+            onLaunchDemo={openDemo}
             onOpenWorkspace={openDashboard}
           />
         );

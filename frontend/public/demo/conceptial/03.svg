@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <linearGradient id="g3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F4EFE6"/>
+      <stop offset="1" stop-color="#EDE6D9"/>
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="1024" fill="url(#g3)"/>
+  <rect x="32" y="32" width="960" height="960" rx="32" ry="32"
+        fill="none" stroke="#C9BFAE" stroke-width="2" stroke-dasharray="8 10"/>
+  <text x="512" y="160" text-anchor="middle"
+        font-family="'JetBrains Mono', ui-monospace, monospace"
+        font-size="28" letter-spacing="6" fill="#8A7E69">
+    CONCEPTIAL · 14B
+  </text>
+  <text x="512" y="520" text-anchor="middle"
+        font-family="'Fraunces', Georgia, serif"
+        font-style="italic"
+        font-size="56" fill="#1F1B14"
+        font-weight="420">
+    Craftsmanship Convergence
+  </text>
+  <text x="512" y="600" text-anchor="middle"
+        font-family="'Inter', system-ui, sans-serif"
+        font-size="22" fill="#7A6F5E">
+    Image rendering pending
+  </text>
+  <g transform="translate(512 820)" fill="none" stroke="#C9BFAE" stroke-width="2">
+    <circle cx="-32" cy="0" r="6" fill="#C9BFAE"/>
+    <circle cx="0" cy="0" r="6" fill="#C9BFAE"/>
+    <circle cx="32" cy="0" r="6" fill="#C9BFAE"/>
+  </g>
+</svg>

@@ -68,12 +68,20 @@ export function Dashboard({ onOpenProject }: DashboardProps) {
             />
           </div>
 
-          <button
-            onClick={() => setModalOpen(true)}
-            className="bg-ink-0 text-paper text-[13px] font-medium px-4 py-2 rounded-full hover:bg-ink-1 transition-colors inline-flex items-center gap-1.5"
-          >
-            <Plus size={14} /> New project
-          </button>
+          <div className="flex items-center gap-1 sm:gap-2">
+            <a
+              href="#/demo"
+              className="text-ink-1 hover:text-ink-0 text-[13px] px-3 py-1.5 rounded-md transition-colors hidden sm:inline-block"
+            >
+              Demo
+            </a>
+            <button
+              onClick={() => setModalOpen(true)}
+              className="bg-ink-0 text-paper text-[13px] font-medium px-4 py-2 rounded-full hover:bg-ink-1 transition-colors inline-flex items-center gap-1.5"
+            >
+              <Plus size={14} /> New project
+            </button>
+          </div>
         </div>
       </header>
 
