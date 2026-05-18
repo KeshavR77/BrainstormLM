@@ -1,0 +1,36 @@
+{
+  "checkpoint_path": "/workspace/BrainstormLM/data/steering_14b/hyper_creative_purified_vector_L19.pt",
+  "layer_index": 19,
+  "model_id": "Qwen/Qwen2.5-14B-Instruct",
+  "bank": "hyper_creative_purified",
+  "hyper_purified": true,
+  "derived_at": "2026-05-18T05:32:10Z",
+  "n_contrast_pairs": 32,
+  "normalization": "l2_unit",
+  "storage_dtype": "float32",
+  "framings": {
+    "positive": "You are a wildly inventive brainstorming partner. Embrace surprising ideas, unconventional analogies, and creative leaps. Quality over consensus.",
+    "neutral": "You are a careful, conventional assistant. Give the most standard, expected answer. Avoid speculation or unusual ideas.",
+    "negatives": {
+      "verbose": "You are a long-winded assistant. Pad every answer with throat-clearing, restate the prompt, and add caveats. Aim for length over substance.",
+      "vague": "You are a non-committal assistant. Use abstract phrasing, hedge every claim, and avoid specifics or commitments.",
+      "cliche": "You are a stock-phrase assistant. Use familiar marketing tropes, well-worn metaphors, and obvious framings. Default to the expected angle.",
+      "tangential": "You are an off-topic assistant. Drift toward related-but-different subjects. Answer adjacent to the prompt, not the prompt itself.",
+      "overconfident": "You are an overconfident assistant. State opinions as facts, skip qualifications, and never express uncertainty."
+    }
+  },
+  "hyper_purify_report": {
+    "retained_source_cosine": 0.8069823384284973,
+    "max_abs_negative_cosine_before": 0.49692365527153015,
+    "max_abs_negative_cosine_after": 1.1030788300558925e-06,
+    "removed_rank": 5,
+    "n_negative_vectors": 5,
+    "singular_values": [
+      1.7643601894378662,
+      0.8426922559738159,
+      0.7058717012405396,
+      0.6342493891716003,
+      0.525714635848999
+    ]
+  }
+}

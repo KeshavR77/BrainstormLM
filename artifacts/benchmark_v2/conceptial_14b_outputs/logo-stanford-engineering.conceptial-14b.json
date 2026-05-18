@@ -1,0 +1,94 @@
+{
+  "prompt_id": "logo-stanford-engineering",
+  "arm": "conceptial-14b",
+  "n": 8,
+  "outputs": [
+    {
+      "model": "conceptial-14b",
+      "k": 0,
+      "text": "3D Blueprint Vision\n\nA sleek, modern emblem featuring a stylized 3D blueprint of the Stanford arch intertwined with gears and circuitry. Below it, the text \"Stanford Engineering Club\" is written in a clean, sans-serif font, with \"Engineering Club\" slightly smaller and offset to the right. The colors are a gradient from deep blue to teal, symbolizing innovation and intellectual depth. To ensure the logo stands out, incorporate subtle glowing highlights around the gears and circuits to suggest forward-thinking and technological advancement. The Stanford arch element is central, emphasizing the club's connection to the university while the surrounding design elements speak to the club's focus on engineering and technology. This design balances tradition with cutting-edge ideas, perfect for an engineering club at Stanford. To make it visually striking, the background fades into a light gradient that matches the primary colors, giving the logo a polished, professional look.",
+      "summary": "3D Blueprint Vision",
+      "trajectory_id": "29aa68112f6d40be948e04799745c12f",
+      "temperature": 0.75,
+      "iterative_anti_mode_applied": false
+    },
+    {
+      "model": "conceptial-14b",
+      "k": 1,
+      "text": "Gear Turning Earth  \nA stylized gear in the center, its teeth interlocking perfectly, with a semi-transparent globe wrapped around it, showcasing the gear's power to drive global innovation. Beneath the gear and globe, the club\u2019s name \"Stanford Engineers Unite\" is written in a clean, modern font, emphasizing unity and collaboration. To the left of the text, a spark of electricity arcs up from the gear, symbolizing the club\u2019s vibrant energy and creativity. To the right, a leaf sprouts from the ground, hinting at sustainable and forward-thinking engineering practices. The colors are a blend of metallic silver for the gear, deep blue for the globe, and green for the leaf, creating a cohesive yet dynamic look. To the bottom right, a subtle shadow effect is added to give depth and realism to the design. This logo captures the essence of engineering prowess, global impact, and environmental consciousness. To the top left, a small emblem of Stanford University subtly integrates the school\u2019s legacy into the design. To the bottom left, the year of establishment adds a historical touch. The background is a gradient from dark blue to lighter shades, representing the vast possibilities and endless potential of engineering. To the bottom center, a tagline reads \u201cBuilding Tomorrow,\u201d reinforcing the club\u2019s vision and ambition. The overall composition balances symmetry and asymmetry, creating a striking and memorable visual identity for the engineering club. The logo is versatile enough to work on various mediums, from club merchandise to digital platforms. Each element works together harmoniously, reflecting the club\u2019s commitment to innovation, collaboration, and sustainability. The design is sleek and modern, appealing to both current and future members of the club. It encapsulates the spirit of engineering and the unique",
+      "summary": "Gear Turning Earth",
+      "trajectory_id": "983cea287d094b8fb5607191d1255135",
+      "temperature": 0.811803,
+      "iterative_anti_mode_applied": true
+    },
+    {
+      "model": "conceptial-14b",
+      "k": 2,
+      "text": "Innovative Circuit Horizon\n\nA sleek, modern circuit board seamlessly integrates into the silhouette of the Stanford University arch, symbolizing innovation and engineering excellence. The background features a gradient of deep night transitioning to dawn, highlighting the continuous pursuit of knowledge and progress. A subtle constellation of stars is embedded within the circuitry, representing the brilliance and interconnectedness of ideas and minds. To ensure uniqueness, avoid any direct representation of gears or blueprints. Instead, focus on the symbolic integration of architectural landmarks with technological elements. To further enhance memorability, incorporate a dynamic, flowing light pattern across the circuitry, evoking the energy and creativity inherent in engineering endeavors. This design emphasizes the club's commitment to pushing boundaries and fostering a community of visionary engineers. Avoid any direct references to earth or planets to maintain originality. Ensure the logo is clean, sharp, and visually compelling, making it easily recognizable and impactful.",
+      "summary": "Innovative Circuit Horizon",
+      "trajectory_id": "4cae6c51b24846edad58094b30d7bc8c",
+      "temperature": 0.773606,
+      "iterative_anti_mode_applied": true
+    },
+    {
+      "model": "conceptial-14b",
+      "k": 3,
+      "text": "Pixel Precision Bridge\n\nA sleek, modern bridge made of interconnected pixels spans across a digital landscape, symbolizing the connection between technology and real-world engineering. Below the bridge, a flowing river of binary code represents the foundation of technological innovation supporting the structure. The bridge is illuminated by subtle highlights, giving it a futuristic and inviting appearance. To one side, a towering skyscraper with a Stanford logo subtly integrated into its design showcases the university's presence in cutting-edge engineering.",
+      "summary": "Pixel Precision Bridge",
+      "trajectory_id": "0ef57169d2a34f07bf8fbb476665f9e1",
+      "temperature": 0.8354090000000001,
+      "iterative_anti_mode_applied": true
+    },
+    {
+      "model": "conceptial-14b",
+      "k": 4,
+      "text": "Quad Spiral Innovation\n\nA stylized quadrifolium (four-leafed shape) spirals outward from a central point, symbolizing growth and interconnectedness. The quadrifolium is composed of intertwined gears and circuit boards, representing both mechanical and electronic engineering disciplines. The background features a gradient from deep blue to vibrant orange, suggesting dawn breaking over new possibilities. To ensure uniqueness, avoid using bridges, earth, blueprints, or horizons in your description. Instead, focus on the spiral and quadrifolium shapes to convey unity and progress within the engineering community. To add depth, imagine the quadrifolium gently overlapping with the Stanford University letters \"SU\" in minimalist form, subtly integrated into the design. This ensures the logo stands out while also paying homage to the institution. The overall effect is dynamic and forward-looking, capturing the spirit of innovation and collaboration inherent in the engineering club's mission. Avoid any direct references to bridges, earth, blueprints, or circuits in your final description. Instead, emphasize the unique combination of geometric shapes and color gradients to create a fresh and distinctive logo. Ensure the description focuses solely on the specified elements to maintain originality and creativity. This concept should be visually distinct from the provided examples and fully aligned with the Stanford Engineering Club's aspirations. Let the quadrifolium and its components speak to the club's values and vision without referencing the previously mentioned motifs. Focus on the spiral's organic growth and the integration of gears and circuits within the quadrifolium to reflect the diverse and innovative nature of the club. Use the color gradient to evoke a sense of potential and optimism. Keep the design clean and modern, ensuring it resonates with the engineering community while standing out uniquely. Avoid any",
+      "summary": "Quad Spiral Innovation",
+      "trajectory_id": "fe057f50930349ab9205c1911d6b997e",
+      "temperature": 0.797212,
+      "iterative_anti_mode_applied": true
+    },
+    {
+      "model": "conceptial-14b",
+      "k": 5,
+      "text": "Blueprint Blossom\n\nA stylized flower in full bloom, its petals made up of interconnected gears and circuit boards, symbolizing growth and innovation. At the center of the blossom, a small, detailed Stanford arch is delicately integrated, emphasizing the club's university affiliation. The background features a subtle gradient from deep blue to light gray, representing the depth of engineering knowledge and the vast possibilities it opens.",
+      "summary": "Blueprint Blossom",
+      "trajectory_id": "c809ce7642984b0494845e041f7761b5",
+      "temperature": 0.759015,
+      "iterative_anti_mode_applied": true
+    },
+    {
+      "model": "conceptial-14b",
+      "k": 6,
+      "text": "Dynamo Core Unity\n\nA sleek, metallic sphere pulsates at the center, radiating outward with intricate gears and circuitry seamlessly woven into its surface. Surrounding this core, four dynamic arcs extend from the sphere's equator, each arc representing one of the cardinal directions, symbolizing the club\u2019s influence spreading globally. Delicate lines form a lattice around the entire structure, signifying collaboration and interconnectedness among members. To enhance visibility, incorporate Stanford University's colors, deep cardinal red and bright white, into the design. The sphere is slightly tilted, giving a sense of movement and dynamism. Each gear and circuit element is distinct yet harmoniously integrated, reflecting the club\u2019s commitment to innovation and unity in engineering. The background fades softly from dark to light, highlighting the central sphere while still emphasizing the expansive reach of the club's impact. To further emphasize the dynamism, add subtle motion effects like a faint glow emanating from within the sphere. This design encapsulates the essence of engineering brilliance, collaboration, and global impact, perfectly suited for an engineering club at Stanford. To keep it fresh and modern, use clean, contemporary fonts for any text elements included, such as the club name or tagline. \n\n(For the purposes of brevity, focus on the key visuals):\n- Sleek metallic sphere pulsating with gears and circuits.\n- Four dynamic arcs extending from the sphere's equator.\n- Lattice structure surrounding the sphere for interconnectedness.\n- Stanford's colors (cardinal red and white) incorporated.\n- Subtle motion effect with a faint glow from within the sphere.\n- Clean, modern fonts for text elements. To ensure uniqueness, avoid using any imagery or metaphors from the provided list. Focus on the unity",
+      "summary": "Dynamo Core Unity",
+      "trajectory_id": "69a97d76e430425aa3f8ad518e030024",
+      "temperature": 0.820818,
+      "iterative_anti_mode_applied": true
+    },
+    {
+      "model": "conceptial-14b",
+      "k": 7,
+      "text": "Circuit Wave Spectrum\n\nA sleek, metallic wave arches gracefully across the center of the logo, symbolizing fluidity and progress. Embedded within this wave are vibrant bands of color representing various wavelengths of light, evoking the diverse fields of engineering. At the base, the club's name \"Stanford Engineering Innovators\" is inscribed in a modern, clean font, reflecting precision and clarity. To either side of the inscription, subtle circuit patterns emerge, intertwining with the wave to suggest the integration of technology and innovation. The overall design balances dynamism and stability, encapsulating the spirit of exploration and advancement within the engineering community. To maintain uniqueness, avoid any direct references to gears, blueprints, spirals, bridges, or earth imagery. Instead, focus on the wave and spectrum elements. Ensure the wave's fluid form contrasts sharply with the structured nature of the circuits and text. This contrast visually represents the balance between creativity and technical rigor characteristic of the club. The colors should be bright yet harmonious, drawing inspiration from a prism splitting light into a rainbow, thus symbolizing the multifaceted nature of engineering disciplines. The logo's simplicity and elegance make it both memorable and versatile for use on club merchandise and promotional materials. The Circuit Wave Spectrum concept stands out for its innovative take on engineering symbolism, emphasizing collaboration, diversity, and cutting-edge thinking. To further ensure originality, avoid using circular or spiral motifs and opt instead for linear and flowing shapes that evoke movement and connection. The logo\u2019s core message is clear: the Stanford Engineering Innovators are leaders in shaping the future through dynamic and inclusive approaches to engineering challenges. The Circuit Wave Spectrum logo encapsulates these values in a striking, modern design that captures attention and inspires imagination. It invites",
+      "summary": "Circuit Wave Spectrum",
+      "trajectory_id": "fe4d85e58de84d2bbdfe3955843de1e4",
+      "temperature": 0.782621,
+      "iterative_anti_mode_applied": true
+    }
+  ],
+  "stack": {
+    "model_id": "Qwen/Qwen2.5-14B-Instruct",
+    "steering": true,
+    "iterative_anti_mode": true,
+    "creative_layer": 17,
+    "technical_layer": 24,
+    "creative_alpha": 1.5,
+    "technical_alpha": 0.86,
+    "sweep_applied": {
+      "creative_layer": 17,
+      "creative_alpha": 1.5,
+      "creative_vector_path": "data/steering_14b/sweep/hyper_creative_purified_vector_L17.pt",
+      "source": "data/steering_14b/sweep/chosen_config.json"
+    }
+  }
+}

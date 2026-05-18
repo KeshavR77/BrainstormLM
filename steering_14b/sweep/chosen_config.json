@@ -1,0 +1,25 @@
+{
+  "creative_layer": 17,
+  "creative_alpha": 1.5,
+  "creative_vector_path": "data/steering_14b/sweep/hyper_creative_purified_vector_L17.pt",
+  "technical_layer": 24,
+  "technical_alpha": 0.86,
+  "technical_vector_path": "data/steering_14b/hyper_technical_purified_vector_L24.pt",
+  "selected_from": {
+    "creative_layers": [
+      17,
+      19,
+      21,
+      23
+    ],
+    "creative_alphas": [
+      1.5,
+      2.0,
+      2.62,
+      3.0
+    ],
+    "n_per_cell": 5,
+    "brief_id": "logo-stanford-engineering"
+  },
+  "generated_at": "2026-05-18T06:15:23Z"
+}

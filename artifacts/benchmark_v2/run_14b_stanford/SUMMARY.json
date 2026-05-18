@@ -1,0 +1,190 @@
+{
+  "config": "creative_briefs_v1",
+  "n_per_arm_per_prompt": 8,
+  "arms": [
+    "gpt-4o",
+    "conceptial-14b"
+  ],
+  "per_prompt": [
+    {
+      "prompt_id": "logo-stanford-engineering",
+      "category": "logo",
+      "arms": {
+        "gpt-4o": {
+          "vendi": 1.9962853315767408,
+          "near_dup": 0.07142857142857142,
+          "distinct_2": 0.8306878306878307,
+          "n": 8
+        },
+        "conceptial-14b": {
+          "vendi": 3.545538583043271,
+          "near_dup": 0.0,
+          "distinct_2": 0.788896061975468,
+          "n": 8
+        }
+      }
+    }
+  ],
+  "aggregate": {
+    "gpt-4o": {
+      "mean_vendi": 1.9962853315767408,
+      "mean_near_dup": 0.07142857142857142,
+      "mean_distinct_2": 0.8306878306878307,
+      "mean_composite": 4.53125,
+      "mean_creativity": 4.125,
+      "mean_coherence": 4.875,
+      "mean_specificity": 4.125,
+      "mean_on_topic": 5.0,
+      "n_prompts": 1,
+      "n_outputs_total": 8
+    },
+    "conceptial-14b": {
+      "mean_vendi": 3.545538583043271,
+      "mean_near_dup": 0.0,
+      "mean_distinct_2": 0.788896061975468,
+      "mean_composite": 4.65625,
+      "mean_creativity": 4.625,
+      "mean_coherence": 4.375,
+      "mean_specificity": 4.625,
+      "mean_on_topic": 5.0,
+      "n_prompts": 1,
+      "n_outputs_total": 8
+    }
+  },
+  "quality_per_prompt": {
+    "logo-stanford-engineering": {
+      "gpt-4o": [
+        {
+          "creativity": 5.0,
+          "coherence": 4.0,
+          "specificity": 5.0,
+          "on_topic": 5.0,
+          "composite": 4.75,
+          "rationale": "The concept effectively combines engineering elements with Stanford's identity, showcasing creativity and specificity while maintaining coherence and relevance to the brief."
+        },
+        {
+          "creativity": 4.0,
+          "coherence": 5.0,
+          "specificity": 4.0,
+          "on_topic": 5.0,
+          "composite": 4.5,
+          "rationale": "The concept effectively combines elements of Stanford's identity with engineering symbolism, creating a cohesive and modern logo design."
+        },
+        {
+          "creativity": 4.0,
+          "coherence": 5.0,
+          "specificity": 4.0,
+          "on_topic": 5.0,
+          "composite": 4.5,
+          "rationale": "The concept effectively combines recognizable elements of Stanford with engineering motifs, creating a cohesive and specific logo that aligns well with the club's identity."
+        },
+        {
+          "creativity": 4.0,
+          "coherence": 5.0,
+          "specificity": 4.0,
+          "on_topic": 5.0,
+          "composite": 4.5,
+          "rationale": "The concept effectively combines Stanford's identity with engineering elements, showcasing creativity while maintaining clarity and relevance."
+        },
+        {
+          "creativity": 4.0,
+          "coherence": 5.0,
+          "specificity": 4.0,
+          "on_topic": 5.0,
+          "composite": 4.5,
+          "rationale": "The concept effectively combines traditional elements with a modern design, clearly representing the engineering focus while maintaining a strong connection to Stanford's identity."
+        },
+        {
+          "creativity": 4.0,
+          "coherence": 5.0,
+          "specificity": 4.0,
+          "on_topic": 5.0,
+          "composite": 4.5,
+          "rationale": "The concept effectively combines engineering elements with Stanford's identity, showcasing creativity while maintaining clarity and relevance."
+        },
+        {
+          "creativity": 4.0,
+          "coherence": 5.0,
+          "specificity": 4.0,
+          "on_topic": 5.0,
+          "composite": 4.5,
+          "rationale": "The concept effectively combines elements of Stanford's identity with engineering themes, creating a visually striking and coherent logo idea."
+        },
+        {
+          "creativity": 4.0,
+          "coherence": 5.0,
+          "specificity": 4.0,
+          "on_topic": 5.0,
+          "composite": 4.5,
+          "rationale": "The concept effectively combines Stanford's identity with engineering elements, showcasing creativity while maintaining clarity and relevance."
+        }
+      ],
+      "conceptial-14b": [
+        {
+          "creativity": 4.0,
+          "coherence": 5.0,
+          "specificity": 4.0,
+          "on_topic": 5.0,
+          "composite": 4.5,
+          "rationale": "The concept effectively combines traditional elements with modern design, clearly representing the engineering focus while maintaining a strong connection to Stanford."
+        },
+        {
+          "creativity": 5.0,
+          "coherence": 4.0,
+          "specificity": 5.0,
+          "on_topic": 5.0,
+          "composite": 4.75,
+          "rationale": "This concept effectively combines engineering elements with themes of global impact and sustainability, showcasing a strong visual identity that aligns with the club's mission."
+        },
+        {
+          "creativity": 5.0,
+          "coherence": 4.0,
+          "specificity": 5.0,
+          "on_topic": 5.0,
+          "composite": 4.75,
+          "rationale": "The concept effectively combines engineering and architectural elements in a unique and visually compelling way, while maintaining a clear focus on innovation and community."
+        },
+        {
+          "creativity": 4.0,
+          "coherence": 5.0,
+          "specificity": 4.0,
+          "on_topic": 5.0,
+          "composite": 4.5,
+          "rationale": "The concept effectively combines elements of engineering and technology while maintaining a clear connection to Stanford, showcasing creativity and coherence."
+        },
+        {
+          "creativity": 5.0,
+          "coherence": 4.0,
+          "specificity": 5.0,
+          "on_topic": 5.0,
+          "composite": 4.75,
+          "rationale": "This concept effectively combines unique visual elements and a clear thematic focus on innovation and collaboration, making it highly relevant and distinctive for the engineering club."
+        },
+        {
+          "creativity": 4.0,
+          "coherence": 5.0,
+          "specificity": 4.0,
+          "on_topic": 5.0,
+          "composite": 4.5,
+          "rationale": "The concept effectively combines engineering elements with a floral motif, creating a unique and relevant representation for the club."
+        },
+        {
+          "creativity": 5.0,
+          "coherence": 4.0,
+          "specificity": 5.0,
+          "on_topic": 5.0,
+          "composite": 4.75,
+          "rationale": "The concept effectively combines innovative design elements with a clear representation of unity and engineering, while also aligning with Stanford's identity."
+        },
+        {
+          "creativity": 5.0,
+          "coherence": 4.0,
+          "specificity": 5.0,
+          "on_topic": 5.0,
+          "composite": 4.75,
+          "rationale": "The concept effectively combines innovative visual elements with a clear representation of engineering values, making it both creative and relevant."
+        }
+      ]
+    }
+  }
+}
