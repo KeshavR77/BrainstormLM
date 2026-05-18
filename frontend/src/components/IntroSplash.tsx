@@ -63,7 +63,7 @@ export function IntroSplash({ onDone }: Props) {
             Conceptial
           </div>
           <div className="text-[10.5px] uppercase tracking-[0.28em] text-ink-2">
-            non-linear reasoning engine
+            A Diverse Ideation Engine
           </div>
         </motion.div>
       </div>

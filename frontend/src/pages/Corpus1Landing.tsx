@@ -483,7 +483,7 @@ export function Corpus1Landing({ onLaunchGauntlet, onLaunchDemo, onOpenWorkspace
             <div className="md:col-span-2">
               <Wordmark size={22} weight={560} />
               <p className="mt-3 text-ink-2 text-[13px] max-w-md leading-relaxed">
-                A non-linear reasoning engine. Think in branches, not in lines.
+                A Diverse Ideation Engine. Think in branches, not in lines.
               </p>
             </div>
             <div className="flex flex-wrap gap-x-6 gap-y-2 md:justify-end items-center text-[13px]">
