@@ -5,6 +5,7 @@
  *   #/             → Corpus 1 Landing (marketing + demo CTA)
  *   #/gauntlet     → Gauntlet (live steered generation demo)
  *   #/demo         → Demo (head-to-head logo collage)
+ *   #/control      → Control (Gemini-direct baseline)
  *   #/app          → Dashboard (project listing)
  *   #/project/:id  → Canvas (brainstorm workspace)
  */
@@ -18,12 +19,14 @@ import { Gauntlet } from './pages/Gauntlet';
 import { Dashboard } from './pages/Dashboard';
 import { Canvas } from './pages/Canvas';
 import { Demo } from './pages/Demo';
+import { Control } from './pages/Control';
 import { IntroSplash } from './components/IntroSplash';
 
 type Route =
   | { page: 'landing' }
   | { page: 'gauntlet' }
   | { page: 'demo' }
+  | { page: 'control' }
   | { page: 'dashboard' }
   | { page: 'canvas'; projectId: string };
 
@@ -38,6 +41,9 @@ function parseRoute(): Route {
   }
   if (hash === '#/demo' || hash.startsWith('#/demo/')) {
     return { page: 'demo' };
+  }
+  if (hash === '#/control' || hash.startsWith('#/control/')) {
+    return { page: 'control' };
   }
   if (hash === '#/app' || hash.startsWith('#/app/')) {
     return { page: 'dashboard' };
@@ -104,6 +110,8 @@ export default function App() {
         return <Gauntlet onBack={openLanding} />;
       case 'demo':
         return <Demo onBack={openLanding} onOpenWorkspace={openDashboard} />;
+      case 'control':
+        return <Control onBack={openLanding} onOpenDemo={openDemo} onOpenWorkspace={openDashboard} />;
       case 'dashboard':
         return <Dashboard onOpenProject={openProject} />;
       case 'landing':

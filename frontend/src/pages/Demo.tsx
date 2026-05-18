@@ -150,10 +150,8 @@ export function Demo({ onBack, onOpenWorkspace }: DemoProps) {
           Same brief. <em className="not-italic text-brand">Three answers.</em>
         </h1>
         <p className="text-ink-1 text-[15px] leading-relaxed max-w-2xl">
-          One logo brief. Eight directions each from GPT-4o, Claude Opus 4.7,
-          and Conceptial 14B. Every text prompt was then rendered to an image
-          by the <em className="not-italic font-medium text-ink-0">same Gemini image model</em>,
-          so the comparison isolates the upstream ideation — not the renderer.
+          Eight directions each from GPT-4o, Claude Opus 4.7, and Conceptial
+          14B. Images rendered by the Gemini image model.
         </p>
       </section>
 
@@ -212,12 +210,10 @@ export function Demo({ onBack, onOpenWorkspace }: DemoProps) {
 
         {/* Footnote */}
         <p className="mt-12 text-ink-3 text-[12px] leading-relaxed max-w-2xl">
-          Text prompts from GPT-4o, Claude Opus 4.7, and Conceptial 14B were
-          each rendered to an image by the same Gemini image model, so any
-          visual difference traces back to the upstream ideation, not the
-          rendering step. GPT-4o and Claude outputs are independent
-          single-shot generations of the same brief. Concept names below
-          each Conceptial card are the model's own first-line summaries.
+          GPT-4o and Claude outputs are independent single-shot generations
+          of the same brief. Concept names below each Conceptial card are
+          the model's own first-line summaries. Want the renderer-only
+          baseline? <a href="#/control" className="text-ink-1 underline decoration-ink-3 underline-offset-2 hover:text-ink-0">See Gemini alone</a>.
         </p>
       </main>
     </div>
