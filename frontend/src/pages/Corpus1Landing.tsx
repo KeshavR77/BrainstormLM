@@ -106,7 +106,7 @@ export function Corpus1Landing({ onLaunchGauntlet, onLaunchDemo, onOpenWorkspace
               className="inline-flex items-center gap-2.5 text-ink-2 text-[11px] uppercase tracking-[0.22em] mb-6"
             >
               <span className="h-px w-6 bg-ink-3" />
-              Non-linear reasoning engine
+              A Diverse Ideation Engine
             </motion.div>
 
             <div className="overflow-hidden pb-1">
