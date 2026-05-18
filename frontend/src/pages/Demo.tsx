@@ -24,7 +24,6 @@ interface DemoProps {
 interface DemoCard {
   src: string;
   alt: string;
-  caption?: string;
 }
 
 const GPT_CARDS: DemoCard[] = Array.from({ length: 8 }, (_, i) => ({
@@ -37,6 +36,7 @@ const CLAUDE_CARDS: DemoCard[] = Array.from({ length: 8 }, (_, i) => ({
   alt: `Claude Opus 4.7 direction ${i + 1}, rendered by Gemini: Stanford engineering club logo`,
 }));
 
+// Concept names kept in alt text for screen readers / SEO, not displayed.
 const CONCEPT_NAMES = [
   "Engineer's Nexus",
   '3D Blueprint Vision',
@@ -51,7 +51,6 @@ const CONCEPT_NAMES = [
 const CONCEPTIAL_CARDS: DemoCard[] = CONCEPT_NAMES.map((name, i) => ({
   src: `/demo/conceptial/${String(i + 1).padStart(2, '0')}.webp`,
   alt: `Conceptial 14B direction ${i + 1}, rendered by Gemini: ${name}`,
-  caption: name,
 }));
 
 interface ColumnProps {
@@ -94,15 +93,8 @@ function Column({ title, subtitle, swatchClass, cards, armLabel }: ColumnProps) 
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.015]"
               />
             </div>
-            <figcaption className="mt-2 flex items-baseline justify-between gap-2 text-[12px]">
-              <span className="text-ink-2 tabular-nums">
-                {armLabel} · #{i + 1}
-              </span>
-              {card.caption && (
-                <span className="text-ink-3 truncate italic" title={card.caption}>
-                  {card.caption}
-                </span>
-              )}
+            <figcaption className="mt-2 text-[12px] text-ink-2 tabular-nums">
+              {armLabel} · #{i + 1}
             </figcaption>
           </motion.figure>
         ))}
@@ -210,10 +202,8 @@ export function Demo({ onBack, onOpenWorkspace }: DemoProps) {
 
         {/* Footnote */}
         <p className="mt-12 text-ink-3 text-[12px] leading-relaxed max-w-2xl">
-          GPT-4o and Claude outputs are independent single-shot generations
-          of the same brief. Concept names below each Conceptial card are
-          the model's own first-line summaries. Want the renderer-only
-          baseline? <a href="#/control" className="text-ink-1 underline decoration-ink-3 underline-offset-2 hover:text-ink-0">See Gemini alone</a>.
+          Independent single-shot generations of the same brief. Want the
+          renderer-only baseline? <a href="#/control" className="text-ink-1 underline decoration-ink-3 underline-offset-2 hover:text-ink-0">See Gemini alone</a>.
         </p>
       </main>
     </div>
