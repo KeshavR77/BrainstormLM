@@ -1,0 +1,104 @@
+{
+  "prompt_id": "logo-stanford-engineering",
+  "arm": "conceptial-14b",
+  "n": 8,
+  "outputs": [
+    {
+      "model": "conceptial-14b",
+      "k": 0,
+      "text": "**Innovate Beyond**\n\nA sleek, modern \"S\" emblem is integrated into the silhouette of a rising sun, symbolizing dawn breaking over new possibilities. The \"S\" is composed of interconnected nodes and lines, hinting at the collaborative and expansive nature of innovation within the club. Below, the club's name \"Engineering Club\" is written in a clean, bold font, with \"Stanford\" elegantly scripted underneath in a complementary style. To the right, a stylized representation of a bridge arches gracefully, suggesting the support and strength found in engineering solutions. The colors used are a gradient from deep indigo to vibrant orange, reflecting both depth and dynamism. To the left, a subtle geometric pattern resembling waves subtly hints at fluidity and adaptability in problem-solving without being overly complex. All elements converge harmoniously, creating a balanced yet dynamic visual identity. The overall design exudes a sense of forward-thinking and unity among members. \n\nThis description avoids all the mentioned clich\u00e9s while delivering a fresh, engaging visual concept. The use of a rising sun, interconnecting nodes, a bridge, and subtle wave patterns introduces unique symbolic elements relevant to innovation and engineering. The color scheme adds vibrancy and depth to the design, enhancing its appeal and memorability. The integration of the Stanford \"S\" seamlessly ties the logo to the university\u2019s brand while highlighting the club\u2019s distinct identity. The balance between simplicity and detail ensures the logo remains visually striking and meaningful. The focus on collaboration, strength, and adaptability through innovative thinking underscores the club's values and aspirations. This design concept stands out by offering a fresh perspective on what an engineering club logo can be, beyond the usual mechanical tropes. It captures the essence of engineering",
+      "summary": "Innovate Beyond",
+      "trajectory_id": "115fe1018689451fb97d730636eeea93",
+      "temperature": 0.75,
+      "iterative_anti_mode_applied": false
+    },
+    {
+      "model": "conceptial-14b",
+      "k": 1,
+      "text": "**Nebula Blueprint**\n\nA stylized nebula swirls in the center, its wispy tendrils forming intricate fractal patterns reminiscent of organic circuitry rather than mechanical parts. Below, the nebula transitions into a flowing river of light, symbolizing the fluidity and adaptability of innovative engineering solutions. Stanford's name is subtly integrated into the nebula\u2019s core, glowing softly to highlight the university\u2019s role in nurturing groundbreaking ideas. To maintain originality, ensure the design avoids any direct representation of gears, circuit boards, or other common engineering symbols. Instead, focus on the ethereal and dynamic qualities of the nebula as a metaphor for boundless creativity and exploration. The color palette includes deep blues and purples to evoke the cosmos, contrasted with bright accents of white and gold for a futuristic touch. The overall composition should be balanced yet dynamic, capturing the essence of pushing boundaries in engineering while celebrating Stanford's unique academic environment. The text \"Stanford Engineering Club\" appears in a sleek, modern font along the base of the logo, complementing the nebula's aesthetic without overwhelming it. This logo aims to represent the club's commitment to innovation and creativity beyond traditional engineering frameworks. The use of a nebula also subtly nods to the vast potential and mystery of the universe, aligning with the club's mission to explore new frontiers in technology and engineering. Avoid any direct references to conventional engineering motifs to ensure the logo stands out uniquely. The final design should be both visually striking and conceptually rich, reflecting the club's forward-thinking approach to engineering. Ensure that the nebula and the flowing river of light elements are seamlessly integrated to create a cohesive and impactful visual identity for the club. The logo should feel both timeless",
+      "summary": "Nebula Blueprint",
+      "trajectory_id": "c2dc40914fe54e74985e444f57fb3284",
+      "temperature": 0.811803,
+      "iterative_anti_mode_applied": true
+    },
+    {
+      "model": "conceptial-14b",
+      "k": 2,
+      "text": "Stellar Forge\n\nA stylized starburst with rays emanating from its center, each ray morphing into a unique geometric shape symbolizing diverse engineering disciplines such as architecture, software development, and materials science. At the heart of the starburst, a bold sans-serif font spells out \"Stanford\" in a sleek metallic silver, while the geometric shapes surrounding it are rendered in vibrant, gradient colors to represent innovation and creativity. The entire logo is set against a deep space background with subtle hints of nebulous swirls, giving the impression of forging new paths and ideas beyond traditional boundaries. To avoid clich\u00e9 motifs, focus on the dynamic interplay between the starburst and the morphed geometric shapes, emphasizing fluidity and transformation in engineering. The overall design is modern, futuristic, and uniquely captures the essence of pushing the limits of what\u2019s possible. To further enhance the logo, consider adding a subtle, fine-lined constellation pattern around the edges, symbolizing the interconnectedness of various engineering fields within the broader universe of knowledge and discovery. This design ensures a fresh perspective while still honoring the spirit of innovation and collaboration inherent in an engineering club. To make the logo stand out, ensure there's a clear contrast between the dark background and the bright, gradient shapes, making it both visually striking and memorable. Additionally, incorporate a tagline below the main graphic, such as \"Innovators Without Boundaries,\" to reinforce the club's mission and values. This approach creates a cohesive and compelling visual identity that aligns perfectly with the goals of an engineering club at Stanford. \n\nConcept Name: Stellar Forge\n\nVisual Description: A stylized starburst with rays transforming into geometric shapes representing engineering disciplines, centered around a sleek \"Stanford\" text in metallic silver",
+      "summary": "Visual Description",
+      "trajectory_id": "508529abb4cf4e428178e0c9afeedb90",
+      "temperature": 0.773606,
+      "iterative_anti_mode_applied": true
+    },
+    {
+      "model": "conceptial-14b",
+      "k": 3,
+      "text": "Cosmic Engineers\n\nA sleek, modern rocket ship orbits a vibrant, pulsating star within a swirling, colorful nebula. The rocket is streamlined with aerodynamic curves and features glowing lines that represent energy flow and innovation. Below the scene, the words \"Stanford Engineering Club\" are written in a bold, futuristic font, encircling the base of the star. To one side, a stylized tree of knowledge branches out from the rocket, symbolizing growth and connection to nature despite technological advancement. The colors are a mix of deep blues, electric purples, and fiery oranges, creating a dynamic and inviting atmosphere. This design emphasizes the club's focus on pushing boundaries and exploring new frontiers in engineering, both literally and figuratively. To ensure uniqueness, avoid any traditional mechanical symbols, instead opting for organic forms like the nebula and tree intertwined with the rocket. The logo is balanced yet dynamic, suggesting movement and progress without falling into common engineering tropes. The rocket's design incorporates soft gradients and subtle textures, giving it a high-tech, almost holographic appearance. The overall composition evokes a sense of wonder and possibility, capturing the essence of the engineering spirit at Stanford. The nebula itself is detailed with delicate filaments and clouds, adding depth and interest to the background. The star at the center radiates warmth and light, representing the heart of the club\u2019s community and its guiding principles. The logo is designed to be versatile, adaptable to various mediums while maintaining its impact and clarity. The rocket and star are the focal points, drawing the viewer\u2019s eye and conveying the club's aspirations and achievements. The tree of knowledge serves as a grounding element, reminding members of their roots and responsibilities as innovators and leaders in their field",
+      "summary": "Cosmic Engineers",
+      "trajectory_id": "a1c2675d509941d1b34e1bf9f2a61c85",
+      "temperature": 0.8354090000000001,
+      "iterative_anti_mode_applied": true
+    },
+    {
+      "model": "conceptial-14b",
+      "k": 4,
+      "text": "Stellar Forge\n\nA radiant, stylized starburst forms the centerpiece, its rays fanning out to create a dynamic, forward-moving arrowhead shape. Surrounding the starburst, fluid arcs and lines twist and intertwine, evoking the flow of energy and ideas, while subtle gradients of deep indigo and electric blue add depth and a sense of innovation. At the base, a sleek, modern font spells out \"Stanford Engineering Club,\" positioned to suggest a foundation of support and stability beneath the soaring starburst. To the side, a small, elegant compass symbolizes navigation through complex challenges, guiding the club's direction. To avoid clich\u00e9s, the design focuses on abstract forms representing energy, creativity, and direction rather than mechanical elements. The overall effect is both futuristic and inviting, capturing the essence of engineering excellence and exploration beyond traditional boundaries. To further emphasize unity and collaboration, a series of interconnected nodes or points could be integrated within the arcs and lines, symbolizing the network of minds and ideas that drive the club's success. The compass is placed slightly below the text, forming a triangle with the starburst and the words, creating a balanced, cohesive logo. The colors transition smoothly from dark to light, suggesting growth and enlightenment. The design avoids any direct representation of tools or machinery, focusing instead on the intangible aspects of engineering\u2014creativity, vision, and teamwork. This ensures the logo stands out by embracing abstraction over literalism. The Stellar Forge concept embodies the spirit of innovation and exploration, reflecting the club's commitment to pushing the boundaries of what's possible in engineering. To enhance the logo's versatility, it can be adapted to various formats and sizes without losing its impact, making it ideal for branding purposes across multiple platforms.",
+      "summary": "Stellar Forge",
+      "trajectory_id": "74d85418e5e343ebb3561765d6874789",
+      "temperature": 0.797212,
+      "iterative_anti_mode_applied": true
+    },
+    {
+      "model": "conceptial-14b",
+      "k": 5,
+      "text": "Quantum Quill\n\nA stylized quill pen made from intersecting lines of binary code, hovering over a blank page that glows softly with digital light. Around the pen, floating abstract shapes reminiscent of algorithmic fractals pulse gently, suggesting the limitless potential of design and creation. The overall composition is balanced yet dynamic, evoking both tradition and cutting-edge innovation in a harmonious blend. The colors are a gradient of deep indigo transitioning to electric blue, symbolizing the depth of knowledge and the vibrant energy of pioneering ideas. The text \"Stanford Engineering Club\" appears in a sleek, modern font beneath the icon, seamlessly integrated into the design. The background subtly fades to black, emphasizing the central focus on the Quantum Quill. The effect is elegant and thought-provoking, reflecting the club's commitment to pushing the boundaries of engineering through creativity and intellect. To avoid clich\u00e9d motifs, the design relies on abstract forms and binary code to represent technology and innovation, ensuring a fresh and distinctive visual identity. The Quantum Quill thus stands as a unique emblem for the club\u2019s innovative spirit and intellectual rigor. \n\n(For brevity, the original request was trimmed to the essential three sentences while maintaining the detailed visual concept.) \n\nThe Quantum Quill, a stylized quill pen crafted from intertwining strands of binary code, hovers gracefully over a radiant, glowing page. Surrounding it, ethereal, fractal-like patterns dance softly, symbolizing endless possibilities in design and creation. Below, the club's name is inscribed in a clean, modern font, all set against a subtle gradient background transitioning from deep indigo to electric blue. This emblem encapsulates the essence of blending traditional wisdom with cutting-edge technological innovation",
+      "summary": "Quantum Quill",
+      "trajectory_id": "546a52cf692a45b19398790066f4a43f",
+      "temperature": 0.759015,
+      "iterative_anti_mode_applied": true
+    },
+    {
+      "model": "conceptial-14b",
+      "k": 6,
+      "text": "3D Blueprint Bloom\n\nA stylized, semi-transparent bloom of interconnected fractal patterns emerges from the ground, symbolizing growth and innovation in engineering. Each petal-like structure is adorned with subtle, glowing symbols that represent various fields of engineering, such as materials science, robotics, and software development, without using traditional technical diagrams. The overall composition floats gently against a gradient sky background, suggesting both grounded advancement and reaching towards new horizons. To maintain uniqueness, avoid any mechanical elements; instead, focus on organic forms that convey complexity and intelligence through their intricate design. The color palette includes shades of blue and silver to evoke a sense of sophistication and technology.",
+      "summary": "3D Blueprint Bloom",
+      "trajectory_id": "6043ac528bdf490bba4df8f17d76d0f7",
+      "temperature": 0.820818,
+      "iterative_anti_mode_applied": true
+    },
+    {
+      "model": "conceptial-14b",
+      "k": 7,
+      "text": "**Galactic Design Lab**\n\nA sleek, modern spaceship hovers over a sprawling cityscape at dusk, its hull emblazoned with glowing, abstract symbols that represent cutting-edge engineering principles. Below, the city lights blend into a dynamic grid pattern, symbolizing interconnected networks and collaborative innovation. The overall composition is bathed in a warm, ambient glow, evoking a futuristic yet welcoming atmosphere. To the side, an elegant monogram combining the initials \"EC\" (Engineering Club) floats gracefully, rendered in a minimalist, high-tech font. [This description provides a fresh, visually engaging concept without resorting to common engineering tropes.] \n\n[Note: The Galactic Design Lab concept avoids the mentioned clich\u00e9s by focusing on futuristic urban design and advanced symbology rather than traditional mechanical elements.]  \n\nFor the logo, the spaceship could be simplified to an iconic silhouette or emblem, ensuring it remains recognizable and versatile across various applications. The grid pattern can be integrated subtly into the background or used as an underlying texture. The \"EC\" monogram serves as the focal point, reinforcing the club's identity. [This ensures the logo is distinct and aligns well with the club's aspirations.] \n\n[The concept offers a unique visual representation of engineering creativity and innovation, setting the Engineering Club apart from conventional imagery.] \n\n[Ensure the final design is clean, modern, and scalable, maintaining clarity and impact at all sizes.] \n\n[The Galactic Design Lab concept thus delivers a fresh, engaging visual identity for the Engineering Club at Stanford.] [This final sentence emphasizes the overall appeal and uniqueness of the proposed design concept.] \n\n[This concept avoids the specified clich\u00e9s while delivering a compelling, innovative visual representation.] [Final note reiterating the adherence to the",
+      "summary": "Galactic Design Lab",
+      "trajectory_id": "0d80668bf4a04a3382cd7b40fe8e9a0d",
+      "temperature": 0.782621,
+      "iterative_anti_mode_applied": true
+    }
+  ],
+  "stack": {
+    "model_id": "Qwen/Qwen2.5-14B-Instruct",
+    "steering": true,
+    "iterative_anti_mode": true,
+    "creative_layer": 17,
+    "technical_layer": 24,
+    "creative_alpha": 1.5,
+    "technical_alpha": 0.86,
+    "sweep_applied": {
+      "creative_layer": 17,
+      "creative_alpha": 1.5,
+      "creative_vector_path": "data/steering_14b/sweep/hyper_creative_purified_vector_L17.pt",
+      "source": "data/steering_14b/sweep/chosen_config.json"
+    },
+    "motif_excludes": [
+      "gears",
+      "cogs",
+      "cogwheels",
+      "gearwork",
+      "wrenches",
+      "blueprints",
+      "circuit boards",
+      "mechanical machinery"
+    ]
+  }
+}
