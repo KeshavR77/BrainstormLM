@@ -40,7 +40,6 @@ import { useHotkeys } from '../hooks/useHotkeys';
 import { useHistory } from '../hooks/useHistory';
 import { useSnapshots } from '../hooks/useSnapshots';
 import { useComments } from '../hooks/useComments';
-import { SteeringTelemetry } from '../components/SteeringTelemetry';
 import { MemoryChip } from '../components/MemoryChip';
 import { useBrainstorm } from '../hooks/useBrainstorm';
 import { useProjects } from '../hooks/useProjects';
@@ -336,7 +335,6 @@ function CanvasInner({ projectId, onBack }: CanvasPageProps) {
               />
             </ReactFlow>
 
-            <SteeringTelemetry phase={phase} />
             <MemoryChip counts={memoryCounts} onReset={resetMemory} />
           </div>
           )}

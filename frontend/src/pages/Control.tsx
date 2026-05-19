@@ -126,8 +126,11 @@ export function Control({ onBack, onOpenDemo, onOpenWorkspace }: ControlProps) {
                 <img
                   src={card.src}
                   alt={card.alt}
-                  loading="lazy"
-                  decoding="async"
+                  width={1024}
+                  height={559}
+                  loading="eager"
+                  decoding="sync"
+                  fetchPriority="high"
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.015]"
                 />
               </div>
