@@ -1,0 +1,102 @@
+{
+  "1": {
+    "category": "historical fiction",
+    "title": "Gladiator",
+    "writing_prompt": "Historical Fiction: Write a scene from a story set during the height of the Roman Empire, focusing on a slice of a day in the life of a gladiator. Do not write a combat scene. Use sensory details to capture the sights, sounds, and smells of ancient Rome. Explore the gladiator's thoughts and emotions. The story should also touch on the larger political and social issues of the time period. The piece should feel like a slice of a larger story. <SEED> First person, past tense, 1000 words.",
+    "seed_modifiers": [
+      "Include references to the gladiator's favorite Roman deity or mythological figure.",
+      "Describe the gladiator's weapon of choice and its significance to them.",
+      "Mention a superstition or ritual the gladiator performs before each fight."
+    ]
+  },
+  "2": {
+    "category": "epistolary",
+    "title": "The Lighthouse Keeper",
+    "writing_prompt": "The Lighthouse Keeper\n\nEpistolary Narrative: Write a story told entirely through a series of brief correspondences: telegrams or letters or emails between two characters. The correspondence should span several months or years, and reveal a gradually unfolding plot. Use distinct voices for each character, and include details that provide insight into their personalities and motivations. The story should build to an emotional climax, and the final letter should provide a satisfying resolution. The setting is a lighthouse keeper writing to his mother. He is working class and Scottish. He is struggling with the isolation of his posting. Write naturally and without cliches. <SEED> 1000 words.",
+    "seed_modifiers": [
+      "Mention a specific landmark or geographical feature near the lighthouse.",
+      "Include a description of a unique item or keepsake mentioned in one of the letters.",
+      "Describe a specific challenge or hardship the lighthouse keeper faces in his daily life."
+    ]
+  },
+  "3": {
+    "category": "romance",
+    "title": "Love in the Limelight",
+    "writing_prompt": "Romance: Love in the Limelight. Write one scene within a larger story set in Wales. A famous (fictional) actor ducks into a small-town bookstore to escape paparazzi. The scene takes us through the characters meeting in this odd circumstance. Over the course of the scene, the actor and the bookstore owner have a conversation charged by an undercurrent of unspoken chemistry. Write the actor as somewhat of a rogue with a fragile ego, which needs to be fed by having everyone like him. He is thoroughly charming, but the bookstore owner seems (at least superficially) immune to this; which paradoxically provokes a genuine attraction and derails the charm offensive. The bookstore owner, despite the superficial rebuffs of the actor's charm, is inwardly more than a little charmed and flustered despite themselves. Write primarily in dialogue, in the distinct voices of each character. <SEED> 1000 words.",
+    "seed_modifiers": [
+      "Include a brief anecdote that reveals a personal struggle or fear of one of the characters.",
+      "The story is to be set in Cardiff.",
+      "Mention a particular hobby or passion that the two characters bond over, despite their different backgrounds."
+    ]
+  },
+  "4": {
+    "category": "dystopic-comedy",
+    "title": "My Apocalypse Buddy",
+    "writing_prompt": "My Apocalypse Buddy\n\nWrite a wry, dry short story of survival and adventure loosely in the style of Terry Pratchett, set in the post-technological collapse world. The story begins with the pair deliberating their predicament and intent for the day's mission, details the ways in which the mission inevitably goes sideways, and returns them to home base in multiple ways, worse for wear.\n\n[characters]\n- the animo-tronic stuffed koala, Chewy, from some long forgotten before time\n- midas, our hapless protagonist, who has a knack for finding himself in the worst kinds of trouble. <SEED>\n\n1000 words.",
+    "seed_modifiers": [
+      "The duo stumbles upon a cryptic graffiti message that hints at a hidden refuge in the wilds.",
+      "Chewy\u2019s eyes flicker colors in response to strong emotions\u2014sometimes giving them away.",
+      "Chewy occasionally emits random pre-collapse advertising slogans that no one fully understands."
+    ]
+  },
+  "5": {
+    "category": "surreal horror",
+    "title": "Caribou Season at the Lodge",
+    "writing_prompt": "Caribou Season at the Lodge\nGenre: Surreal Horror\n\nJT knew something wasn't right from the moment they'd pulled up to the lodge. It looked exactly as it had every autumn of his life\u2014the cedar shingles silvered with age, the porch sagging gently under weight of winters past\u2014but the air felt thicker, somehow, as if the woods had leaned in closer, waiting. He thought maybe he was just tired. Maybe it was nothing more than the long drive north, cramped in the back of the truck beside his older brother Mike -- and a stack of rifles wrapped in oily canvas. Still, the feeling lingered.\n\nThe first caribou they found that season hadn't bolted. It had just watched, ears flicking lazily, waiting for the shot. JT had felt a crawling in his gut watching it die, noticing how it fell with a quiet dignity\u2014as though it had wanted nothing more. Nobody else seemed to find it odd, or at least they didn't say so. JT kept his mouth shut. Always safer that way.\n\nThen there was the moment in the clearing. JT had fallen behind, fumbling with bootlaces stiff from the cold, and by the time he'd caught up with his father and brother, they'd already stopped. JT slowed instinctively, ducking behind a tangle of brush, staring out into the open space where a massive buck stood utterly still, chest rising and falling in slow, deep breaths. The animal looked\u2026wrong, somehow. Maybe it was the eyes\u2014dark and flat, calm in a way that made JT's neck prickle. Or maybe it was something deeper, something in the way the buck stood close enough for his father to reach out and touch it.\n\nJT watched as his father raised a trembling hand toward the animal's muzzle. His father's face had a strange expression, eyes too bright, lips parted slightly, like he was on the verge of whispering something\u2014a secret, maybe. The rifle hung uselessly at his side, forgotten. Mike had the same dazed look in his eyes.  JT's breath stopped short, his mind suddenly shouting at him to look away, turn around, just run\u2014but he couldn't move.\n\nAnd then, as suddenly as it had begun, it was over. The buck shivered, startled by something unseen, and disappeared into the brush without so much as a sound. The two of them looked around, confused, seemingly surprised to find themselves where they stood. JT stayed hidden, breathing shallowly, fear mingling with a confused sense of shame. His father had failed to take the shot. To even think about mentioning what he'd seen would have felt like betrayal\u2014or something worse.\n\nJT waited until the others moved on before stepping out from cover. He stared into the empty clearing for a long, uneasy moment, wondering if anything had really happened at all, or if he was losing his grip. Maybe the woods were finally getting into his head.\n\nWriting Instructions:\nContinue with the next chapter of the story, maintaining a style reminiscent of Stephen King\u2014grounded realism blended seamlessly with unsettling surrealism. The atmosphere should convey subtle dread, isolation, and psychological ambiguity. JT's perspective is crucial, yet he is an unreliable narrator, caught in uncertainty about what he's perceiving. <SEED> Establish an undertone of creeping dread, establishing the isolation of JT's perspective, which he largely keeps to himself. Incorporate some dialogue. Build tension towards a payoff. 1000 words.",
+    "seed_modifiers": [
+      "Include a mention of an abandoned hunting cabin, rumored to be inhabited by an unknown presence.",
+      "Their father grows strangely silent about the incident in the clearing, sidestepping any questions.",
+      "The local guide, usually talkative, avoids the group and warns them to leave before full moon."
+    ]
+  },
+  "6": {
+    "category": "noir romance",
+    "title": "Carnival of Dangerous Intentions",
+    "writing_prompt": "Carnival of Dangerous Intentions\n\nConey Island, New York, July 1937.\n\nShe stopped just before reaching the shooting gallery set up along the boardwalk. It was near dusk, and the carnival lights were buzzing on. **His locks**. The words flashed through her mind, again, like an intruder. Such an old-fashioned turn of phrase that kept surfacing, and something else -- dangerously compelling -- quickly suppressed, lest she question why she had returned here at all. This place where she had promised to meet the stranger -- the young man with the obsidian curls and even darker eyes. She didn't even know his name.\n\nWrite a scene in a larger story inspired by this prompt. The scene should capture an atmosphere that blends romantic allure with an undercurrent of subtle danger or moral ambiguity. Think 50 shades, but with a more restrained classic sensibility. The scene is all about establishing tension. Write for the feminine perspective. Include roughly 50% dialogue, 20% internal monologue, and 30% exposition and scene setting. <SEED> The tone should have some edge to it. 1000 words.",
+    "seed_modifiers": [
+      "The boardwalk\u2019s sodium lights flicker inconsistently, casting strange patterns on the strangers\u2019 faces.",
+      "An old fortune teller's booth stands nearby, displaying cryptic palmistry charts.",
+      "The smell of cotton candy reminds her of a childhood memory she can\u2019t quite place."
+    ]
+  },
+  "7": {
+    "category": "coming of age",
+    "title": "Lost & Found in Osaka",
+    "writing_prompt": "Lost & Found in Osaka\n\nSlice of Life / Coming-of-Age: First Connection. Write one scene within a larger story set in Osaka, Japan. A shy, introverted teenager & synthesizer nerd, is browsing the electronics district of Den Den Town. She is drawn to the sound of an electric guitar. A girl, slightly older and radiating confidence, is busking near the entrance to a crowded arcade, playing a blistering rendition of a classic anime theme. The scene takes us through their initial awkward interaction, transitioning into a surprisingly easy conversation. The busker, intrigued by the teenager's quiet intensity and knowledge of music, suggests they grab some sushi at a nearby kaitenzushi (conveyor belt sushi) restaurant. <SEED> Write primarily in dialogue, capturing the distinct voices of the two characters: the teenager's hesitant and -- initially -- awkward speech, and the busker's more outgoing and playful tone. \n1000 words.",
+    "seed_modifiers": [
+      "The teenager wears oversized headphones that keep slipping whenever she nods nervously.",
+      "A sudden burst of fireworks outside the arcade momentarily drowns out the guitar.",
+      "They bond briefly over a niche anime soundtrack they both love."
+    ]
+  },
+  "8": {
+    "category": "contemporary romance / drama",
+    "title": "Stolen Moments in Roma",
+    "writing_prompt": "Contemporary Romance / Drama: Stolen Moments in Roma. Write a series of interconnected short scenes and dialogues that span a single day in modern-day Rome, in narrative form. This will form the beginning of a larger story. Alessandra, a fiery, independent Roman woman who works as a motorcycle courier, nearly collides with Ben, a somewhat clumsy, overly polite British academic on sabbatical, who is engrossed in a guidebook near the Trevi Fountain. The initial encounter is a clash of cultures and personalities \u2013 Alessandra is all sharp wit and rapid-fire Italian, while Ben is flustered apologies and awkward attempts at speaking the language. However, as they sort out the near-miss, a spark of unexpected humor and connection emerges.\n\nAlessandra, it quickly becomes clear, is a whirlwind of energy and mischief. She's a self-admitted troublemaker with a secret penchant for kleptomania, a detail she doesn't explicitly reveal, but which manifests in subtle, daring acts throughout the day. She impulsively decides to take Ben on a wild, unsanctioned tour of Rome, dragging him in some specific instances far outside his comfort zone. Ben, despite his initial apprehension and inherent politeness, finds himself utterly captivated by Alessandra's unapologetic spirit and zest for life. He is drawn into her orbit, a willing participant in increasingly outlandish situations, a quiet rebellion brewing beneath his scholarly exterior.\n\nThe narrative should primarily consist of short, vivid scenes and dialogue exchanges, revealing their contrasting personalities and backgrounds, and the growing, ambiguous tension between them. Ben is captivated by Alessandra's energy and the thrill of breaking free from his routine. There's a clear sense that Alessandra is toying with Ben, pushing his boundaries and enjoying his reactions, but her own feelings remain somewhat enigmatic. The day should be a rollercoaster of exhilarating, slightly dangerous, and humorous moments, leaving Ben completely disoriented but utterly smitten. Explore the underlying tension & chemistry between them, culminating in some payoff as they part ways (or not -- your choice). Include this detail: <SEED> Write in narrative prose, using immersive storytelling. 1000 words.",
+    "seed_modifiers": [
+      "Alessandra\u2019s motorcycle sports a colorful scratch or dent from a previous, unnamed escapade.",
+      "A sudden downpour forces them to take shelter under the awning of a gelato shop.",
+      "They unexpectedly run into one of Alessandra\u2019s old acquaintances who warns Ben about her wily streak."
+    ]
+  },
+  "9": {
+    "category": "contemporary romance",
+    "title": "Darkroom Revelations",
+    "writing_prompt": "Darkroom Revelations\n\nWrite a first-person narrative from the perspective of Dani, a 25-year-old assertive art student known for her bold style and take-charge attitude in relationships. For the past semester, she's been quietly fascinated by Elliot (he/him), a 19-year-old boy in her experimental photography class. Dani has been intrigued by his unconventional masculinity: killer thrift-shop-nu-goth style, soft demeanour and quiet intellect. When they're paired for a final project requiring late nights in the darkroom, Elliot tentatively shares that he's been questioning his gender identity and expression. Set during one of these intimate darkroom sessions where the red light creates a confessional atmosphere. Explore Dani's complex attraction\u2014her usual assertiveness complicated by her desire to protect Elliot's vulnerability, her excitement at witnessing his self-discovery, and her confusion about what this means for her own identity as someone typically attracted to more defined gender presentations. The narrative should capture the tender awkwardness of their conversations, Dani's internal struggle between taking charge and wanting to give Elliot agency, and the unexpected chemistry that develops as both find themselves in uncharted territory. <SEED> 1000 words.",
+    "seed_modifiers": [
+      "A stack of photo paper is accidentally exposed, rendering it useless mid-session.",
+      "Dani\u2019s phone silently buzzes in her pocket, but she ignores it to stay focused.",
+      "Elliot hums a soft tune while waiting for images to reveal in the chemical bath."
+    ]
+  },
+  "10": {
+    "category": "first-person unique perspective",
+    "title": "Hacker Mindset",
+    "writing_prompt": "Hacker Mindset\n\nWrite a first-person narrative from the perspective of a reformed (now) white hat hacker who cannot help but notice exploitable weaknesses in both systems and people they encounter. They habitually look for vulnerabilities and exploit vectors. The narrative takes place during a first date at a restaurant, where they're trying to focus on human connection. It's going surprisingly well due to a discovered shared nerd-fandom (magic the gathering). Things go a little sideways when the date reveals a noticeably insecure phone unlock pattern, which protagonist can't help but comment on. They are then left to negotiate the fallout of this faux pas and attempt to salvage (or perhaps sabotage) the remainder of the date. Write almost entirely in internal monologue. <SEED> 1000 words.",
+    "seed_modifiers": [
+      "The date drops breadcrumbs of personal information that could easily answer security questions.",
+      "The restaurant's WiFi password is visibly taped to the counter for all to see.",
+      "Throughout dinner, they mentally catalog every Magic card their date mentions that reveals their strategy preferences."
+    ]
+  }
+}

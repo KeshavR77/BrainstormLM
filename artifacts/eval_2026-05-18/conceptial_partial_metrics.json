@@ -1,0 +1,112 @@
+{
+  "benchmark_v2/conceptial_14b_outputs": {
+    "n": 8,
+    "vendi": 2.7948423751031313,
+    "near_dup": 0.0,
+    "self_bleu_4": 0.15977664086985596,
+    "mode_collapse_at_k": {
+      "n_clusters": 8,
+      "k": 8,
+      "coverage_ratio": 1.0
+    },
+    "stack": {
+      "model_id": "Qwen/Qwen2.5-14B-Instruct",
+      "steering": true,
+      "iterative_anti_mode": true,
+      "creative_layer": 17,
+      "technical_layer": 24,
+      "creative_alpha": 1.5,
+      "technical_alpha": 0.86,
+      "sweep_applied": {
+        "creative_layer": 17,
+        "creative_alpha": 1.5,
+        "creative_vector_path": "data/steering_14b/sweep/hyper_creative_purified_vector_L17.pt",
+        "source": "data/steering_14b/sweep/chosen_config.json"
+      }
+    }
+  },
+  "benchmark_v2/conceptial_14b_outputs_v2_motifs": {
+    "n": 8,
+    "vendi": 2.503911472706531,
+    "near_dup": 0.03571428571428571,
+    "self_bleu_4": 0.1511918601301747,
+    "mode_collapse_at_k": {
+      "n_clusters": 6,
+      "k": 8,
+      "coverage_ratio": 0.75
+    },
+    "stack": {
+      "model_id": "Qwen/Qwen2.5-14B-Instruct",
+      "steering": true,
+      "iterative_anti_mode": true,
+      "creative_layer": 17,
+      "technical_layer": 24,
+      "creative_alpha": 1.5,
+      "technical_alpha": 0.86,
+      "sweep_applied": {
+        "creative_layer": 17,
+        "creative_alpha": 1.5,
+        "creative_vector_path": "data/steering_14b/sweep/hyper_creative_purified_vector_L17.pt",
+        "source": "data/steering_14b/sweep/chosen_config.json"
+      },
+      "motif_excludes": [
+        "gears",
+        "cogs",
+        "cogwheels",
+        "gearwork",
+        "wrenches",
+        "blueprints",
+        "circuit boards",
+        "mechanical machinery"
+      ]
+    }
+  },
+  "benchmark_v3/conceptial_14b_outputs_v3_seeds": {
+    "n": 8,
+    "vendi": 2.4824568465229695,
+    "near_dup": 0.0,
+    "self_bleu_4": 0.14927910398348448,
+    "mode_collapse_at_k": {
+      "n_clusters": 8,
+      "k": 8,
+      "coverage_ratio": 1.0
+    },
+    "stack": {
+      "model_id": "Qwen/Qwen2.5-14B-Instruct",
+      "steering": true,
+      "iterative_anti_mode": true,
+      "creative_layer": 17,
+      "technical_layer": 24,
+      "creative_alpha": 1.5,
+      "technical_alpha": 0.86,
+      "sweep_applied": {
+        "creative_layer": 17,
+        "creative_alpha": 1.5,
+        "creative_vector_path": "data/steering_14b/sweep/hyper_creative_purified_vector_L17.pt",
+        "source": "data/steering_14b/sweep/chosen_config.json"
+      },
+      "motif_excludes": [
+        "gears",
+        "cogs",
+        "cogwheels",
+        "gearwork",
+        "wrenches",
+        "blueprints",
+        "circuit boards",
+        "mechanical machinery"
+      ]
+    }
+  },
+  "benchmark_v2/run_14b_stanford": {
+    "n": 8,
+    "vendi": 2.7948423751031313,
+    "near_dup": 0.0,
+    "self_bleu_4": 0.15977664086985596,
+    "mode_collapse_at_k": {
+      "n_clusters": 8,
+      "k": 8,
+      "coverage_ratio": 1.0
+    },
+    "stack": {}
+  }
+}
