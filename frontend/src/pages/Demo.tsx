@@ -1,14 +1,15 @@
 /**
- * Demo.tsx — Head-to-head image collage.
+ * Demo.tsx — Conceptial vs Gemini-direct (the headline comparison).
  *
- * Three arms (GPT-image, Claude, Conceptial 14B) generated the Stanford
- * engineering club logo. Each arm is shown as a vertical stack of 8
- * outputs — the visual story of how each model fills the brief.
+ * The cleanest experimental isolation we ship: same image renderer
+ * (Gemini), same brief, only the upstream text-prompt source changes.
+ * Left column: Conceptial 14B writes the descriptions, Gemini renders.
+ * Right column: Gemini gets the user's brief directly, no upstream LLM.
  *
- * Image assets live under frontend/public/demo/{gpt,anthropic,conceptial}/
- * and are produced by scripts/prep_demo_images.sh (square-cropped, webp at
- * q=75). Conceptial slots use SVG placeholders typeset with the concept
- * names from the cloud 14B run — real image renders land later this week.
+ * What you see: 8 distinct logos on the left vs 8 near-identical Stanford
+ * seal/gear variants on the right. That gap IS Conceptial's contribution.
+ *
+ * GPT-4o and Claude Opus 4.7 comparisons moved to /frontier.
  */
 
 import { ArrowLeft, ArrowRight } from 'lucide-react';
@@ -26,17 +27,6 @@ interface DemoCard {
   alt: string;
 }
 
-const GPT_CARDS: DemoCard[] = Array.from({ length: 8 }, (_, i) => ({
-  src: `/demo/gpt/${String(i + 1).padStart(2, '0')}.webp`,
-  alt: `GPT-4o direction ${i + 1}, rendered by Gemini: Stanford engineering club logo`,
-}));
-
-const CLAUDE_CARDS: DemoCard[] = Array.from({ length: 8 }, (_, i) => ({
-  src: `/demo/anthropic/${String(i + 1).padStart(2, '0')}.webp`,
-  alt: `Claude Opus 4.7 direction ${i + 1}, rendered by Gemini: Stanford engineering club logo`,
-}));
-
-// Concept names kept in alt text for screen readers / SEO, not displayed.
 const CONCEPT_NAMES = [
   "Engineer's Nexus",
   '3D Blueprint Vision',
@@ -48,14 +38,16 @@ const CONCEPT_NAMES = [
   'Inventive Horizon',
 ];
 
-// 03, 05, 06 carry a 'b' suffix because the previous bytes at the
-// unsuffixed paths got browser-cached when we swapped renders. Renaming
-// busts the cache cleanly without query strings.
 const CONCEPTIAL_FILENAMES = ['01', '02', '03b', '04', '05b', '06b', '07', '08'];
 
 const CONCEPTIAL_CARDS: DemoCard[] = CONCEPT_NAMES.map((name, i) => ({
   src: `/demo/conceptial/${CONCEPTIAL_FILENAMES[i]}.webp`,
   alt: `Conceptial 14B direction ${i + 1}, rendered by Gemini: ${name}`,
+}));
+
+const CONTROL_CARDS: DemoCard[] = Array.from({ length: 8 }, (_, i) => ({
+  src: `/demo/control/${String(i + 1).padStart(2, '0')}.webp`,
+  alt: `Gemini-direct rendering ${i + 1}: Stanford engineering club logo`,
 }));
 
 interface ColumnProps {
@@ -69,12 +61,11 @@ interface ColumnProps {
 function Column({ title, subtitle, swatchClass, cards, armLabel }: ColumnProps) {
   return (
     <div className="space-y-4">
-      {/* Column header */}
       <div className="border-b border-[var(--ink-line)] pb-3">
         <div className="flex items-center gap-2.5">
-          <span className={`inline-block w-2 h-2 rounded-full ${swatchClass}`} aria-hidden="true" />
+          <span className={`inline-block w-2.5 h-2.5 rounded-full ${swatchClass}`} aria-hidden="true" />
           <h2
-            className="font-display text-ink-0 text-[19px] tracking-tight"
+            className="font-display text-ink-0 text-[22px] tracking-tight"
             style={{ fontVariationSettings: '"wght" 520, "opsz" 24' }}
           >
             {title}
@@ -85,8 +76,7 @@ function Column({ title, subtitle, swatchClass, cards, armLabel }: ColumnProps) 
         </span>
       </div>
 
-      {/* Cards */}
-      <div className="space-y-5">
+      <div className="grid grid-cols-2 gap-5">
         {cards.map((card, i) => (
           <motion.figure key={card.src} variants={fadeRise} className="group">
             <div className="relative aspect-square overflow-hidden rounded-xl border border-[var(--ink-line)] bg-paper-1">
@@ -101,7 +91,7 @@ function Column({ title, subtitle, swatchClass, cards, armLabel }: ColumnProps) 
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.015]"
               />
             </div>
-            <figcaption className="mt-2 text-[12px] text-ink-2 tabular-nums">
+            <figcaption className="mt-2 text-[11px] text-ink-2 tabular-nums">
               {armLabel} · #{i + 1}
             </figcaption>
           </motion.figure>
@@ -129,29 +119,39 @@ export function Demo({ onBack, onOpenWorkspace }: DemoProps) {
             <span className="text-ink-2 text-[12px] hidden sm:inline">· Demo</span>
           </div>
 
-          <button
-            onClick={onOpenWorkspace}
-            className="bg-ink-0 text-paper text-[13px] font-medium px-4 py-2 rounded-full hover:bg-ink-1 transition-colors inline-flex items-center gap-1.5"
-          >
-            Workspace <ArrowRight size={14} />
-          </button>
+          <div className="flex items-center gap-1 sm:gap-2">
+            <a
+              href="#/frontier"
+              className="text-ink-1 hover:text-ink-0 text-[13px] px-3 py-1.5 rounded-md transition-colors hidden sm:inline-block"
+            >
+              Frontier
+            </a>
+            <button
+              onClick={onOpenWorkspace}
+              className="bg-ink-0 text-paper text-[13px] font-medium px-4 py-2 rounded-full hover:bg-ink-1 transition-colors inline-flex items-center gap-1.5"
+            >
+              Workspace <ArrowRight size={14} />
+            </button>
+          </div>
         </div>
       </header>
 
       {/* ── Hero ────────────────────────────────────────────── */}
       <section className="px-6 sm:px-10 pt-12 sm:pt-16 pb-8 max-w-7xl mx-auto">
         <div className="text-ink-2 text-[11px] uppercase tracking-[0.22em] mb-3">
-          Head-to-head
+          The headline comparison
         </div>
         <h1
           className="font-display text-ink-0 text-[clamp(34px,5vw,64px)] leading-[1.02] tracking-[-0.02em] mb-4"
           style={{ fontVariationSettings: '"wght" 380, "opsz" 144' }}
         >
-          Same brief. <em className="not-italic text-brand">Three answers.</em>
+          Same brief. Same renderer. <em className="not-italic text-brand">Different ideation engine.</em>
         </h1>
         <p className="text-ink-1 text-[15px] leading-relaxed max-w-2xl">
-          Eight directions each from GPT-4o, Claude Opus 4.7, and Conceptial
-          14B. Images rendered by the Gemini image model.
+          The Gemini image model gets the same Stanford-engineering-club brief
+          both ways. On the left, Conceptial 14B writes the visual descriptions
+          first. On the right, Gemini sees the user's query directly — no
+          upstream LLM. The visible gap is what Conceptial adds.
         </p>
       </section>
 
@@ -163,74 +163,49 @@ export function Demo({ onBack, onOpenWorkspace }: DemoProps) {
               The brief
             </span>
             <span className="text-ink-3 text-[11px]">
-              · logo-stanford-engineering · N=8 per arm · rendered by Gemini
+              · logo-stanford-engineering · N=8 per arm · same Gemini image model
             </span>
           </div>
           <p
             className="font-display text-ink-0 text-[18px] sm:text-[20px] leading-relaxed italic"
             style={{ fontVariationSettings: '"wght" 380, "opsz" 36' }}
           >
-            “Give me a creative logo for an engineering club at Stanford. I
-            want a three-sentence visual description suitable for an
-            image-generation prompt.”
+            “Give me a creative logo for an engineering club at Stanford.”
           </p>
         </aside>
       </section>
 
-      {/* ── Control CTA ─────────────────────────────────────── */}
-      <section className="px-6 sm:px-10 mt-6 max-w-7xl mx-auto">
-        <a
-          href="#/control"
-          className="group flex items-center justify-between gap-4 rounded-2xl border border-[var(--ink-line)] bg-paper-1/40 hover:bg-paper-1 px-5 sm:px-6 py-4 transition-colors"
-        >
-          <div>
-            <div className="text-[10px] uppercase tracking-[0.22em] text-ink-3 mb-1">
-              Control
-            </div>
-            <p className="text-ink-1 text-[14px] sm:text-[15px]">
-              Same brief, no upstream LLM — what does the renderer alone do?
-            </p>
-          </div>
-          <span className="shrink-0 inline-flex items-center gap-1.5 bg-ink-0 text-paper text-[13px] font-medium px-4 py-2 rounded-full group-hover:bg-ink-1 transition-colors">
-            See Gemini alone <ArrowRight size={14} />
-          </span>
-        </a>
-      </section>
-
-      {/* ── Comparison grid ─────────────────────────────────── */}
+      {/* ── Comparison grid (2 columns, 8 cards each in 2×4 sub-grids) ── */}
       <main className="px-6 sm:px-10 pt-10 pb-32 max-w-7xl mx-auto">
         <motion.section
           variants={staggerContainer}
           initial="hidden"
           animate="visible"
-          className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-10"
+          className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12"
         >
           <Column
-            title="GPT-4o"
-            subtitle="8 directions"
-            swatchClass="bg-emerald-500/70"
-            cards={GPT_CARDS}
-            armLabel="GPT-4o"
-          />
-          <Column
-            title="Claude Opus 4.7"
-            subtitle="8 directions"
-            swatchClass="bg-amber-500/80"
-            cards={CLAUDE_CARDS}
-            armLabel="Opus 4.7"
-          />
-          <Column
-            title="Conceptial 14B"
-            subtitle="8 directions"
+            title="Conceptial 14B → Gemini"
+            subtitle="Upstream ideation + render"
             swatchClass="bg-brand"
             cards={CONCEPTIAL_CARDS}
             armLabel="Conceptial"
+          />
+          <Column
+            title="Gemini direct"
+            subtitle="Renderer alone — no upstream LLM"
+            swatchClass="bg-ink-3"
+            cards={CONTROL_CARDS}
+            armLabel="Gemini"
           />
         </motion.section>
 
         {/* Footnote */}
         <p className="mt-12 text-ink-3 text-[12px] leading-relaxed max-w-2xl">
-          Independent single-shot generations of the same brief.
+          Both sides use the same Gemini image model. The only thing that
+          changes between columns is whether an upstream LLM (Conceptial 14B)
+          writes a richer image-generation prompt first. For the cross-vendor
+          comparison vs GPT-4o and Claude Opus 4.7, see{' '}
+          <a href="#/frontier" className="text-ink-1 underline decoration-ink-3 underline-offset-2 hover:text-ink-0">the Frontier page</a>.
         </p>
       </main>
     </div>

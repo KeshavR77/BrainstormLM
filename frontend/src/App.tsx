@@ -4,8 +4,9 @@
  * Routes:
  *   #/             → Corpus 1 Landing (marketing + demo CTA)
  *   #/gauntlet     → Gauntlet (live steered generation demo)
- *   #/demo         → Demo (head-to-head logo collage)
- *   #/control      → Control (Gemini-direct baseline)
+ *   #/demo         → Demo (Conceptial vs Gemini-direct — headline 2-way)
+ *   #/frontier     → Frontier (3-arm cross-vendor: GPT-4o / Claude / Conceptial)
+ *   #/control      → Control (Gemini-direct alone, 16 outputs)
  *   #/app          → Dashboard (project listing)
  *   #/project/:id  → Canvas (brainstorm workspace)
  */
@@ -19,6 +20,7 @@ import { Gauntlet } from './pages/Gauntlet';
 import { Dashboard } from './pages/Dashboard';
 import { Canvas } from './pages/Canvas';
 import { Demo } from './pages/Demo';
+import { Frontier } from './pages/Frontier';
 import { Control } from './pages/Control';
 import { IntroSplash } from './components/IntroSplash';
 
@@ -26,6 +28,7 @@ type Route =
   | { page: 'landing' }
   | { page: 'gauntlet' }
   | { page: 'demo' }
+  | { page: 'frontier' }
   | { page: 'control' }
   | { page: 'dashboard' }
   | { page: 'canvas'; projectId: string };
@@ -41,6 +44,9 @@ function parseRoute(): Route {
   }
   if (hash === '#/demo' || hash.startsWith('#/demo/')) {
     return { page: 'demo' };
+  }
+  if (hash === '#/frontier' || hash.startsWith('#/frontier/')) {
+    return { page: 'frontier' };
   }
   if (hash === '#/control' || hash.startsWith('#/control/')) {
     return { page: 'control' };
@@ -110,6 +116,8 @@ export default function App() {
         return <Gauntlet onBack={openLanding} />;
       case 'demo':
         return <Demo onBack={openLanding} onOpenWorkspace={openDashboard} />;
+      case 'frontier':
+        return <Frontier onBack={openLanding} onOpenWorkspace={openDashboard} />;
       case 'control':
         return <Control onBack={openLanding} onOpenDemo={openDemo} onOpenWorkspace={openDashboard} />;
       case 'dashboard':
