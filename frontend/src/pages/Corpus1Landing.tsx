@@ -35,7 +35,7 @@ const PRINCIPLES = [
 
 const METRICS = [
   { value: '−86%',     label: 'Fewer repeat answers',      note: 'Near-duplicate rate 0.010 vs 0.070 baseline — 7× fewer near-identical ideas (cos ≥ 0.92, text-embedding-3-small)', tone: 'gen' as const,   hue: 320 },
-  { value: '10 / 10',  label: 'Distinct modes at K=10',    note: 'Repeated-prompt stress: every regeneration is unique. Same model unsteered returns 8 / 10.',                       tone: 'gen' as const,   hue: 280 },
+  { value: '10 / 10',  label: 'Distinct modes at K=10',    note: 'Repeated-prompt stress test — every regeneration produces a distinct semantic mode (cos ≥ 0.85 cluster threshold).',  tone: 'gen' as const,   hue: 280 },
   { value: '+8.7%',    label: 'Creative writing quality',  note: 'EQ-Bench Creative v3 composite 5.52 vs 5.08 baseline (10-prompt subset, gpt-4o-mini judge, 20-criterion rubric)',  tone: 'gen' as const,   hue: 25  },
   { value: '100%',     label: 'Quality gate pass',         note: 'Coherence ≥ 3 AND on-topic ≥ 4 on every judged sample — diversity gains, no quality regression.',                  tone: 'brand' as const, hue: 0   },
 ];
@@ -159,15 +159,15 @@ export function Corpus1Landing({ onLaunchGauntlet, onLaunchDemo, onOpenWorkspace
             >
               <span className="inline-flex items-center gap-1.5">
                 <span className="h-1 w-1 rounded-full bg-brand" />
-                −18% repeat answers
+                −86% repeat answers
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <span className="h-1 w-1 rounded-full" style={{ background: 'oklch(0.62 0.20 140)' }} />
-                +11% answer diversity
+                10 / 10 distinct modes
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <span className="h-1 w-1 rounded-full" style={{ background: 'oklch(0.62 0.20 200)' }} />
-                +25% more correct paths
+                +8.7% creative quality
               </span>
             </motion.div>
           </motion.div>
