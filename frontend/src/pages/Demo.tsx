@@ -48,8 +48,13 @@ const CONCEPT_NAMES = [
   'Inventive Horizon',
 ];
 
+// 03, 05, 06 carry a 'b' suffix because the previous bytes at the
+// unsuffixed paths got browser-cached when we swapped renders. Renaming
+// busts the cache cleanly without query strings.
+const CONCEPTIAL_FILENAMES = ['01', '02', '03b', '04', '05b', '06b', '07', '08'];
+
 const CONCEPTIAL_CARDS: DemoCard[] = CONCEPT_NAMES.map((name, i) => ({
-  src: `/demo/conceptial/${String(i + 1).padStart(2, '0')}.webp`,
+  src: `/demo/conceptial/${CONCEPTIAL_FILENAMES[i]}.webp`,
   alt: `Conceptial 14B direction ${i + 1}, rendered by Gemini: ${name}`,
 }));
 
