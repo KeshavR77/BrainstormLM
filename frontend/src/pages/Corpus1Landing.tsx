@@ -4,11 +4,10 @@
  * Pollen × Prism palette. Editorial Fraunces display + Inter Variable body.
  * Sections (top → bottom):
  *   1. Hero — wordmark, headline, CTAs, animated idea-tree centerpiece.
- *   2. Principles — three editorial lines.
- *   3. Comparison scrubber — linear vs Conceptial split, scroll-driven.
- *   4. Science strip — compressed metric chips.
- *   5. Waitlist — minimal email form.
- *   6. Footer — wordmark + minimal links.
+ *   2. Comparison scrubber — linear vs Conceptial split, scroll-driven.
+ *   3. Science strip — compressed metric chips.
+ *   4. Waitlist — minimal email form.
+ *   5. Footer — wordmark + minimal links.
  */
 
 import { useCallback, useRef, useState } from 'react';
@@ -26,12 +25,6 @@ interface Props {
   onLaunchDemo: () => void;
   onOpenWorkspace: () => void;
 }
-
-const PRINCIPLES = [
-  'The first answer is rarely the best answer.',
-  'Diversity over polish. Coverage over consensus.',
-  'A search through ideas, not a vote between them.',
-];
 
 const METRICS = [
   { value: '−86%',     label: 'Fewer repeat answers',      note: 'Near-duplicate rate 0.010 vs 0.070 baseline — 7× fewer near-identical ideas (cos ≥ 0.92, text-embedding-3-small)', tone: 'gen' as const,   hue: 320 },
@@ -183,44 +176,6 @@ export function Corpus1Landing({ onLaunchGauntlet, onLaunchDemo, onOpenWorkspace
               <HeroTreeGrowth className="px-6 py-5 sm:px-8 sm:py-7" />
             </div>
           </motion.div>
-        </div>
-      </section>
-
-      {/* ── PRINCIPLES ───────────────────────────────────────────────── */}
-      <section className="relative py-24 sm:py-32 px-6 sm:px-10 border-t border-ink-line">
-        <div className="max-w-5xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 14 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-80px' }}
-            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="inline-flex items-center gap-2.5 text-ink-2 text-[11px] uppercase tracking-[0.22em] mb-12"
-          >
-            <span className="h-px w-6 bg-ink-3" />
-            Principles
-          </motion.div>
-          <ol className="space-y-6 sm:space-y-9">
-            {PRINCIPLES.map((p, i) => (
-              <li key={p} className="overflow-hidden">
-                <motion.div
-                  initial={{ y: 60, opacity: 0 }}
-                  whileInView={{ y: 0, opacity: 1 }}
-                  viewport={{ once: true, amount: 0.1 }}
-                  transition={{ duration: 0.95, ease: [0.22, 1, 0.36, 1], delay: i * 0.12 }}
-                  className="font-display text-ink-0 text-[clamp(28px,4.6vw,60px)] leading-[1.06] tracking-[-0.018em] flex items-baseline gap-5"
-                  style={{ fontVariationSettings: `"wght" ${360 + i * 40}, "opsz" ${72 + i * 20}` }}
-                >
-                  <span
-                    className="font-mono tabular-nums text-[0.32em] text-ink-3 tracking-[0.1em] pt-2"
-                    style={{ fontVariationSettings: 'normal' }}
-                  >
-                    {`0${i + 1} —`}
-                  </span>
-                  <span>{p}</span>
-                </motion.div>
-              </li>
-            ))}
-          </ol>
         </div>
       </section>
 

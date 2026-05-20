@@ -1,10 +1,9 @@
 /**
  * useProjects.ts — Project CRUD with localStorage persistence.
  *
- * Always merges the canonical demo projects (onboarding demo + the three
- * creative-ops-themed seeded projects) into whatever the user has in localStorage,
- * so the dashboard never opens to an empty state and the seeded demos can't
- * be accidentally deleted.
+ * Always merges the canonical demo project (the onboarding demo) into
+ * whatever the user has in localStorage, so the dashboard never opens to an
+ * empty state and the seeded demo can't be accidentally deleted.
  */
 
 import { useCallback, useEffect, useState } from 'react';
@@ -13,12 +12,11 @@ import {
   DEMO_PROJECT,
   DEMO_PROJECT_ID,
   PROTECTED_PROJECT_IDS,
-  SEEDED_DEMO_PROJECTS,
 } from '../lib/demoProject';
 
 const STORAGE_KEY = 'brainstorm-projects';
 
-const CANONICAL_DEMOS: Project[] = [DEMO_PROJECT, ...SEEDED_DEMO_PROJECTS];
+const CANONICAL_DEMOS: Project[] = [DEMO_PROJECT];
 
 function mergeWithDemos(saved: Project[]): Project[] {
   // For each canonical demo, prefer the saved row if one exists (so
