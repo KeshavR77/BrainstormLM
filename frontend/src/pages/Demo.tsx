@@ -40,10 +40,10 @@ const CLAUDE_CARDS: DemoCard[] = Array.from({ length: 8 }, (_, i) => ({
 const CONCEPT_NAMES = [
   "Engineer's Nexus",
   '3D Blueprint Vision',
-  'Craftsmanship Convergence',
+  '3D Circuit Bloom',
   'Quantum Gear Revolution',
-  'Innovate Connect',
-  'Inspire Mechanism',
+  'Innovate Core',
+  'Infinite Blueprint Maze',
   'Bridge to Innovation',
   'Inventive Horizon',
 ];
