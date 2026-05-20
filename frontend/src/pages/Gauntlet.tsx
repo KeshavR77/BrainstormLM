@@ -26,27 +26,27 @@ const DEMO_IDEA_MAPS = [
 
 const METRICS = [
   {
-    label: 'More distinct strategies',
-    value: '14 vs 4',
-    note: 'Baseline collapses to 4 archetypes; Conceptial returns 14',
+    label: 'Distinct modes at K=10',
+    value: '10 / 10',
+    note: 'Every regeneration unique; baseline collapses to 8 / 10 (cos ≥ 0.85 clusters)',
     hue: depthHue(0),
   },
   {
-    label: 'More correct paths',
-    value: '+25%',
-    note: 'Pass@5 — 5 / 5 valid answers vs 4 / 5 baseline',
+    label: 'Fewer repeat answers',
+    value: '−86%',
+    note: 'Near-duplicate rate 0.010 vs 0.070 baseline — 7× fewer near-identical ideas',
     hue: depthHue(1),
   },
   {
     label: 'Quality gate pass',
     value: '100%',
-    note: 'Coherence + relevance held on every judged sample',
+    note: 'Coherence ≥ 3 AND on-topic ≥ 4 on every judged sample',
     hue: -1 /* brand */,
   },
 ];
 
 const STRATEGY_VARIETY_NOTE =
-  'Same prompt, same model — only the steering vector changes. The baseline LLM lands on one popular angle and a few near-duplicates; Conceptial fans into 14 separate strategic modes that each pass the quality gate.';
+  'Same prompt, same model — only the steering vector changes. Baseline lands on one popular angle and produces 8 distinct modes across 10 regenerations; Conceptial returns 10 of 10, each passing the quality gate.';
 
 interface GauntletProps { onBack: () => void }
 

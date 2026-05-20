@@ -34,10 +34,10 @@ const PRINCIPLES = [
 ];
 
 const METRICS = [
-  { value: '−18%',  label: 'Fewer repeat answers',   note: 'Near-duplicate rate 0.27 vs 0.33 baseline',     tone: 'gen' as const, hue: 320 },
-  { value: '+11%',  label: 'More answer diversity',  note: 'Vendi score 1.29 vs 1.17 baseline',             tone: 'gen' as const, hue: 280 },
-  { value: '+25%',  label: 'More correct paths',     note: 'Pass@5 — 1+ valid answer in 5 attempts',        tone: 'gen' as const, hue: 25  },
-  { value: '100%',  label: 'Quality gate pass',      note: 'Coherence + relevance, every judged sample',    tone: 'brand' as const, hue: 0  },
+  { value: '−86%',     label: 'Fewer repeat answers',      note: 'Near-duplicate rate 0.010 vs 0.070 baseline — 7× fewer near-identical ideas (cos ≥ 0.92, text-embedding-3-small)', tone: 'gen' as const,   hue: 320 },
+  { value: '10 / 10',  label: 'Distinct modes at K=10',    note: 'Repeated-prompt stress: every regeneration is unique. Same model unsteered returns 8 / 10.',                       tone: 'gen' as const,   hue: 280 },
+  { value: '+8.7%',    label: 'Creative writing quality',  note: 'EQ-Bench Creative v3 composite 5.52 vs 5.08 baseline (10-prompt subset, gpt-4o-mini judge, 20-criterion rubric)',  tone: 'gen' as const,   hue: 25  },
+  { value: '100%',     label: 'Quality gate pass',         note: 'Coherence ≥ 3 AND on-topic ≥ 4 on every judged sample — diversity gains, no quality regression.',                  tone: 'brand' as const, hue: 0   },
 ];
 
 export function Corpus1Landing({ onLaunchGauntlet, onLaunchDemo, onOpenWorkspace }: Props) {
@@ -357,7 +357,7 @@ export function Corpus1Landing({ onLaunchGauntlet, onLaunchDemo, onOpenWorkspace
               className="font-display text-ink-0 text-[clamp(22px,3vw,32px)] tracking-[-0.012em] max-w-2xl"
               style={{ fontVariationSettings: '"wght" 440, "opsz" 48' }}
             >
-              Conceptial vs the same model unsteered, on a repeated-prompt stress test.
+              Conceptial vs the same model unsteered — Qwen2.5-14B-Instruct, identical sampling, only the steering changes.
             </h3>
           </motion.div>
 

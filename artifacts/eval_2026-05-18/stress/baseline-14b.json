@@ -1,0 +1,77 @@
+{
+  "prompt_id": "logo-stanford-engineering",
+  "arm": "baseline-14b",
+  "k": 10,
+  "outputs": [
+    {
+      "model": "baseline-14b",
+      "k": 0,
+      "text": "GearSpires\n\nA sleek, metallic gear in the foreground partially overlaps with the silhouette of Stanford's Tower in the background, creating a dynamic interplay between academic heritage and innovative engineering. The colors are a combination of deep navy blue representing Stanford's official color and vibrant silver to highlight the precision and modernity of engineering. The design is minimalist yet impactful, perfectly capturing the essence of combining historical prestige with cutting-edge technology.",
+      "trajectory_id": "160321e9ff5748a2b418c424edcafd48",
+      "temperature": 0.75
+    },
+    {
+      "model": "baseline-14b",
+      "k": 1,
+      "text": "GearsTurningStars\n\nA circular badge featuring interlocking gears in silver and blue, with a small five-pointed star prominently placed at the center, radiating outward in delicate lines of gold. The background of the badge is a gradient that transitions from deep navy to lighter blues, symbolizing the club's connection to both the university and the broader engineering community.",
+      "trajectory_id": "c5f32a6512a54548925408d2f58ec51f",
+      "temperature": 0.811803
+    },
+    {
+      "model": "baseline-14b",
+      "k": 2,
+      "text": "GearHead Genesis\n\nA circular emblem featuring interlocking gears with the colors of Stanford University; the gears form a face-like silhouette with eyes and a mouth, symbolizing intelligence and community. Beneath this, the text \"Stanford Engineering Club\" is written in a sleek, modern font that complements the mechanical theme without overpowering it.",
+      "trajectory_id": "c5c8d853aa5645ebbbb455d0242f9931",
+      "temperature": 0.773606
+    },
+    {
+      "model": "baseline-14b",
+      "k": 3,
+      "text": "Innovate Together\n\nA sleek, modern compass overlaid on a blueprint of Stanford's campus, symbolizing navigation through academic and engineering challenges. The compass needle points towards the iconic Hoover Tower, highlighting the club\u2019s focus and ambition. The colors are vibrant blue and electric yellow, representing innovation and creativity within the realm of engineering.",
+      "trajectory_id": "347bfd7639084635887d40d4f65b431c",
+      "temperature": 0.8354090000000001
+    },
+    {
+      "model": "baseline-14b",
+      "k": 4,
+      "text": "Nexus Minds\n\nA sleek, circular emblem featuring interconnected gears and neural synapses in vibrant shades of blue and gold, symbolizing innovation and intelligence. At the center, the words \"Stanford Engineering Club\" are inscribed in a modern, clean font, reflecting precision and forward-thinking. Below the emblem, a smaller ring outlines the motto \"Building Tomorrow\u2019s Innovators,\" emphasizing their mission to foster future leaders in technology and engineering.",
+      "trajectory_id": "5cb6834dfbf349a49256872224139ee3",
+      "temperature": 0.797212
+    },
+    {
+      "model": "baseline-14b",
+      "k": 5,
+      "text": "GearForge\n\nCreate a vibrant, dynamic logo featuring interlocking cogs forming a shield shape, symbolizing protection and unity. Above the shield, incorporate the silhouette of Stanford's iconic tower, merging engineering prowess with academic heritage. Use a palette of silver and dark blue to reflect sophistication and innovation.",
+      "trajectory_id": "156690a22ed340a28efe3dbbddb47ecc",
+      "temperature": 0.759015
+    },
+    {
+      "model": "baseline-14b",
+      "k": 6,
+      "text": "GearSphere\n\nA sleek, silver sphere slightly flattened at the poles, encircled by evenly spaced gears of varying sizes, representing unity and interconnection. The sphere's surface is etched with mathematical equations and circuit diagrams in a contrasting dark grey, symbolizing innovation and technical prowess. Above the sphere floats a small, transparent Stanford University \"S\" monogram, glowing softly in blue to denote academic excellence and pride.",
+      "trajectory_id": "92a304e28dd54054bbc7f7a14dab6e61",
+      "temperature": 0.820818
+    },
+    {
+      "model": "baseline-14b",
+      "k": 7,
+      "text": "Nexus Inventors Emblem\n\nA sleek, metallic gear merges seamlessly into the shape of a university crest, symbolizing both the mechanical prowess and academic excellence. The colors gold and charcoal black contrast sharply, evoking images of precision and sophistication against a backdrop of innovation. Encircling the emblem is the text \"Stanford Engineering Club\" in a modern, clean font, ensuring clarity and readability from a distance.",
+      "trajectory_id": "49a37bc7fee34144b65b8e2aa9406175",
+      "temperature": 0.782621
+    },
+    {
+      "model": "baseline-14b",
+      "k": 8,
+      "text": "Nexus Minds\n\nA sleek, circular emblem featuring interconnected gears and circuitry forming a human outline. The colors are deep blue and metallic silver, symbolizing technology and intellect. Inside the circle, in modern sans-serif font, reads \"Stanford Engineering Club\" above an iconic Stanford tree made of wires suggesting innovation and community.",
+      "trajectory_id": "9a06dbb12a6748b394f24123026e6892",
+      "temperature": 0.8444240000000001
+    },
+    {
+      "model": "baseline-14b",
+      "k": 9,
+      "text": "GearsUnited\n\nA circular badge featuring interlocking gears in shades of silver and blue, symbolizing unity and precision. At the center, a bold 'SU' is inscribed, with 'S' morphing into an engineer's screwdriver and 'U' into a wrench, representing tools of the trade. The badge is encircled by a thin golden ring, adorned above with \"Stanford Engineering Club\" in sleek, modern font below the emblem.",
+      "trajectory_id": "730670308ade4285825b3d572711a099",
+      "temperature": 0.806227
+    }
+  ]
+}

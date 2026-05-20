@@ -1,0 +1,15 @@
+{
+  "prompt_id": "1",
+  "category": "historical fiction",
+  "title": "Gladiator",
+  "arm": "baseline-14b",
+  "outputs": [
+    {
+      "model": "baseline-14b",
+      "k": 0,
+      "text": "Echoes of Minerva\n\nThe sun hung low in the sky, casting a golden hue over the bustling city of Rome. Sweat dripped down my spine as I made my way through the narrow, crowded streets, the scent of roasting meat mingling with the acrid smell of smoke from distant fires. My sandals slapped against the worn cobblestones as I weaved through throngs of citizens; merchants called out their wares, children laughed, and dogs barked\u2014a symphony of everyday life.\n\nMy mind wandered to the statue of Minerva that stood tall in the Forum, her serene gaze always an inspiration to me. Unlike many who worshiped Mars for his might, I found solace in Minerva\u2019s wisdom and strategic prowess. Today, however, was more about survival than strategy; I was summoned to the baths to prepare for tonight\u2019s spectacle at the Colosseum. Yet, amidst the preparation, my thoughts were heavy with the weight of our empire's political uncertainties.\n\nThe baths were a sanctuary of sorts, where I could find fleeting peace among towering marble columns and soothing pools of steaming water. As I scrubbed away the grime of street life, the sounds of gossip and laughter around me faded into a soft hum. It was there, surrounded by the gentle whispers of water and the warm embrace of steam, that I allowed myself to reflect on more than just physical cleanliness. In the quiet moments between the splashes and the strokes of olive oil across my skin, I pondered the fate of the Empire, a sprawling entity that felt both untouchable and fragile all at once.\n\nTonight, as I faced the crowd, I would embody strength and endurance, but here, in the tranquil depths of the baths, I sought the guidance of Minerva, hoping her wisdom could steer us towards a future where fear did not overshadow hope.",
+      "trajectory_id": "d31e7b8362354f2e81886093a3a52b15",
+      "temperature": 0.75
+    }
+  ]
+}

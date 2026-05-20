@@ -1,0 +1,41 @@
+{
+  "prompt_id": "campaign-fintech-trust",
+  "arm": "baseline-14b",
+  "outputs": [
+    {
+      "model": "baseline-14b",
+      "k": 0,
+      "text": "SafeHands\n\nBuilding trust in financial technology hinges on reassuring users they are in control. \"SafeHands\" positions the app as a secure and intuitive partner, emphasizing features like real-time transaction alerts, biometric security, and transparent fee structures through a mascot of a hand protecting a smartphone. The campaign visually portrays SafeHands guiding users through every step, from setting budgets to monitoring spending, ensuring peace of mind in managing finances.",
+      "trajectory_id": "4daf2141b97545ff8d896a4d832fcf74",
+      "temperature": 0.75
+    },
+    {
+      "model": "baseline-14b",
+      "k": 1,
+      "text": "SafeHaven Finance\n\nBuilding trust in finance means creating a sanctuary where users feel secure and valued every step of their financial journey. This campaign positions the app as a guardian of your finances, using imagery and stories that highlight its role in protecting personal data, offering transparent services, and providing clear, actionable advice tailored to individual needs. Emphasize community support through user testimonials and expert guidance to reinforce reliability and foster user confidence in handling their finances digitally.",
+      "trajectory_id": "9c2a502d450245b19117d42ceb4aa684",
+      "temperature": 0.811803
+    },
+    {
+      "model": "baseline-14b",
+      "k": 2,
+      "text": "SecureSolemn\n\nBuilding trust in a financial app hinges on transparency and security. SecureSolem offers an interactive journey where users can customize their privacy settings, understand data encryption methods, and see real-time transaction confirmations in a clear, user-friendly interface. This approach not only educates but also empowers users by giving them full control over their financial information, fostering a sense of safety and reliability.",
+      "trajectory_id": "31002807690e400581e6835fdf961352",
+      "temperature": 0.773606
+    },
+    {
+      "model": "baseline-14b",
+      "k": 3,
+      "text": "TrustedVault\n\nBuilding trust with a new fintech app hinges on transparency and security. TrustedVault will campaign around these pillars by implementing user-friendly encryption visuals, displaying real-time updates of security measures, and offering an educational series on financial safety. The campaign will also feature testimonials from cybersecurity experts and everyday users, ensuring a relatable and authoritative endorsement.",
+      "trajectory_id": "c6d88d0e713245b88649f5e8d13be6dc",
+      "temperature": 0.8354090000000001
+    },
+    {
+      "model": "baseline-14b",
+      "k": 4,
+      "text": "SafeHaven Finance\n\nBuilding trust in a new fintech application hinges on demonstrating reliability and security. The SafeHaven Finance campaign focuses on transparency, showcasing the robust security measures in place and the stringent compliance standards the app adheres to. Through a series of interactive infographics and testimonials from financial experts, users learn about the app's commitment to protecting their data and ensuring safe transactions. A key component is the 'Trust Center' feature within the app, which allows users to access real-time updates about security protocols and incident responses, fostering a continuous dialogue on safety and transparency.",
+      "trajectory_id": "a8292ffc0a194bc8bef16fa7961b2a0a",
+      "temperature": 0.797212
+    }
+  ]
+}

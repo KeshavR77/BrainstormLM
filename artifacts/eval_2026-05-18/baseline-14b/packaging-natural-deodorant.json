@@ -1,0 +1,41 @@
+{
+  "prompt_id": "packaging-natural-deodorant",
+  "arm": "baseline-14b",
+  "outputs": [
+    {
+      "model": "baseline-14b",
+      "k": 0,
+      "text": "EcoWrap\n\nEcoWrap presents a sleek, compostable paper tube lined internally with a biodegradable PLA film to ensure product integrity while allowing it to decompose naturally post-use. The outer paper is printed using eco-friendly inks and can be personalized with a unique scent or color for each variant, encouraging users to collect them all. An easy-to-grip corrugated texture on the exterior not only provides a secure hold but also minimizes slippage for smooth application.",
+      "trajectory_id": "d8a53b2bfecd4260a1e5f8a5862b20e1",
+      "temperature": 0.75
+    },
+    {
+      "model": "baseline-14b",
+      "k": 1,
+      "text": "EarthSleeve Wrapped Protection\n\nEach deodorant is encased in a biodegradable, plant-based sleeve, elegantly wrapping around the product much like a gift. The sleeve is designed to be both protective and attractive, featuring a subtle texture that adds a tactile element to the unboxing experience. Made from sustainably sourced fibers, it ensures an eco-friendly journey from production to disposal. The surface of the sleeve can be customized with a range of patterns or messages, enhancing its appeal while promoting environmental responsibility.",
+      "trajectory_id": "edbe9ad969ee45c6ab11d3cf43b4d812",
+      "temperature": 0.811803
+    },
+    {
+      "model": "baseline-14b",
+      "k": 2,
+      "text": "EarthCycle Capsules\n\nCapsules made from biodegradable starch-based material, each containing a single application of deodorant. The surface is textured to allow easy grip and has a plant-based label that peels off effortlessly, ensuring zero waste after use.",
+      "trajectory_id": "2dfb895ee81541299f01aaecff3e0c5f",
+      "temperature": 0.773606
+    },
+    {
+      "model": "baseline-14b",
+      "k": 3,
+      "text": "EcoWrap\n\nEcoWrap introduces an innovative, plastic-free packaging solution designed specifically to enhance the appeal of natural deodorants. The core structure consists of a biodegradable cardboard container, adorned with a removable wooden lid that doubles as a convenient application tool, ensuring easy access while maintaining hygiene. The outer sleeve features a minimalist design printed with eco-friendly ink, highlighting the product's ingredients and benefits subtly yet clearly. This sustainable approach not only minimizes environmental impact but also offers a tactile, premium experience for consumers committed to green living.",
+      "trajectory_id": "1cea73270373401b97439644462fa990",
+      "temperature": 0.8354090000000001
+    },
+    {
+      "model": "baseline-14b",
+      "k": 4,
+      "text": "Seed Pod Protection\n\nThe packaging mimics nature\u2019s own protective seed pods, using biodegradable paper pulp as the core structure. Embedded within the soft, textured paper is a compostable inner sleeve made from bamboo fiber, which gently holds the solid deodorant bar in place. The exterior is stamped with intricate, leaf-inspired patterns, adding both aesthetic appeal and a tactile experience that aligns with the brand's commitment to the environment.",
+      "trajectory_id": "29732715e57e4a4b8a7e5770f8b9fe2e",
+      "temperature": 0.797212
+    }
+  ]
+}

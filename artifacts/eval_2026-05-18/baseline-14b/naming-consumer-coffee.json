@@ -1,0 +1,41 @@
+{
+  "prompt_id": "naming-consumer-coffee",
+  "arm": "baseline-14b",
+  "outputs": [
+    {
+      "model": "baseline-14b",
+      "k": 0,
+      "text": "BeanCycle\n\nBeanCycle draws its inspiration from the cyclical nature of coffee cultivation and consumption, emphasizing sustainability and community involvement in the coffee industry. The name suggests a continuous loop where consumers can directly impact sustainable practices through their subscriptions, from the farm to their cup. It evokes feelings of eco-consciousness, quality assurance, and a global connection, perfect for attracting socially aware, discerning coffee enthusiasts who value more than just the taste in their morning brew.",
+      "trajectory_id": "3973335a57e544f080166ac1bed6d40c",
+      "temperature": 0.75
+    },
+    {
+      "model": "baseline-14b",
+      "k": 1,
+      "text": "Bean Voyage\n\nBean Voyage evokes a sense of global exploration and adventure through the diverse world of coffee. Each month, subscribers embark on a new \"journey\" to different regions, experiencing unique flavors and origins. The name captures both the excitement of discovery and the comfort of a familiar ritual, making it perfect for coffee enthusiasts who appreciate both quality and variety.",
+      "trajectory_id": "78364c017f5f4e6d92a3e07e8521dd68",
+      "temperature": 0.811803
+    },
+    {
+      "model": "baseline-14b",
+      "k": 2,
+      "text": "BeanScribe Chronicles\n\nBeanScribe Chronicles evokes a literary journey through the world of coffee, where each box subscribers receive is akin to turning the pages of an intriguing novel. The name blends \"Bean,\" emblematic of the product\u2019s core ingredient, with \"Scribe,\" hinting at the artisan\u2019s meticulous care and storytelling behind each blend. This naming strategy aims to build a sense of curiosity and adventure, inviting coffee enthusiasts on a flavorful narrative that highlights unique origins, roasting techniques, and cultural stories tied to each shipment.",
+      "trajectory_id": "8ca4eb3472704ad3897a6e4f145bdf5d",
+      "temperature": 0.773606
+    },
+    {
+      "model": "baseline-14b",
+      "k": 3,
+      "text": "SipStory\n\nSipStory weaves together the essence of sipping premium, artisanal coffee with the unfolding of an intimate narrative through each monthly delivery. Originating from the idea that every cup has a story\u2014of the beans' journey, the roaster's artistry, and the brewer's ritual\u2014the name aims to create a deep emotional connection with subscribers, positioning SipStory not just as a coffee service but as a monthly escape into diverse and compelling coffee narratives. The brand's feel is warm, sophisticated, and slightly bohemian, inviting subscribers to be the protagonist in their own gourmet coffee tales.",
+      "trajectory_id": "203494bc75154ce9a240914d38ae08a7",
+      "temperature": 0.8354090000000001
+    },
+    {
+      "model": "baseline-14b",
+      "k": 4,
+      "text": "Brewscape\n\nBrewscape evokes the idea of exploring diverse coffee landscapes through the sensory journey of each sip. This name blends \u201cbrew\u201d to signify the coffee-making process and \u201cscape,\u201d as in landscape or vista, which hints at the expansive variety of flavors and origins available in every subscription box. The intended brand feel is adventurous and worldly, appealing to coffee enthusiasts who appreciate both the craft and the cultural stories behind their beverages.",
+      "trajectory_id": "af1d1cc035d04cd7927ccdcb82c83506",
+      "temperature": 0.797212
+    }
+  ]
+}

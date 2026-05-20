@@ -1,0 +1,41 @@
+{
+  "prompt_id": "campaign-sustainable-footwear",
+  "arm": "baseline-14b",
+  "outputs": [
+    {
+      "model": "baseline-14b",
+      "k": 0,
+      "text": "TrailBlend: Merge Earth & Pavement\n\nTrailBlend invites urban runners to embrace the duality of their city\u2019s concrete jungles and natural trails with footwear that transcends surfaces. This campaign positions the shoe as the ultimate companion for those who refuse to choose between scenic hikes and bustling city runs, offering durability, comfort, and eco-conscious innovation in every step. Through dynamic visuals and compelling narratives, TrailBlend showcases real-life stories of urban adventurers seamlessly blending their passions for nature and city life into a cohesive, sustainable stride.",
+      "trajectory_id": "db9047c1b7574be6b9e98ac514a0b9f1",
+      "temperature": 0.75
+    },
+    {
+      "model": "baseline-14b",
+      "k": 1,
+      "text": "TrailBound Urban Sol\n\nTrailBound Urban Sol celebrates the fusion of urban agility and natural exploration, inviting city dwellers to step into versatile footwear crafted from recycled materials that promise durability and elegance. This campaign highlights the adventure within city limits and beyond, encouraging a green lifestyle through every stride.",
+      "trajectory_id": "d8d0cac79eb84c32962f721ff3fb3031",
+      "temperature": 0.811803
+    },
+    {
+      "model": "baseline-14b",
+      "k": 2,
+      "text": "TrailBound Urban Sol\n\nExperience the seamless blend of city streets and nature trails with TrailBound Urban Sol, designed to empower runners who refuse to be confined by terrain or environment. This shoe marries cutting-edge sustainability with robust performance, ensuring every step you take is both guilt-free and powerful, from bustling sidewalks to winding forest paths.",
+      "trajectory_id": "26ae002904d644679c07ce4165693afe",
+      "temperature": 0.773606
+    },
+    {
+      "model": "baseline-14b",
+      "k": 3,
+      "text": "TrailBound Urban Adventure\n\nElevate your run with TrailBound, where every step merges the ruggedness of nature with the hustle of the city. This campaign celebrates the seamless transition from concrete to trails, highlighting our sustainable shoe crafted for dual-purpose excellence. It's about more than just footsteps; it's a commitment to the environment, designed for the modern explorer who refuses to compromise on performance or planet.",
+      "trajectory_id": "6f6eb7a3d8a842c18537bf7cf3ec1e89",
+      "temperature": 0.8354090000000001
+    },
+    {
+      "model": "baseline-14b",
+      "k": 4,
+      "text": "EcoStride Fusion\n\nImagine running through bustling city streets by day, seamlessly transitioning to serene forest trails at dusk, all in one effortlessly versatile pair of shoes. EcoStride Fusion embodies sustainability without compromising performance, offering urban runners the perfect blend of eco-friendly materials and cutting-edge technology that adapts to any terrain, making every step a stride towards a greener future.",
+      "trajectory_id": "57ca8c3a4d2247968e8ebcc24b3746da",
+      "temperature": 0.797212
+    }
+  ]
+}

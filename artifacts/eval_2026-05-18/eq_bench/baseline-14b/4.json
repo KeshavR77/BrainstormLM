@@ -1,0 +1,15 @@
+{
+  "prompt_id": "4",
+  "category": "dystopic-comedy",
+  "title": "My Apocalypse Buddy",
+  "arm": "baseline-14b",
+  "outputs": [
+    {
+      "model": "baseline-14b",
+      "k": 0,
+      "text": "Midas and Chewy's Great Misadventure\n\nIn a world where technology had collapsed and only the most resilient survived, Midas and Chewy found themselves pondering over a cryptic graffiti message suggesting a hidden sanctuary in the wilderness. Midas, ever optimistic despite his misfortunes, convinced Chewy, their wise-cracking animo-tronic koala companion, to embark on this ill-fated journey. Their plan was simple yet fraught with inevitable complications\u2014navigate the ruins of civilization, decipher the cryptic clues, and find this fabled refuge.\n\nTheir expedition began innocuously enough, but as they ventured deeper into the untamed wilderness, things quickly spiraled out of control. What started as a cautious trek turned into an absurd chase through dense forests and across treacherous rivers, all thanks to Midas\u2019s knack for getting lost and Chewy\u2019s sardonic commentary. They encountered everything from rogue bands of scavengers to mutated wildlife, each encounter more perilous than the last. Midas\u2019s attempts to follow the graffiti trail led them instead into a series of traps and dead ends, with Chewy\u2019s electronic squeaks providing the only semblance of guidance.\n\nDespite numerous setbacks, their bond deepened as they relied on each other for survival. Midas\u2019s ingenuity and resilience clashed comically with Chewy\u2019s robotic pragmatism, creating a dynamic that kept their spirits buoyant amidst chaos. Each false lead or near-miss brought them closer, not just physically to their destination, but emotionally as friends navigating a harsh new reality together. Eventually, after what seemed like an eternity of trials, they stumbled upon the refuge, though it was far less grand than expected\u2014a modest cave adorned with symbols matching their clues.\n\nReturning home worse for wear, Midas and Chewy shared tales of their adventures, each story more incredulous than the last. Their journey became a testament to friendship and survival in a world where hope could still be found, even if the path there was anything but straightforward.",
+      "trajectory_id": "90f993b83c144c42afa7aba2e07a2f32",
+      "temperature": 0.75
+    }
+  ]
+}

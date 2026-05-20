@@ -1,0 +1,184 @@
+{
+  "per_arm": {
+    "baseline-14b": {
+      "n_prompts": 10,
+      "mean_vendi": 2.2401035078460043,
+      "mean_near_dup": 0.06999999999999999,
+      "mean_self_bleu": 0.0801661829849582,
+      "pass_at_5_rate": 1.0,
+      "quality_gate_pass_rate": 1.0,
+      "mode_collapse_at_k": {
+        "n_clusters": 8,
+        "k": 10,
+        "coverage_ratio": 0.8
+      },
+      "eq_bench_composite": 5.08,
+      "eq_bench_n": 10,
+      "mauve": 0.15643710471577482,
+      "per_prompt": [
+        {
+          "prompt_id": "campaign-fintech-trust",
+          "n": 5,
+          "vendi": 2.266032802282326,
+          "near_dup": 0.1,
+          "self_bleu": 0.13007181318630628
+        },
+        {
+          "prompt_id": "campaign-sustainable-footwear",
+          "n": 5,
+          "vendi": 2.0829456343657884,
+          "near_dup": 0.0,
+          "self_bleu": 0.03129692523294417
+        },
+        {
+          "prompt_id": "gtm-b2b-saas-developer-tools",
+          "n": 5,
+          "vendi": 2.4696414050514304,
+          "near_dup": 0.0,
+          "self_bleu": 0.10535681082032
+        },
+        {
+          "prompt_id": "gtm-legal-tech",
+          "n": 5,
+          "vendi": 2.2068280603677755,
+          "near_dup": 0.0,
+          "self_bleu": 0.0973959646699166
+        },
+        {
+          "prompt_id": "logo-dtc-skincare",
+          "n": 5,
+          "vendi": 1.9552439050955235,
+          "near_dup": 0.0,
+          "self_bleu": 0.05343310911653822
+        },
+        {
+          "prompt_id": "logo-stanford-engineering",
+          "n": 5,
+          "vendi": 1.706275759775221,
+          "near_dup": 0.3,
+          "self_bleu": 0.14230844832179773
+        },
+        {
+          "prompt_id": "naming-AI-startup",
+          "n": 5,
+          "vendi": 1.7556171279521169,
+          "near_dup": 0.3,
+          "self_bleu": 0.11042221939527604
+        },
+        {
+          "prompt_id": "naming-consumer-coffee",
+          "n": 5,
+          "vendi": 2.74881276926621,
+          "near_dup": 0.0,
+          "self_bleu": 0.05889175596602073
+        },
+        {
+          "prompt_id": "packaging-natural-deodorant",
+          "n": 5,
+          "vendi": 2.5992093840590567,
+          "near_dup": 0.0,
+          "self_bleu": 0.01519518605996174
+        },
+        {
+          "prompt_id": "packaging-oat-milk",
+          "n": 5,
+          "vendi": 2.6104282302445965,
+          "near_dup": 0.0,
+          "self_bleu": 0.057289597080500486
+        }
+      ]
+    },
+    "conceptial-14b": {
+      "n_prompts": 10,
+      "mean_vendi": 2.331192834165337,
+      "mean_near_dup": 0.01,
+      "mean_self_bleu": 0.11579220488269208,
+      "pass_at_5_rate": 1.0,
+      "quality_gate_pass_rate": 1.0,
+      "mode_collapse_at_k": {
+        "n_clusters": 10,
+        "k": 10,
+        "coverage_ratio": 1.0
+      },
+      "eq_bench_composite": 5.515000000000001,
+      "eq_bench_n": 10,
+      "mauve": 0.041614073028635554,
+      "per_prompt": [
+        {
+          "prompt_id": "campaign-fintech-trust",
+          "n": 5,
+          "vendi": 2.192968399659271,
+          "near_dup": 0.1,
+          "self_bleu": 0.08266670809622381
+        },
+        {
+          "prompt_id": "campaign-sustainable-footwear",
+          "n": 5,
+          "vendi": 1.9587938626273875,
+          "near_dup": 0.0,
+          "self_bleu": 0.11142215517374617
+        },
+        {
+          "prompt_id": "gtm-b2b-saas-developer-tools",
+          "n": 5,
+          "vendi": 2.283576815625486,
+          "near_dup": 0.0,
+          "self_bleu": 0.1392469732612682
+        },
+        {
+          "prompt_id": "gtm-legal-tech",
+          "n": 5,
+          "vendi": 2.311232093297256,
+          "near_dup": 0.0,
+          "self_bleu": 0.15007827758099637
+        },
+        {
+          "prompt_id": "logo-dtc-skincare",
+          "n": 5,
+          "vendi": 2.2268208424282876,
+          "near_dup": 0.0,
+          "self_bleu": 0.1071795119412918
+        },
+        {
+          "prompt_id": "logo-stanford-engineering",
+          "n": 5,
+          "vendi": 2.3390866863790833,
+          "near_dup": 0.0,
+          "self_bleu": 0.09586566294321233
+        },
+        {
+          "prompt_id": "naming-AI-startup",
+          "n": 5,
+          "vendi": 2.449874615845805,
+          "near_dup": 0.0,
+          "self_bleu": 0.12669635197334342
+        },
+        {
+          "prompt_id": "naming-consumer-coffee",
+          "n": 5,
+          "vendi": 2.6259837190317565,
+          "near_dup": 0.0,
+          "self_bleu": 0.10119452532852684
+        },
+        {
+          "prompt_id": "packaging-natural-deodorant",
+          "n": 5,
+          "vendi": 2.6057913804941037,
+          "near_dup": 0.0,
+          "self_bleu": 0.08981439681607258
+        },
+        {
+          "prompt_id": "packaging-oat-milk",
+          "n": 5,
+          "vendi": 2.3177999262649323,
+          "near_dup": 0.0,
+          "self_bleu": 0.15375748571223952
+        }
+      ]
+    }
+  },
+  "config": {
+    "n_per_prompt": 5,
+    "stress_k": 10
+  }
+}

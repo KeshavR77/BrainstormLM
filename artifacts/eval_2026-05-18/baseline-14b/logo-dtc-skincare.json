@@ -1,0 +1,41 @@
+{
+  "prompt_id": "logo-dtc-skincare",
+  "arm": "baseline-14b",
+  "outputs": [
+    {
+      "model": "baseline-14b",
+      "k": 0,
+      "text": "HerbalAlchemy\n\nImagine an intricate, hand-drawn logo featuring a vintage alchemy symbol intertwined with lush, detailed illustrations of botanicals such as lavender, chamomile, and aloe vera. The color palette is composed of deep jewel tones like sapphire blue and emerald green, paired with rich gold accents to evoke a sense of ancient wisdom and timeless craft. The typeface is elegant yet rustic, reminiscent of handwritten manuscripts from centuries past, ensuring each letter feels like it has been carefully inscribed rather than mass-produced.",
+      "trajectory_id": "2e70fde54eb44364a14b4e1149cd9065",
+      "temperature": 0.75
+    },
+    {
+      "model": "baseline-14b",
+      "k": 1,
+      "text": "HerbalAlchemy\n\nThe logo concept for HerbalAlchemy evokes the essence of an artisanal apothecary from centuries past, with intricate botanical illustrations intertwined seamlessly within the text. The design uses a timeless serif font in deep, earthy tones, paired with rich, vibrant hues that represent various natural ingredients. Each letter seems woven from dried herbs, flowers, and roots, giving it a tactile, handcrafted appearance. This visual language communicates the meticulous care and traditional wisdom behind each product, setting the brand apart in the skincare market as a genuine, slow-crafted alternative.",
+      "trajectory_id": "febd11d2dc0c409fbfb84c87bf4ccf17",
+      "temperature": 0.811803
+    },
+    {
+      "model": "baseline-14b",
+      "k": 2,
+      "text": "Herbalist's Secret Chamber\n\nThe logo is an intricate emblem featuring an open apothecary jar at its center, surrounded by delicate botanical illustrations in muted tones of sage, amber, and rose. The jar\u2019s lid is adorned with a small, hand-carved key symbolizing the unlocking of ancient remedies. Above the jar, the brand name is inscribed in a flowing, cursive font reminiscent of old-world manuscripts, evoking a sense of timeless wisdom and tradition. Below the jar, a series of subtle, hand-drawn lines create a texture resembling aged parchment, grounding the design in a heritage of care and craftsmanship.",
+      "trajectory_id": "a0481d0954e24ef298db3fdb10f3f0fc",
+      "temperature": 0.773606
+    },
+    {
+      "model": "baseline-14b",
+      "k": 3,
+      "text": "Herbaceous Haven\n\nImagine an elegant, hand-drawn illustration of a vintage glass bottle, nestled amongst lush, hand-painted botanicals. The bottle's intricate details suggest time-honored craftsmanship, while the surrounding flora evoke natural healing remedies. The color palette is soothing, with deep greens, soft browns, and warm golds, creating a tactile, artisanal feel that contrasts subtly against a crisp white background, highlighting the purity and care of each ingredient.",
+      "trajectory_id": "039132cf253843da86c28719f59ebbba",
+      "temperature": 0.8354090000000001
+    },
+    {
+      "model": "baseline-14b",
+      "k": 4,
+      "text": "Herbalist's Secret Apothecary\n\nThe logo design evokes an intimate, timeless apothecary, featuring an elegant serif font in sepia tones, reminiscent of old-world botanical illustrations. Central to the design is a hand-drawn, stylized image of a wooden mortar and pestle, intertwined with delicate leaves and flowers, symbolizing nature's healing powers. This symbiotic imagery is framed by a subtle, intricate border of vines and blossoms, creating a cohesive emblem that speaks to the brand\u2019s dedication to slow-crafted, herbal skincare solutions.",
+      "trajectory_id": "782edde773184fcbbfd25c146688fc2f",
+      "temperature": 0.797212
+    }
+  ]
+}

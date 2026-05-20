@@ -1,0 +1,41 @@
+{
+  "prompt_id": "packaging-oat-milk",
+  "arm": "baseline-14b",
+  "outputs": [
+    {
+      "model": "baseline-14b",
+      "k": 0,
+      "text": "Morning Essence\n\nThe packaging for Morning Essence features a sleek, minimalist design with a frosted glass effect on a matte white carton that subtly shifts to a rich amber at the top third when viewed from an angle, suggesting the warm comfort of the product. The label is adorned with elegant, hand-drawn illustrations of oats and morning dew, complemented by gold foil accents that add a touch of luxury while maintaining a natural aesthetic. The text, done in a clean sans-serif font, includes the company\u2019s name in script across the top and the product name 'Morning Essence' embossed in gold below, creating a harmonious blend of sophistication and earthiness.",
+      "trajectory_id": "380fd132ec594bb3ae637fc116404ab0",
+      "temperature": 0.75
+    },
+    {
+      "model": "baseline-14b",
+      "k": 1,
+      "text": "Mystic Meadow\n\nThe Mystic Meadow packaging stands out with its deep forest green carton, featuring hand-drawn illustrations of mystical meadows and frolicking deer beneath a moonlit sky. The premium feel is further enhanced by gold foil accents spelling out \"Mystic Meadow\" in elegant script across the front, inviting consumers to step into a world where nature's bounty meets modern luxury.",
+      "trajectory_id": "df98264a1e2f4b629e3c863bec136925",
+      "temperature": 0.811803
+    },
+    {
+      "model": "baseline-14b",
+      "k": 2,
+      "text": "Morning Glow Cartons\n\nMorning Glow Cartons feature a sleek, frosted glass-like finish that mimics the soft sheen of early sunlight filtering through a window. The packaging is elegantly embossed with a subtle, hand-drawn illustration of morning dew-covered oats, evoking freshness and purity. A minimalist gold foil stamp highlights the product name and key benefits, ensuring it stands out on refrigerated shelves while maintaining an air of luxury and simplicity.",
+      "trajectory_id": "b8dfef7a33804531a9ccb5b8247ce1bc",
+      "temperature": 0.773606
+    },
+    {
+      "model": "baseline-14b",
+      "k": 3,
+      "text": "Morning Embrace\n\nEach carton of Morning Embrace is sleek and minimal, featuring a matte black label with a thin strip of frosted glass that reveals a warm golden hue of the oat milk inside. The packaging is designed to be both elegant and understated, allowing the product's natural beauty and premium quality to speak for itself. A small, silver emblem in the shape of a gentle morning sun complements the label, positioned subtly at the top right corner, symbolizing the promise of a nourishing start to the day.",
+      "trajectory_id": "4dac07f5dd0e4f65bd281f1bd9fd8861",
+      "temperature": 0.8354090000000001
+    },
+    {
+      "model": "baseline-14b",
+      "k": 4,
+      "text": "Morning Alchemy\n\nEach carton is crafted from recycled glass, echoing the purity and elegance of artisanal products. The label features a minimalist, watercolor-like gradient that shifts from deep ochre to soft cream tones, symbolizing the transformation from raw oats to creamy milk. A small, hand-drawn illustration of an ancient alchemical symbol subtly integrates sustainability icons, emphasizing both historical tradition and modern eco-consciousness, appealing directly to the discerning tastes of boutique grocers and their customers.",
+      "trajectory_id": "732630e6a158452ea000cbb202b2defa",
+      "temperature": 0.797212
+    }
+  ]
+}

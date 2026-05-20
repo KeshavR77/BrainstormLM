@@ -46,7 +46,7 @@ export function ScrollScrubber() {
           </ul>
           <div className="mt-6 inline-flex items-center gap-2 text-[11px] text-ink-2">
             <span className="h-1.5 w-1.5 rounded-full bg-ink-3" />
-            5 ideas · 0.87 near-duplicate rate
+            8 of 10 distinct · 7% near-duplicate rate
           </div>
         </div>
 
@@ -73,7 +73,7 @@ export function ScrollScrubber() {
           </ul>
           <div className="mt-6 inline-flex items-center gap-2 text-[11px] text-ink-2">
             <span className="h-1.5 w-1.5 rounded-full bg-brand" />
-            4 distinct branches · 0.06 near-duplicate rate
+            10 of 10 distinct · 1% near-duplicate rate
           </div>
         </div>
       </div>

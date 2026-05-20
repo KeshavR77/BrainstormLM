@@ -1,0 +1,15 @@
+{
+  "prompt_id": "2",
+  "category": "epistolary",
+  "title": "The Lighthouse Keeper",
+  "arm": "baseline-14b",
+  "outputs": [
+    {
+      "model": "baseline-14b",
+      "k": 0,
+      "text": "Whispers from the Skerry\n\nAmid the relentless North Sea, young Colin McTavish finds solace in penning his daily struggles and triumphs to his mother, Margaret. His letters detail the monotony of his life on the remote Skerry Rock, a jagged outcrop barely visible above water unless the weather cooperates. Colin\u2019s vivid descriptions paint a picture of his world\u2014bitter winds, endless tides, and the ever-present loneliness. His tone shifts subtly from youthful exuberance to seasoned resignation, yet always with a hint of the rugged charm that defines his Scottish heritage. Margaret\u2019s responses, filled with gentle encouragement and practical advice, weave a tapestry of familial warmth across the miles. A poignant turn occurs when a mysterious signal light begins flashing irregularly from the mainland, capturing Colin\u2019s attention and stirring his adventurous spirit. Through their letters, they uncover the truth behind the signals: a secret pact between Colin\u2019s father and an old friend, now a guardian of a coastal village beacon. As winter closes in, Colin must decide whether to embrace the solitude of Skerry Rock or seek a new path guided by his family\u2019s legacy and his own desires. Their final exchange crystallizes not only Colin\u2019s decision but also a deep understanding of their enduring bond.",
+      "trajectory_id": "f50df8436fc245abb74f410945aced41",
+      "temperature": 0.75
+    }
+  ]
+}
