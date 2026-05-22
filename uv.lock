@@ -100,25 +100,6 @@ wheels = [
 ]
 
 [[package]]
-name = "anthropic"
-version = "0.97.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "anyio" },
-    { name = "distro" },
-    { name = "docstring-parser" },
-    { name = "httpx" },
-    { name = "jiter" },
-    { name = "pydantic" },
-    { name = "sniffio" },
-    { name = "typing-extensions" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/14/93/f66ea8bfe39f2e6bb9da8e27fa5457ad2520e8f7612dfc547b17fad55c4d/anthropic-0.97.0.tar.gz", hash = "sha256:021e79fd8e21e90ad94dc5ba2bbbd8b1599f424f5b1fab6c06204009cab764be", size = 669502, upload-time = "2026-04-23T20:52:34.445Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/53/b6/8e851369fa661ad0fef2ae6266bf3b7d52b78ccf011720058f4adaca59e2/anthropic-0.97.0-py3-none-any.whl", hash = "sha256:8a1a472dfabcfc0c52ff6a3eecf724ac7e07107a2f6e2367be55ceb42f5d5613", size = 662126, upload-time = "2026-04-23T20:52:32.377Z" },
-]
-
-[[package]]
 name = "anyio"
 version = "4.13.0"
 source = { registry = "https://pypi.org/simple" }
@@ -164,11 +145,11 @@ dependencies = [
     { name = "accelerate" },
     { name = "aiohttp" },
     { name = "asyncpg" },
-    { name = "creativity-evaluator" },
     { name = "datasets" },
     { name = "fastapi" },
     { name = "mauve-text" },
     { name = "modal" },
+    { name = "nltk" },
     { name = "numpy" },
     { name = "openai" },
     { name = "peft" },
@@ -182,6 +163,7 @@ dependencies = [
     { name = "trl" },
     { name = "typer" },
     { name = "uvicorn", extra = ["standard"] },
+    { name = "vendi-score" },
 ]
 
 [package.dev-dependencies]
@@ -199,11 +181,11 @@ requires-dist = [
     { name = "accelerate" },
     { name = "aiohttp" },
     { name = "asyncpg" },
-    { name = "creativity-evaluator", editable = "creativity_evaluator" },
     { name = "datasets" },
     { name = "fastapi" },
     { name = "mauve-text", specifier = ">=0.4.0" },
     { name = "modal" },
+    { name = "nltk" },
     { name = "numpy" },
     { name = "openai" },
     { name = "peft" },
@@ -217,6 +199,7 @@ requires-dist = [
     { name = "trl" },
     { name = "typer" },
     { name = "uvicorn", extras = ["standard"] },
+    { name = "vendi-score" },
 ]
 
 [package.metadata.requires-dev]
@@ -328,34 +311,6 @@ wheels = [
 toml = [
     { name = "tomli", marker = "python_full_version <= '3.11'" },
 ]
-
-[[package]]
-name = "creativity-evaluator"
-version = "0.1.0"
-source = { editable = "creativity_evaluator" }
-dependencies = [
-    { name = "anthropic" },
-    { name = "nltk" },
-    { name = "numpy" },
-    { name = "openai" },
-    { name = "scipy" },
-    { name = "sentence-transformers" },
-    { name = "vendi-score" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "anthropic", specifier = ">=0.25" },
-    { name = "nltk", specifier = ">=3.8" },
-    { name = "numpy", specifier = ">=1.24" },
-    { name = "openai", specifier = ">=1.0" },
-    { name = "pytest", marker = "extra == 'dev'", specifier = ">=7.0" },
-    { name = "pytest-mock", marker = "extra == 'dev'" },
-    { name = "scipy", specifier = ">=1.10" },
-    { name = "sentence-transformers", specifier = ">=2.2" },
-    { name = "vendi-score", specifier = ">=0.0.3" },
-]
-provides-extras = ["dev"]
 
 [[package]]
 name = "cuda-bindings"

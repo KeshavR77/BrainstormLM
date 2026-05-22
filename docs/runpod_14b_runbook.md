@@ -110,15 +110,15 @@ uv run python scripts/extract_14b_vectors.py
 ```
 
 **What's happening:** 32 contrast prompts × 8 system-prompt framings = 256
-forward passes through Qwen2.5-14B at L19 and L24, plus mean-difference + SVD
+forward passes through Qwen2.5-14B at L17 and L24, plus mean-difference + SVD
 orthogonal-projection purification.
 
 **Watch for in stdout:**
 
 ```
 [1/3] Deriving creative CAA vector (positive vs generic) …
-    [creative] L19: 8/32 pairs
-    [creative] L19: 16/32 pairs
+    [creative] L17: 8/32 pairs
+    [creative] L17: 16/32 pairs
     ...
 Hyper-purifying creative vector …
   retained=0.XX  neg_before=0.YY  neg_after<0.08  rank_removed=5
@@ -135,7 +135,7 @@ Hyper-purifying creative vector …
 - ❌ `CUDA out of memory` — the 80GB pod should not hit this for 14B at fp16.
   If it does, restart the pod (memory is fragmented) and retry. If still
   failing, run with smaller `--limit-prompts 16`.
-- ✅ End-state: `data/steering_14b/hyper_creative_purified_vector_L19.pt` and
+- ✅ End-state: `data/steering_14b/hyper_creative_purified_vector_L17.pt` and
   `hyper_technical_purified_vector_L24.pt` plus matching `_manifest.json`
   files. Confirm with `ls data/steering_14b/`.
 
@@ -178,14 +178,14 @@ uv run python scripts/sweep_14b_steering.py
   ...
 
 [B/C] Sweeping cells on the brief …
-  L17 α=1.50: Vendi=2.XXX  near_dup=0.0XX  coherent=5/5  PASS  (XXs)
-  L17 α=2.00: Vendi=2.XXX  near_dup=0.0XX  coherent=5/5  PASS
-  L17 α=2.62: Vendi=2.XXX  near_dup=0.0XX  coherent=4/5  PASS
-  L17 α=3.00: Vendi=1.XXX  near_dup=0.0XX  coherent=2/5  FAIL  ← too hot
-  L19 α=1.50: ...
+  L17 α=1.50: Vendi=3.324  near_dup=0.000  coherent=5/5  PASS  (XXs)  ← winner
+  L17 α=2.00: Vendi=2.869  near_dup=0.000  coherent=5/5  PASS
+  L17 α=2.62: Vendi=3.284  near_dup=0.000  coherent=5/5  PASS
+  L17 α=3.00: Vendi=2.757  near_dup=0.000  coherent=5/5  PASS
+  L19 α=1.50: Vendi=3.205  ...
   ...
 
-Winner: L19 α=2.00  Vendi=3.XXX  near_dup=0.0XX  coherent=5/5
+Winner: L17 α=1.50  Vendi=3.324  near_dup=0.000  coherent=5/5
 ```
 
 **Edge cases:**
@@ -246,7 +246,7 @@ applies the winning (layer, alpha) without manual config edits. Output
 includes a line like:
 
 ```
-Sweep override: data/steering_14b/sweep/chosen_config.json → L19 α=2.00
+Sweep override: data/steering_14b/sweep/chosen_config.json → L17 α=1.50
 ```
 
 **To override** and use the corpius defaults instead of the sweep's pick:
@@ -363,7 +363,7 @@ git checkout -b results/14b-benchmark-$(date +%Y%m%d)
 git commit -m "$(cat <<'EOF'
 add 14B benchmark results — sweep-picked operating point + final outputs
 
-Vectors: data/steering_14b/{creative_L19, technical_L24} + sweep dir
+Vectors: data/steering_14b/{creative_L17, technical_L24} + sweep dir
 Outputs: 10 prompts × 8 samples in conceptial_14b_outputs/
 Summary: artifacts/benchmark_v2/run_14b_final/{SUMMARY.json, RESULTS.md, HEADLINE_NUMBERS.md}
 

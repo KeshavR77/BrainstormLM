@@ -52,12 +52,12 @@ uv run huggingface-cli login --token "$HF_TOKEN"
 
 ### Step 2a — Extract 14B steering vectors (one-time, ~10-15 min)
 
-CAA mean-difference + orthogonal-projection purification at depth-scaled
-layers (L19 creative, L24 technical on the 48-layer 14B stack).
+CAA mean-difference + orthogonal-projection purification at sweep-validated
+layers (L17 creative, L24 technical on the 48-layer 14B stack).
 
 ```bash
 uv run python scripts/extract_14b_vectors.py
-# Writes data/steering_14b/hyper_{creative,technical}_purified_vector_L{19,24}.pt
+# Writes data/steering_14b/hyper_{creative,technical}_purified_vector_L{17,24}.pt
 # plus manifests with retained-source-cosine + negative-cosine diagnostics.
 ```
 

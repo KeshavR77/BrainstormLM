@@ -14,16 +14,17 @@ Runs on a RunPod A100 80GB pod. Ports the 3B steering pipeline (Corpius 1) to
 5. Calling ``hyper_purify_vector`` (SVD-orthogonal projection) to project the
    raw vector orthogonal to the negative subspace, with retained-source-cosine
    guardrails.
-6. Writing ``data/steering_14b/hyper_{creative,technical}_purified_vector_L{19,24}.pt``
+6. Writing ``data/steering_14b/hyper_{creative,technical}_purified_vector_L{N}.pt``
    plus matching ``..._manifest.json`` files in the same shape as the 3B
    artifacts under ``data/steering/``.
 
-Layer choice — depth-scaled from the 3B baseline:
+Layer choice — sweep-validated (2026-05-18):
 - 3B (36 layers): creative=L14 (0.389), technical=L18 (0.500).
-- 14B (48 layers): creative=L19 (0.396), technical=L24 (0.500).
+- 14B (48 layers): creative=L17 (0.354), technical=L24 (0.500).
+  L17 won a 4-layer × 4-alpha sweep (Vendi 3.32 at α=1.5, vs L19 at 2.26).
 
-Override with ``--creative-layer / --technical-layer`` if a downstream sweep
-finds a better operating point.
+Override with ``--creative-layer / --technical-layer`` to re-extract at a
+different layer.
 
 Usage on a RunPod A100 80GB pod::
 
@@ -125,7 +126,7 @@ def main() -> int:
         type=Path,
         default=ROOT / "config" / "contrast_pairs_14b.json",
     )
-    parser.add_argument("--creative-layer", type=int, default=19)
+    parser.add_argument("--creative-layer", type=int, default=17)
     parser.add_argument("--technical-layer", type=int, default=24)
     parser.add_argument(
         "--out-dir",
