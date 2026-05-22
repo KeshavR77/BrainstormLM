@@ -1,0 +1,13 @@
+{
+  "backend": "hf",
+  "model_id": "Qwen/Qwen2.5-14B-Instruct",
+  "device": "cuda",
+  "dtype": "bf16",
+  "seed": 0,
+  "capture_position": "last_response_token",
+  "extra_capture_positions": ["mean_response", "assistant_start"],
+  "out_dir": "artifacts/qwen14b_run",
+  "generation": {"max_new_tokens": 256, "temperature": 0.9, "samples_per_prompt": 6, "seed": 0},
+  "filtering": {"creative_min": 0.6, "neutral_max": 0.4, "min_per_class": 100, "scorer": "real"},
+  "patching": {"alphas": [-4.0, -2.0, -1.0, 1.0, 2.0, 4.0], "all_layers_alpha": 0.1, "rescale": true, "eval_samples": 5}
+}

@@ -1,0 +1,13 @@
+{
+  "backend": "hf",
+  "model_id": "Qwen/Qwen2.5-0.5B-Instruct",
+  "device": null,
+  "dtype": "fp32",
+  "seed": 0,
+  "capture_position": "last_response_token",
+  "extra_capture_positions": ["mean_response"],
+  "out_dir": "artifacts/qwen05b_run",
+  "generation": {"max_new_tokens": 200, "temperature": 0.9, "samples_per_prompt": 4, "seed": 0},
+  "filtering": {"creative_min": 0.55, "neutral_max": 0.45, "min_per_class": 60, "scorer": "real"},
+  "patching": {"alphas": [-4.0, -2.0, -1.0, 1.0, 2.0, 4.0], "all_layers_alpha": 0.1, "rescale": true, "eval_samples": 5}
+}
