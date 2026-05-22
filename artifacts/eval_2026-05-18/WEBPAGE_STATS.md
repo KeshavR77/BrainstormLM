@@ -23,7 +23,7 @@ Conceptial vs the same model (Qwen2.5-14B-Instruct) unsteered, on a repeated-pro
 ## Methodology
 
 - **Model**: Qwen/Qwen2.5-14B-Instruct, fp16, A100 80GB.
-- **Conceptial stack**: CAA L19 (creative, α₀=2.62) + L24 (technical, α₀=0.86), v17 exp+sigmoid schedule, iterative L19 residual orthogonalization, prompt-level anti-mode.
+- **Conceptial stack**: CAA L19 (creative, α₀=2.62) + L24 (technical, α₀=0.86), v17 exp+sigmoid schedule, iterative L19 residual orthogonalization, prompt-level anti-mode. **(Note: this eval pre-dates the 2026-05-18 sweep that selected L17/α₀=1.5 as the production config. These numbers reflect the old L19 operating point.)**
 - **Baseline**: Same model, no steering, no anti-mode, identical sampling temps (0.75–0.85 jitter).
 - **Prompt suite**: `config/benchmark_creative_briefs.json` (10 creative-operations briefs).
 - **N per prompt**: 5 regenerations.

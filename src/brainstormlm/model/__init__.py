@@ -1,17 +1,6 @@
-"""Generator implementations and the factory that picks between them."""
+"""Generator protocol and engine adapter."""
 
-from brainstormlm.model.base import TogetherGenerator
-from brainstormlm.model.corpius import CorpiusGenerator
-from brainstormlm.model.factory import make_generator
-from brainstormlm.model.hf import HFGenerator
+from brainstormlm.model.engine_adapter import EngineGenerator
 from brainstormlm.model.interface import Generator
-from brainstormlm.model.steered import SteeredGenerator
 
-__all__ = [
-    "CorpiusGenerator",
-    "Generator",
-    "HFGenerator",
-    "SteeredGenerator",
-    "TogetherGenerator",
-    "make_generator",
-]
+__all__ = ["EngineGenerator", "Generator"]

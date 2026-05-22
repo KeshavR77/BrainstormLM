@@ -568,7 +568,7 @@ def _write_webpage_stats(summary: dict) -> None:
         "## Methodology",
         "",
         "- **Model**: Qwen/Qwen2.5-14B-Instruct, fp16, A100 80GB.",
-        f"- **Conceptial stack**: CAA L19 (creative, α₀={summary.get('config', {}).get('creative_alpha', '2.62')}) + L24 (technical, α₀=0.86), v17 exp+sigmoid schedule, iterative L19 residual orthogonalization, prompt-level anti-mode.",
+        f"- **Conceptial stack**: CAA L17 (creative, α₀={summary.get('config', {}).get('creative_alpha', '1.5')}) + L24 (technical, α₀=0.86), v17 exp+sigmoid schedule, iterative L17 residual orthogonalization, prompt-level anti-mode.",
         "- **Baseline**: Same model, no steering, no anti-mode, identical sampling temps (0.75–0.85 jitter).",
         f"- **Prompt suite**: `config/benchmark_creative_briefs.json` ({base['n_prompts']} creative-operations briefs).",
         f"- **N per prompt**: {summary['config']['n_per_prompt']} regenerations.",

@@ -20,18 +20,16 @@ dependencies = [
     "modal",
     "fastapi",
     "uvicorn[standard]",
-    "creativity-evaluator",
+
     "asyncpg",
     "sentence-transformers",
     "aiohttp",
     "mauve-text>=0.4.0",
+    "nltk",
+    "vendi-score",
 ]
 
 [tool.uv.sources]
-# Day-2 consolidation: legacy shrooms-llm dep removed; its Python code now lives at
-# src/brainstormlm/conceptial/engine/ and steering vectors at data/steering/. The
-# creativity_evaluator sub-package is now co-located here so the repo is self-contained.
-creativity-evaluator = { path = "./creativity_evaluator", editable = true }
 
 [project.scripts]
 brainstorm = "brainstormlm.cli:app"
@@ -55,24 +53,14 @@ module-name = "brainstormlm"
 module-root = "src"
 
 [tool.ruff]
-# creativity_evaluator/ and src/brainstormlm/conceptial/engine/ are vendored from the
-# legacy shrooms-llm repo. They have their own ruff/lint regimes; exclude from the top-level
-# BrainstormLM lint to keep CI on app-code.
 extend-exclude = [
     ".claude/worktrees",
     ".venv",
     "node_modules",
     "frontend",
-    "creativity_evaluator",
-    "src/brainstormlm/conceptial/engine",
 ]
 
 [tool.coverage.run]
-# Day-2 consolidation: the steering/inference subsystem ported from the legacy shrooms-llm
-# repo is exercised end-to-end via live smokes, not by pytest. Exclude from coverage so
-# pytest still gates on application-code coverage. WIC subsystem has its own untested
-# surface that we don't touch — exclude too.
 omit = [
-    "src/brainstormlm/conceptial/engine/*",
     "src/wic/*",
 ]

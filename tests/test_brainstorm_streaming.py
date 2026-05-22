@@ -17,56 +17,21 @@ from brainstormlm.api import server as server_module
 from brainstormlm.api.server import build_app
 
 
-class _StubGenerator:
-    def generate(
-        self,
-        prompt: str,
-        *,
-        system: str | None = None,
-        temperature: float = 1.0,
-        max_tokens: int = 1024,
-        use_cache: bool = True,
-    ) -> str:
-        return f"Stub idea for: {prompt} at temp {temperature}"
-
-    def generate_with_meta(self, prompt: str, **kw):
-        return self.generate(prompt, **kw), False
-
-
 @pytest.fixture()
-def stub_state(tmp_path, monkeypatch):
+def client(tmp_path, monkeypatch):
     feedback_path = tmp_path / "feedback_human.jsonl"
-    promoted_path = tmp_path / "promoted.json"
-    ab_path = tmp_path / "ab_config.json"
     log_path = tmp_path / "logs" / "server.jsonl"
 
     settings = server_module.get_settings()
     monkeypatch.setattr(settings, "feedback_human_path", feedback_path)
-    monkeypatch.setattr(settings, "promoted_adapter_path", promoted_path)
-    monkeypatch.setattr(settings, "ab_config_path", ab_path)
     monkeypatch.setattr(settings, "server_log_path", log_path)
     monkeypatch.setattr(settings, "rate_limit_capacity", 1000)
-    monkeypatch.setattr(server_module, "_DEMO_MODE", False)
-    monkeypatch.setattr(server_module, "_ML_AVAILABLE", True)
 
-    stub = _StubGenerator()
-
-    def _fake_make_generator(
-        adapter_path=None,
-        *,
-        steering_path=None,
-        steering_strength=None,
-        steering_layers=None,
-        corpius_config_path=None,
-    ):
-        return stub
-
-    app = build_app(make_generator=_fake_make_generator)
-    return {"app": app, "feedback_path": feedback_path}
+    app = build_app()
+    return TestClient(app), feedback_path
 
 
 def _parse_sse_events(raw_text: str) -> list[dict]:
-    """Parse SSE text into a list of {event, data} dicts."""
     events = []
     for block in raw_text.split("\n\n"):
         block = block.strip()
@@ -84,10 +49,9 @@ def _parse_sse_events(raw_text: str) -> list[dict]:
     return events
 
 
-def test_stream_returns_sse_with_correct_event_order(stub_state):
-    """The stream must produce phase(diverse_pool), raw_idea(s), phase(synthesizing), final_idea(s), done."""
-    client = TestClient(stub_state["app"])
-    resp = client.post(
+def test_stream_returns_sse_with_correct_event_order(client):
+    tc, _ = client
+    resp = tc.post(
         "/brainstorm/stream",
         json={"prompt": "how do we grow?", "n_ideas": 3},
     )
@@ -110,10 +74,9 @@ def test_stream_returns_sse_with_correct_event_order(stub_state):
     assert event_types[-1] == "done"
 
 
-def test_stream_raw_ideas_have_trajectory_ids(stub_state):
-    """Each raw_idea event must carry a trajectory_id."""
-    client = TestClient(stub_state["app"])
-    resp = client.post(
+def test_stream_raw_ideas_have_trajectory_ids(client):
+    tc, _ = client
+    resp = tc.post(
         "/brainstorm/stream",
         json={"prompt": "test trajectories", "n_ideas": 2},
     )
@@ -125,10 +88,9 @@ def test_stream_raw_ideas_have_trajectory_ids(stub_state):
         assert tid and isinstance(tid, str) and len(tid) > 0
 
 
-def test_stream_final_ideas_are_feedbackable(stub_state):
-    """trajectory_ids from final_idea events must be accepted by POST /feedback."""
-    client = TestClient(stub_state["app"])
-    resp = client.post(
+def test_stream_final_ideas_are_feedbackable(client):
+    tc, _ = client
+    resp = tc.post(
         "/brainstorm/stream",
         json={"prompt": "feedback test", "n_ideas": 2},
     )
@@ -137,7 +99,7 @@ def test_stream_final_ideas_are_feedbackable(stub_state):
     assert len(final_ideas) >= 2
 
     tid = final_ideas[0]["data"]["trajectory_id"]
-    feedback_resp = client.post(
+    feedback_resp = tc.post(
         "/feedback",
         json={"trajectory_id": tid, "thumbs": "up"},
     )
@@ -145,20 +107,9 @@ def test_stream_final_ideas_are_feedbackable(stub_state):
     assert feedback_resp.json()["ok"] is True
 
 
-def test_stream_demo_mode(tmp_path, monkeypatch):
-    """In demo mode, /brainstorm/stream should still return valid SSE events."""
-    settings = server_module.get_settings()
-    monkeypatch.setattr(settings, "feedback_human_path", tmp_path / "feedback.jsonl")
-    monkeypatch.setattr(settings, "promoted_adapter_path", tmp_path / "promoted.json")
-    monkeypatch.setattr(settings, "ab_config_path", tmp_path / "ab.json")
-    monkeypatch.setattr(settings, "server_log_path", tmp_path / "logs" / "server.jsonl")
-    monkeypatch.setattr(settings, "rate_limit_capacity", 1000)
-    monkeypatch.setattr(server_module, "_DEMO_MODE", True)
-
-    app = build_app()
-    client = TestClient(app)
-
-    resp = client.post(
+def test_stream_demo_mode(client):
+    tc, _ = client
+    resp = tc.post(
         "/brainstorm/stream",
         json={"prompt": "demo streaming test", "n_ideas": 4},
     )

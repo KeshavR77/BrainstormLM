@@ -1,23 +1,23 @@
 {
   "id": "corpius_2_14b",
   "display_name": "Corpius 2 (14B)",
-  "description": "Qwen2.5-14B-Instruct with depth-scaled v17 steering: hyper-purified creative @ L19 and technical @ L24, anti-mode prompt-level exclusion, persistent project memory, iterative anti-mode L19 first-token orthogonalization.",
+  "description": "Qwen2.5-14B-Instruct with sweep-validated v17 steering: hyper-purified creative @ L17 (sweep winner 2026-05-18, Vendi 3.32) and technical @ L24, anti-mode prompt-level exclusion, persistent project memory, iterative anti-mode L17 first-token orthogonalization.",
   "base_model": "Qwen/Qwen2.5-14B-Instruct",
   "benchmark_arm": "qwen_v17_14b",
   "local_variants": "v17_14b",
   "local_arms": "additive",
   "steering_method": "v10_parametric_preset_v17",
   "steering_vectors": {
-    "creative": "data/steering_14b/hyper_creative_purified_vector_L19.pt",
+    "creative": "data/steering_14b/hyper_creative_purified_vector_L17.pt",
     "technical": "data/steering_14b/hyper_technical_purified_vector_L24.pt"
   },
   "layers": {
-    "creative_layer": 19,
+    "creative_layer": 17,
     "technical_layer": 24,
-    "note": "3B uses L14/L18 of 36 layers (depth 0.389/0.500). 14B has 48 layers; L19/L24 ≈ depth 0.396/0.500. Adjust via --creative-layer/--technical-layer if a sweep finds a better operating point."
+    "note": "L17 selected by sweep_14b_steering.py (2026-05-18): Vendi 3.32 at α=1.5, beat L19/α=2.62 (Vendi 2.26). Depth 0.354 — shallower than 3B's L14 (0.389), consistent with earlier abstract feature formation at 14B scale."
   },
   "schedule": {
-    "creative_start_alpha": 2.62,
+    "creative_start_alpha": 1.5,
     "exp_zero_by_step": 168,
     "technical_start_alpha": 0.86,
     "sigmoid_mid_step": 52.0,
@@ -30,11 +30,10 @@
   ],
   "runtime_defaults": {
     "iterative_anti_mode_benchmark": true,
-    "iterative_anti_mode_notes": "runpod_batch_14b.py captures the first generated token's L19 residual per sample and orthogonalizes the creative vector against the mean prior residual via purify_vector before sample k>=1."
+    "iterative_anti_mode_notes": "runpod_batch_14b.py captures the first generated token's L17 residual per sample and orthogonalizes the creative vector against the mean prior residual via purify_vector before sample k>=1."
   },
   "known_caveats": [
-    "Alpha schedule inherited from 3B Corpius 1; may need re-tuning at 14B once a Vendi sweep is run.",
-    "Vector layers L19/L24 are depth-scaled guesses; the right operating layer at 14B is empirical.",
+    "Creative α=1.5 and L17 validated by sweep (2026-05-18); technical L24/α=0.86 still inherited from 3B depth-scaling.",
     "Negative bank is 5 modes (verbose/vague/cliche/tangential/overconfident) — smaller than 3B's 12-mode bank.",
     "Frozen-for/promotion-rule fields are deliberately omitted until a 14B benchmark validates the artifact."
   ]

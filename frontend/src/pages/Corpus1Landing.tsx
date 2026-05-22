@@ -21,7 +21,6 @@ import { Wordmark } from '../components/Logo';
 import { fadeRise, linesReveal, popIn, staggerContainer, staggerFast, depthHue as depthHueAt } from '../styles/motion';
 
 interface Props {
-  onLaunchGauntlet: () => void;
   onLaunchDemo: () => void;
   onOpenWorkspace: () => void;
 }
@@ -33,7 +32,7 @@ const METRICS = [
   { value: '100%',     label: 'Quality gate pass',         note: 'Coherence ≥ 3 AND on-topic ≥ 4 on every judged sample — diversity gains, no quality regression.',                  tone: 'brand' as const, hue: 0   },
 ];
 
-export function Corpus1Landing({ onLaunchGauntlet, onLaunchDemo, onOpenWorkspace }: Props) {
+export function Corpus1Landing({ onLaunchDemo, onOpenWorkspace }: Props) {
   const rootRef = useRef<HTMLDivElement>(null);
   const [email, setEmail] = useState('');
   const [waitlistOk, setWaitlistOk] = useState(false);
@@ -67,12 +66,6 @@ export function Corpus1Landing({ onLaunchGauntlet, onLaunchDemo, onOpenWorkspace
               className="text-ink-1 hover:text-ink-0 text-sm px-3 py-1.5 rounded-md transition-colors hidden sm:inline-flex items-center gap-1"
             >
               Demo <ArrowUpRight size={13} />
-            </button>
-            <button
-              onClick={onLaunchGauntlet}
-              className="text-ink-1 hover:text-ink-0 text-sm px-3 py-1.5 rounded-md transition-colors hidden sm:inline-flex items-center gap-1"
-            >
-              Open Test <ArrowUpRight size={13} />
             </button>
             <button
               onClick={onOpenWorkspace}
@@ -132,10 +125,10 @@ export function Corpus1Landing({ onLaunchGauntlet, onLaunchDemo, onOpenWorkspace
 
             <motion.div variants={fadeRise} className="mt-9 flex items-center gap-3">
               <button
-                onClick={onLaunchGauntlet}
+                onClick={onLaunchDemo}
                 className="inline-flex items-center gap-2 bg-brand hover:bg-brand-deep text-white text-[14.5px] font-medium px-6 py-3.5 rounded-full shadow-brand transition-all duration-200 hover:translate-y-[-1px]"
               >
-                Try the test
+                See the demo
                 <ArrowRight size={16} />
               </button>
               <a
@@ -442,8 +435,8 @@ export function Corpus1Landing({ onLaunchGauntlet, onLaunchDemo, onOpenWorkspace
               </p>
             </div>
             <div className="flex flex-wrap gap-x-6 gap-y-2 md:justify-end items-center text-[13px]">
-              <button onClick={onLaunchGauntlet} className="text-ink-1 hover:text-ink-0 transition-colors">
-                Open test
+              <button onClick={onLaunchDemo} className="text-ink-1 hover:text-ink-0 transition-colors">
+                Demo
               </button>
               <button onClick={onOpenWorkspace} className="text-ink-1 hover:text-ink-0 transition-colors">
                 Workspace

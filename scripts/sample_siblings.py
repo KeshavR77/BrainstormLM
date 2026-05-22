@@ -19,7 +19,7 @@ from tqdm import tqdm
 from brainstormlm.config import get_settings
 from brainstormlm.eval.fixtures import HELD_OUT
 from brainstormlm.feedback import evaluator, pricing, prompter
-from brainstormlm.model import make_generator
+from brainstormlm.model.engine_adapter import EngineGenerator
 from brainstormlm.training.preferences import (
     append,
     mine_pairs,
@@ -29,7 +29,7 @@ from brainstormlm.training.preferences import (
 
 app = typer.Typer(add_completion=False, no_args_is_help=False)
 
-
+DEFAULT_ENGINE_CONFIG = Path("config/conceptial_14b.json")
 DEFAULT_TEMPERATURES = "0.7,0.9,1.0,1.1,1.2,1.4"
 
 
@@ -55,19 +55,12 @@ def main(
     resume: Annotated[bool, typer.Option("--resume/--no-resume", help="Skip prompts already represented in the output.")] = True,
     temperatures: Annotated[str, typer.Option(help="Comma-separated sibling temperature schedule (cycles if siblings>len).")] = DEFAULT_TEMPERATURES,
     max_tokens: Annotated[int, typer.Option(help="Generator max_tokens per sibling.")] = 600,
-    adapter: Annotated[Path | None, typer.Option(help="Route generation through HFGenerator with this PEFT adapter.")] = None,
-    steering_path: Annotated[Path | None, typer.Option(help="Steering-vector directory; routes through SteeredGenerator.")] = None,
-    steering_strength: Annotated[float | None, typer.Option(help="Override the steering strength multiplier.")] = None,
-    generator: Annotated[str, typer.Option(help="Generator backend: 'together' | 'hf' | 'corpius'.")] = "together",
-    corpius_config: Annotated[Path | None, typer.Option(help="Corpius config JSON path (default: settings.corpius_config_path).")] = None,
+    engine_config: Annotated[Path, typer.Option(help="SteeringEngine JSON config path.")] = DEFAULT_ENGINE_CONFIG,
+    no_steering: Annotated[bool, typer.Option("--no-steering", help="Run baseline (no steering vectors).")] = False,
 ) -> None:
     settings = get_settings()
-    out_path = out or settings.preferences_path
+    out_path = out or Path("./data/preferences.jsonl")
     temps = _parse_temperatures(temperatures)
-
-    if generator not in ("together", "hf", "corpius"):
-        typer.echo(f"Unknown --generator {generator!r}; choose 'together', 'hf', or 'corpius'.", err=True)
-        raise typer.Exit(code=2)
 
     estimate = pricing.estimate_sibling_run_cost(n_prompts, siblings=siblings)
     typer.echo(
@@ -93,18 +86,10 @@ def main(
         if seen_prompts:
             typer.echo(f"Resume: {len(seen_prompts)} prompt(s) already in {out_path}; skipping.")
 
-    effective_strength = (
-        steering_strength
-        if steering_strength is not None
-        else (settings.default_steering_strength if steering_path is not None else None)
+    gen = EngineGenerator.from_config_path(
+        engine_config, do_steering=not no_steering,
     )
-    _corpius_cfg = corpius_config or settings.corpius_config_path
-    gen = make_generator(
-        adapter,
-        steering_path=steering_path,
-        steering_strength=effective_strength,
-        corpius_config_path=_corpius_cfg if generator == "corpius" else None,
-    )
+    generator_model = gen.model_id
     sibling_run_id = str(uuid.uuid4())
 
     cap = min(n_prompts, max_calls)
@@ -161,23 +146,11 @@ def main(
                 max_tokens=max_tokens,
             )
 
-            # Per-component cost accounting based on cached flags from each sample.
             for s in sibs:
                 call_counts["generator"] += 1
                 call_counts["evaluator"] += 1
-                local_generator = adapter is not None or steering_path is not None or generator == "corpius"
-                if not s.generator_cached and not local_generator:
-                    g_cost = pricing.cost_of(
-                        settings.together_base_model,
-                        len(prompt_text) // 4 + 50,
-                        len(s.response) // 4 + 1,
-                    )
-                    total_cost += g_cost
-                    cost_breakdown["generator"] += g_cost
+                # Local generation — no API cost for generator
                 if not s.evaluator_cached:
-                    # Use token budget heuristic; we don't get back a Usage object
-                    # for cached evaluator results so the conservative path uses
-                    # the budgeted token counts from pricing._TOKEN_BUDGET.
                     e_in, e_out = pricing._TOKEN_BUDGET["evaluator"]
                     e_cost = pricing.cost_of(settings.evaluator_model, e_in, e_out)
                     total_cost += e_cost
@@ -197,7 +170,7 @@ def main(
                 domain=domain,
                 siblings=sibs,
                 sibling_run_id=sibling_run_id,
-                generator_model=settings.together_base_model,
+                generator_model=generator_model,
                 evaluator_model=settings.evaluator_model,
                 rubric_version=evaluator.RUBRIC_VERSION,
                 min_gap=min_gap,

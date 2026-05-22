@@ -5,14 +5,14 @@ Reads the prompt suite from ``config/benchmark_creative_briefs.json`` and runs
 N outputs per prompt against ``Qwen/Qwen2.5-14B-Instruct`` with the complete
 Conceptial stack:
 
-- **CAA steering vectors** at L19 (creative) and L24 (technical), loaded from
-  the artifacts produced by ``scripts/extract_14b_vectors.py``.
+- **CAA steering vectors** at L17 (creative, sweep-validated 2026-05-18) and
+  L24 (technical), loaded from ``data/steering_14b/``.
 - **Orthogonal-projection purification** — already baked into the loaded
   vectors via ``hyper_purify_vector``.
-- **v17 alpha schedule** — exponential decay on creative, sigmoid ramp on
-  technical (same schedule as Corpius 1; may need re-tuning at 14B).
-- **Iterative anti-mode L19 residual orthogonalization** — captures each
-  sample's first generated token's L19 residual; for sample k>=1, the creative
+- **v17 alpha schedule** — exponential decay on creative (α₀=1.5), sigmoid
+  ramp on technical (α₀=0.86).
+- **Iterative anti-mode L17 residual orthogonalization** — captures each
+  sample's first generated token's L17 residual; for sample k>=1, the creative
   vector is re-purified orthogonal to the mean prior residual before generation.
 - **Prompt-level anti-mode** — exclusion list of prior concept summaries.
 - **Persistent project memory** — SQLite per-project store, reset before each
@@ -135,7 +135,7 @@ def main() -> int:
     parser.add_argument(
         "--no-iterative-anti-mode",
         action="store_true",
-        help="Disable iterative L19 first-token residual orthogonalization.",
+        help="Disable iterative L17 first-token residual orthogonalization.",
     )
     parser.add_argument(
         "--no-steering",
@@ -298,7 +298,7 @@ def main() -> int:
                 archetype_seed=seed_for_k,
             )
 
-            # 3. Sample with min-p + temperature jitter; capture L19 first-token residual.
+            # 3. Sample with min-p + temperature jitter; capture L17 first-token residual.
             temp = float(
                 args.base_temp + (((k * 0.61803) % 1.0 - 0.5) * args.temp_jitter * 2)
             )

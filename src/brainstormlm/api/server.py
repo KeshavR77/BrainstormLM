@@ -1,41 +1,33 @@
-"""FastAPI server wrapping the BrainstormLM Generator protocol (plan-06).
+"""FastAPI server for Conceptial brainstorming.
 
 Endpoints:
-  - GET  /healthz           — liveness + promoted-adapter pointer.
-  - POST /ask (SSE)         — streams meta → token(s) → done events.
+  - GET  /healthz           — liveness check.
   - POST /feedback          — attach a HumanRating to an existing trajectory.
-  - GET  /metrics           — request counts, latency by arm, cache hit rate.
-
-The model is never loaded at import time. ``build_app`` accepts a
-``make_generator`` factory so tests can stub it; default is the real
-``brainstormlm.model.factory.make_generator``.
+  - POST /brainstorm        — non-streaming idea generation (demo packs).
+  - POST /brainstorm/stream — phased SSE streaming (primary product path).
+  - GET  /v1/memory/count   — per-project memory breakdown.
+  - POST /v1/memory/reset   — wipe a project's idea memory.
+  - GET  /metrics           — request counts, latency, cache hit rate.
 """
 
 from __future__ import annotations
 
 import datetime as dt
+import hashlib as _hashlib
 import json
-import time
-import uuid
-from collections.abc import Callable, Iterator
 from pathlib import Path
-from typing import Any
 
-from fastapi import BackgroundTasks, FastAPI, HTTPException, Request
+from fastapi import BackgroundTasks, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
 from brainstormlm.api.logging_ import RequestLogger
-from brainstormlm.api.routing import load_ab_config, resolve_arm
 from brainstormlm.api.safety import (
     RateLimitMiddleware,
     TokenBucket,
-    scrub_lessons,
     validate_user_prompt,
 )
 from brainstormlm.api.schemas import (
-    AskRequest,
     BrainstormRequest,
     BrainstormResponse,
     FeedbackRequest,
@@ -53,33 +45,13 @@ from brainstormlm.feedback.human import (
     utc_now_iso,
 )
 from brainstormlm.feedback.trajectories import HumanRating, Trajectory
-from brainstormlm.memory import LessonStore, augmented_system, retrieve
 from brainstormlm.memory.ingest import ingest_human_feedback
 
-# ML-heavy imports are optional — not present in demo/lightweight deployments.
-try:
-    from brainstormlm.model.factory import make_generator as default_make_generator
-    from brainstormlm.training.promotion import read_promoted as _read_promoted
-    _ML_AVAILABLE = True
-except ImportError:
-    default_make_generator = None  # type: ignore[assignment]
-    _read_promoted = None  # type: ignore[assignment]
-    _ML_AVAILABLE = False
-
-import os as _os
-_DEMO_MODE: bool = _os.environ.get("CONCEPTIAL_DEMO", "").lower() in ("1", "true", "yes")
-
-GeneratorFactory = Callable[..., Any]
-
-_SSE_CHUNK_TOKENS = 50  # words per simulated token event
 
 # ---------------------------------------------------------------------------
-# Smoke idea packs — returned by /brainstorm in demo mode.
-# Eight packs of 4 ideas each, spanning different strategic dimensions.
-# Pack is chosen deterministically by SHA256(prompt) so the same prompt
-# always returns the same pack, giving a consistent demo experience.
+# Smoke idea packs — returned by /brainstorm in demo mode and used as
+# fallback by streaming.py when the Conceptial source is opt-out disabled.
 # ---------------------------------------------------------------------------
-import hashlib as _hashlib  # noqa: E402  — deferred next to the pack table it serves.
 
 _SMOKE_PACKS: list[list[dict]] = [
     [   # Pack 0 — Distribution / Market Entry
@@ -143,36 +115,13 @@ def _smoke_ideas(prompt: str, n: int) -> list[IdeaBranch]:
     ]
 
 
-def _noop_read_promoted(path: Any) -> Any:
-    """Minimal stand-in for read_promoted when ML deps are absent."""
-    from types import SimpleNamespace
-    return SimpleNamespace(adapter_path=None, steering_path=None)
-
-
-def _utc_now_iso() -> str:
-    return dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
-
-
-def _chunk_response(text: str, *, chunk_size: int = _SSE_CHUNK_TOKENS) -> Iterator[str]:
-    """Split a final response into roughly-token-sized windows for SSE pacing."""
-    words = text.split(" ")
-    for i in range(0, len(words), chunk_size):
-        yield " ".join(words[i : i + chunk_size])
-
-
 def _sse(event: str, data: dict) -> str:
     return f"event: {event}\ndata: {json.dumps(data, sort_keys=True)}\n\n"
 
 
-def build_app(
-    *,
-    make_generator: GeneratorFactory | None = None,
-) -> FastAPI:
-    """Build a FastAPI app. ``make_generator`` is overridable for tests."""
+def build_app() -> FastAPI:
     settings = get_settings()
-    factory = make_generator or default_make_generator
-    _promote = _read_promoted if _ML_AVAILABLE else _noop_read_promoted
-    app = FastAPI(title="Conceptial", version="0.7.0")
+    app = FastAPI(title="Conceptial", version="0.8.0")
 
     app.add_middleware(
         CORSMiddleware,
@@ -191,126 +140,7 @@ def build_app(
 
     @app.get("/healthz", response_model=HealthzResponse)
     def healthz() -> HealthzResponse:
-        promoted = _promote(settings.promoted_adapter_path)
-        return HealthzResponse(
-            ok=True,
-            promoted_adapter=promoted.adapter_path,
-            promoted_steering=promoted.steering_path,
-        )
-
-    @app.post("/ask")
-    def ask(req: AskRequest, request: Request) -> Any:
-        try:
-            validate_user_prompt(req.prompt, max_len=settings.user_prompt_max_chars)
-        except ValueError as e:
-            return JSONResponse({"error": "bad_prompt", "detail": str(e)}, status_code=400)
-
-        ab_cfg = load_ab_config(settings.ab_config_path)
-        resolution = resolve_arm(req.session_id, ab_cfg)
-
-        promoted = _promote(settings.promoted_adapter_path)
-        adapter_path = resolution.adapter_path
-        steering_path = resolution.steering_path
-        if adapter_path is None and promoted.adapter_path:
-            adapter_path = Path(promoted.adapter_path)
-        if steering_path is None and promoted.steering_path:
-            steering_path = Path(promoted.steering_path)
-
-        system: str | None = None
-        memory_context_ids: list[str] = []
-        if req.use_memory:
-            store = LessonStore(settings.lessons_path)
-            store.load()
-            lessons = retrieve(
-                store, req.prompt, k_success=req.k_success, k_failure=req.k_failure
-            )
-            scrubbed = scrub_lessons(lessons)
-            system = augmented_system(None, scrubbed)
-            memory_context_ids = [lesson.id for lesson in scrubbed]
-
-        generator = factory(
-            adapter_path,
-            steering_path=steering_path,
-            corpius_config_path=resolution.corpius_config_path,
-        )
-
-        t0 = time.perf_counter()
-        response_text = generator.generate(
-            req.prompt,
-            system=system,
-            temperature=req.temperature,
-            max_tokens=req.max_tokens,
-        )
-        latency_ms = (time.perf_counter() - t0) * 1000.0
-
-        trajectory_id = new_trajectory_id()
-        is_corpius = resolution.corpius_config_path is not None
-        is_local = adapter_path is not None or steering_path is not None or is_corpius
-        if is_corpius:
-            generator_model = "Qwen/Qwen2.5-3B-Instruct (Corpius 1)"
-        elif is_local:
-            generator_model = settings.hf_base_model
-        else:
-            generator_model = settings.together_base_model
-
-        trajectory = Trajectory(
-            id=trajectory_id,
-            timestamp=utc_now_iso(),
-            domain="user",
-            prompt=req.prompt,
-            response=response_text,
-            generator_model=generator_model,
-            generator_temperature=req.temperature,
-            prompter_model="(human)",
-            evaluator_model=settings.evaluator_model,
-            rubric_version=RUBRIC_VERSION,
-            creativity=1,  # placeholder; agreement.py only counts rated rows
-            logic=1,
-            rationale="(awaiting human feedback)",
-            failure_modes=[],
-            memory_context_ids=memory_context_ids,
-            adapter_path=str(adapter_path) if adapter_path else None,
-            steering_path=str(steering_path) if steering_path else None,
-            source="human",
-            human_rating=None,
-        )
-        append_human(trajectory, path=settings.feedback_human_path)
-
-        logger.log(
-            {
-                "route": "/ask",
-                "request_id": uuid.uuid4().hex,
-                "trajectory_id": trajectory_id,
-                "session_id": req.session_id,
-                "arm": resolution.arm,
-                "adapter_path": str(adapter_path) if adapter_path else None,
-                "steering_path": str(steering_path) if steering_path else None,
-                "latency_ms": round(latency_ms, 2),
-                "status": 200,
-            }
-        )
-
-        def _stream() -> Iterator[str]:
-            yield _sse(
-                "meta",
-                {
-                    "trajectory_id": trajectory_id,
-                    "arm": resolution.arm,
-                    "adapter_path": str(adapter_path) if adapter_path else None,
-                },
-            )
-            for chunk in _chunk_response(response_text):
-                yield _sse("token", {"text": chunk})
-            yield _sse(
-                "done",
-                {
-                    "trajectory_id": trajectory_id,
-                    "creativity": None,
-                    "logic": None,
-                },
-            )
-
-        return StreamingResponse(_stream(), media_type="text/event-stream")
+        return HealthzResponse(ok=True)
 
     @app.post("/feedback", response_model=FeedbackResponse)
     def feedback(req: FeedbackRequest, background: BackgroundTasks) -> FeedbackResponse:
@@ -327,9 +157,6 @@ def build_app(
         except KeyError as e:
             raise HTTPException(status_code=404, detail=str(e)) from e
 
-        # Fold thumbs-up rows into the ReasoningBank in the background so the
-        # /feedback response stays instant. ingest_human_feedback no-ops on
-        # thumbs="down" and swallows its own errors.
         background.add_task(
             ingest_human_feedback, rated, lessons_path=settings.lessons_path
         )
@@ -345,8 +172,7 @@ def build_app(
         )
         return FeedbackResponse(ok=True)
 
-    def _persist_brainstorm_trajectory(traj: "Trajectory") -> None:
-        """Attempt to write a brainstorm trajectory; silently swallow FS errors (e.g. Render ephemeral FS)."""
+    def _persist_brainstorm_trajectory(traj: Trajectory) -> None:
         try:
             append_human(traj, path=settings.feedback_human_path)
         except OSError:
@@ -359,64 +185,16 @@ def build_app(
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e)) from e
 
-        if _DEMO_MODE or not _ML_AVAILABLE:
-            smoke = _smoke_ideas(req.prompt, req.n_ideas)
-            # Persist stub trajectories for each smoke idea (best-effort)
-            for idea in smoke:
-                traj = Trajectory(
-                    id=idea.trajectory_id,
-                    timestamp=utc_now_iso(),
-                    domain="brainstorm",
-                    prompt=req.prompt,
-                    response=idea.content,
-                    generator_model="conceptial-demo",
-                    generator_temperature=0.0,
-                    prompter_model="(human)",
-                    evaluator_model=settings.evaluator_model,
-                    rubric_version=RUBRIC_VERSION,
-                    creativity=1,
-                    logic=1,
-                    rationale="(awaiting feedback)",
-                    failure_modes=[],
-                    memory_context_ids=[],
-                    source="human",
-                    human_rating=None,
-                )
-                _persist_brainstorm_trajectory(traj)
-            return BrainstormResponse(ideas=smoke)
-
-        system: str | None = None
-        memory_context_ids: list[str] = []
-        if req.use_memory:
-            store = LessonStore(settings.lessons_path)
-            store.load()
-            lessons = retrieve(store, req.prompt, k_success=3, k_failure=2)
-            scrubbed = scrub_lessons(lessons)
-            system = augmented_system(None, scrubbed)
-            memory_context_ids = [lesson.id for lesson in scrubbed]
-
-        corpius_config = settings.corpius_config_path if settings.corpius_config_path.exists() else None
-        temperatures = [0.9, 1.0, 1.1, 1.2]
-        ideas: list[IdeaBranch] = []
-        for i in range(req.n_ideas):
-            temp = temperatures[i % len(temperatures)]
-            gen = factory(None, corpius_config_path=corpius_config)
-            full_prompt = req.prompt
-            if req.context:
-                full_prompt = f"{req.context}\n\n{req.prompt}"
-            text = gen.generate(full_prompt, system=system, temperature=temp, max_tokens=600)
-            first_line = text.split("\n")[0].strip()
-            summary = first_line[:60] if len(first_line) <= 60 else first_line[:57] + "..."
-
-            tid = new_trajectory_id()
+        smoke = _smoke_ideas(req.prompt, req.n_ideas)
+        for idea in smoke:
             traj = Trajectory(
-                id=tid,
+                id=idea.trajectory_id,
                 timestamp=utc_now_iso(),
                 domain="brainstorm",
                 prompt=req.prompt,
-                response=text,
-                generator_model="Qwen/Qwen2.5-3B-Instruct (Corpius 1)" if corpius_config else settings.together_base_model,
-                generator_temperature=temp,
+                response=idea.content,
+                generator_model="conceptial-demo",
+                generator_temperature=0.0,
                 prompter_model="(human)",
                 evaluator_model=settings.evaluator_model,
                 rubric_version=RUBRIC_VERSION,
@@ -424,19 +202,16 @@ def build_app(
                 logic=1,
                 rationale="(awaiting feedback)",
                 failure_modes=[],
-                memory_context_ids=memory_context_ids,
+                memory_context_ids=[],
                 source="human",
                 human_rating=None,
             )
             _persist_brainstorm_trajectory(traj)
-            ideas.append(IdeaBranch(summary=summary, content=text, trajectory_id=tid))
-
-        return BrainstormResponse(ideas=ideas)
+        return BrainstormResponse(ideas=smoke)
 
     @app.get("/metrics", response_model=MetricsResponse)
     def metrics() -> MetricsResponse:
         records = logger.snapshot()
-        ask_records = [r for r in records if r.get("route") == "/ask"]
         now = dt.datetime.now(dt.timezone.utc)
         cutoff = now - dt.timedelta(seconds=60)
 
@@ -446,39 +221,22 @@ def build_app(
             except (KeyError, ValueError):
                 return None
 
-        recent = [r for r in ask_records if (t := _ts(r)) is not None and t >= cutoff]
+        recent = [r for r in records if (t := _ts(r)) is not None and t >= cutoff]
 
-        latency_by_arm: dict[str, list[float]] = {}
-        for r in ask_records:
-            arm = r.get("arm", "unknown")
-            latency = r.get("latency_ms")
-            if latency is None:
-                continue
-            latency_by_arm.setdefault(arm, []).append(float(latency))
-
-        mean_latency = {
-            arm: round(sum(vs) / len(vs), 2) for arm, vs in latency_by_arm.items() if vs
-        }
-
-        cache_hit_rate = 0.0  # placeholder until we wire generator_cached into logs
+        latencies = [float(r["latency_ms"]) for r in records if r.get("latency_ms") is not None]
+        mean_latency = round(sum(latencies) / len(latencies), 2) if latencies else 0.0
 
         return MetricsResponse(
-            total_requests=len(ask_records),
+            total_requests=len(records),
             requests_last_60s=len(recent),
-            mean_latency_ms_by_arm=mean_latency,
-            cache_hit_rate=cache_hit_rate,
+            mean_latency_ms=mean_latency,
+            cache_hit_rate=0.0,
         )
 
-    # Mount streaming SSE router before the static file mount
     from brainstormlm.api.streaming import build_streaming_router
-    streaming_router = build_streaming_router(
-        factory=factory,
-        demo_mode=_DEMO_MODE,
-        ml_available=_ML_AVAILABLE,
-    )
+    streaming_router = build_streaming_router()
     app.include_router(streaming_router)
 
-    # Mount the built React app when dist/ exists; dev uses the Vite dev server.
     frontend_dist = Path(__file__).resolve().parents[3] / "frontend" / "dist"
     if frontend_dist.exists():
         app.mount("/", StaticFiles(directory=str(frontend_dist), html=True), name="frontend")
@@ -486,5 +244,4 @@ def build_app(
     return app
 
 
-# Default app for ``uvicorn brainstormlm.api.server:app`` invocations.
 app = build_app()

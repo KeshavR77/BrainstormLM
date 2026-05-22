@@ -2,12 +2,11 @@
 """Sweep creative layer × alpha to find the best Conceptial 14B operating point.
 
 Runs on a RunPod A100 80GB pod, AFTER ``scripts/extract_14b_vectors.py``.
-Mitigates the two open caveats in the 14B port:
+Resolved the two open caveats in the 14B port (run 2026-05-18):
 
-1. ``creative_start_alpha`` is inherited from 3B Corpius 1 (α₀=2.62) and may
-   be miscalibrated at 14B's hidden_size 5120.
-2. ``creative_layer=19`` is a depth-scaled guess (≈ 3B's L14 on the 36-layer
-   stack). The right operating layer is empirical.
+1. ``creative_start_alpha`` — sweep selected α₀=1.5 (down from 3B's 2.62).
+2. ``creative_layer`` — sweep selected L17 (depth 0.354), beating the
+   depth-scaled guess of L19 (Vendi 3.32 vs 2.26).
 
 The sweep:
 
