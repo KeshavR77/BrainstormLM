@@ -51,8 +51,15 @@ to: we generate **responses**, keep only the ones a creativity **evaluator verif
   - `all_layers_single_vector`: inject one chosen vector at *every* layer with a small alpha.
   - `multi_vector_combo`: inject several layer-specific vectors at their own layers at once.
 
-Every patched generation is scored by the **creativity evaluator** (`scoring.py`, wrapping
-the repo's `creativity_evaluator`; swappable for a different evaluator later).
+Every patched generation is scored by a **creativity scorer** (`scoring.py`) behind the
+swappable `CreativityScorer` interface:
+- `"real"` — the full `creativity_evaluator`, **vendored under `src/creativity_evaluator/`**
+  (recovered from the parent repo before its clean-up): Vendi diversity, self-BLEU /
+  distinct-n, embedding prompt-distance, and an optional Prism LLM judge. Needs the `real` extra.
+- `"embedding"` — a lighter self-contained embedding + lexical scorer (`real`-free except
+  sentence-transformers).
+- `"heuristic"` — dependency-free lexical proxy; the default for offline/mock runs and the
+  test suite.
 
 ## Layer convention
 
@@ -80,7 +87,8 @@ python -m creativity_steering.cli multi   --run artifacts/run --config configs/l
 `configs/qwen_0_5b_local.json` runs the real (small) Qwen2.5-0.5B locally; switch to
 `configs/runpod_qwen14b.json` on a RunPod A100/H100 for the 14B target. Both set
 `backend="hf"`; the only differences from the mock config are `backend`, `model_id`,
-`device`, and `scorer="real"`. Install the GPU extras with `pip install -e ".[hf]"`.
+`device`, and `scorer="real"`. Install the extras with `pip install -e ".[hf,real]"`
+(`hf` = the Qwen backend; `real` = the full vendored creativity evaluator).
 
 ## Tests
 
@@ -99,5 +107,6 @@ backend is not unit-tested (it needs a model download); exercise it with the `hf
 - [x] Full scaffolding: derivation, analysis, patching, CLI, configs, mock + HF backends.
 - [ ] Wire the real `LatentQAOracle` adapter on a GPU pod (documented slot in `oracle.py`).
 - [ ] Run on Qwen2.5-14B on RunPod and re-tune thresholds/alphas against real evaluator scores.
-- [ ] Optional: swap `creativity_evaluator` for a more verifiable evaluator (the scorer
-      adapter already isolates this).
+- [ ] Optional: swap in a more verifiable evaluator (the `CreativityScorer` adapter isolates
+      this; `"real"` currently uses the full vendored `creativity_evaluator`). Enabling its
+      Prism LLM judge needs an Anthropic/OpenAI key.

@@ -4,11 +4,16 @@ The derivation filter and the patching evaluation both need a single creativity 
 per response (and per collection). We isolate that behind ``CreativityScorer`` so the
 underlying evaluator can be swapped later (the user explicitly wants this option):
 
-  * ``RealCreativityScorer`` — wraps ``creativity_evaluator.CreativityEvaluator`` (the
-    repo's existing evaluator). Loads a sentence-transformer, so it is used in real runs
-    and the demo, not in fast unit tests.
-  * ``HeuristicScorer`` — dependency-free lexical proxy (distinct-2 + low repetition +
-    length). Lets the whole pipeline run fully offline.
+  * ``CreativityEvaluatorScorer`` (factory name ``"real"``) — wraps the full
+    ``creativity_evaluator`` package, now vendored *inside* this repo (it was removed from
+    the parent repo's clean-up). Gives the richer signal: Vendi diversity, self-BLEU /
+    distinct-n lexical metrics, embedding prompt-distance, and an optional Prism LLM judge.
+    Needs the ``real`` extra (sentence-transformers, vendi-score, nltk, scipy, and — only if
+    the judge is enabled — anthropic/openai). Used in real runs, not in fast unit tests.
+  * ``EmbeddingCreativityScorer`` (factory name ``"embedding"``) — a lighter self-contained
+    embedding + lexical scorer (prompt distance + distinct-2 + low repetition).
+  * ``HeuristicScorer`` (factory name ``"heuristic"``) — dependency-free lexical proxy. The
+    default for offline/mock runs and the whole test suite.
   * ``FakeScorer`` — returns caller-supplied scores; for deterministic unit tests.
 """
 
@@ -29,6 +34,15 @@ def _distinct_2(text: str) -> float:
         return 0.0
     bigrams = list(zip(toks[:-1], toks[1:]))
     return len(set(bigrams)) / len(bigrams)
+
+
+def _bigram_repetition(text: str) -> float:
+    """Within-text bigram repetition rate in [0, 1]; higher = more repetitive."""
+    toks = _tokens(text)
+    if len(toks) < 2:
+        return 0.0
+    bigrams = list(zip(toks[:-1], toks[1:]))
+    return 1.0 - len(set(bigrams)) / len(bigrams)
 
 
 class CreativityScorer(ABC):
@@ -82,10 +96,68 @@ class FakeScorer(CreativityScorer):
         return float(self._collection)
 
 
-class RealCreativityScorer(CreativityScorer):
-    """Wraps the repo's ``creativity_evaluator.CreativityEvaluator`` (lazy-constructed)."""
+class EmbeddingCreativityScorer(CreativityScorer):
+    """Self-contained embedding + lexical scorer (no dependency on the removed eval pkg).
 
-    def __init__(self, judge=None) -> None:  # noqa: ANN001 — optional prism judge
+    ``score_single`` mirrors the former evaluator's no-judge single-response formula:
+    50% prompt→response cosine distance + 30% distinct-2 + 20% (1 − bigram repetition).
+    ``score_collection`` uses mean pairwise embedding distance as a diversity proxy.
+
+    Needs ``sentence-transformers`` (the ``real`` extra); imported lazily so the rest of the
+    package stays offline. The model is loaded once and cached.
+    """
+
+    def __init__(self, model_name: str = "sentence-transformers/all-MiniLM-L6-v2") -> None:
+        self._model_name = model_name
+        self._model = None
+
+    def _embed(self, texts: list[str]):
+        import numpy as np
+
+        if self._model is None:
+            from sentence_transformers import SentenceTransformer
+
+            self._model = SentenceTransformer(self._model_name)
+        return np.asarray(
+            self._model.encode(texts, convert_to_numpy=True, normalize_embeddings=True),
+            dtype=np.float32,
+        )
+
+    def score_single(self, text: str, prompt: str) -> float:
+        if not text:
+            return 0.0
+        import numpy as np
+
+        emb = self._embed([prompt, text])
+        dist = float(1.0 - np.dot(emb[0], emb[1]))  # cosine distance, embeddings L2-normalised
+        dist_norm = min(max(dist, 0.0) / 2.0, 1.0)
+        novelty_lex = max(0.0, 1.0 - _bigram_repetition(text))
+        score = 0.5 * dist_norm + 0.3 * _distinct_2(text) + 0.2 * novelty_lex
+        return float(max(0.0, min(1.0, score)))
+
+    def score_collection(self, texts: list[str], prompt: str | None = None) -> float:  # noqa: ARG002
+        if len(texts) < 2:
+            return 0.0
+        import numpy as np
+
+        emb = self._embed(list(texts))
+        sims = emb @ emb.T
+        n = sims.shape[0]
+        off_diag = (sims.sum() - np.trace(sims)) / (n * (n - 1))
+        return float(max(0.0, min(1.0, 1.0 - off_diag)))
+
+
+class CreativityEvaluatorScorer(CreativityScorer):
+    """Wraps the vendored ``creativity_evaluator.CreativityEvaluator`` (the full evaluator).
+
+    ``score_single`` → ``evaluate_single(text, prompt).score``; ``score_collection`` →
+    ``evaluate(texts, prompt).score``. Pass ``judge=`` (a ``creativity_evaluator`` judge, e.g.
+    ``ClaudeJudge()``) to fold the Prism LLM originality dimensions into the score; the
+    default (``None``) uses the structural + lexical + embedding metrics only. The package
+    and its model are imported/loaded lazily, so this stays out of the offline path until used.
+    """
+
+    def __init__(self, judge=None) -> None:  # noqa: ANN001 — optional creativity_evaluator judge
         self._judge = judge
         self._evaluator = None
 
@@ -104,10 +176,15 @@ class RealCreativityScorer(CreativityScorer):
 
 
 def make_scorer(name: str) -> CreativityScorer:
-    """Factory: ``"real"`` | ``"heuristic"``. (``"fake"`` is constructed directly in tests.)"""
+    """Factory: ``"real"`` (full vendored evaluator) | ``"embedding"`` | ``"heuristic"``.
+
+    (``"fake"`` is constructed directly in tests.)
+    """
     name = name.lower()
     if name == "real":
-        return RealCreativityScorer()
+        return CreativityEvaluatorScorer()
+    if name == "embedding":
+        return EmbeddingCreativityScorer()
     if name == "heuristic":
         return HeuristicScorer()
-    raise ValueError(f"unknown scorer {name!r}; use 'real' or 'heuristic'")
+    raise ValueError(f"unknown scorer {name!r}; use 'real', 'embedding', or 'heuristic'")
