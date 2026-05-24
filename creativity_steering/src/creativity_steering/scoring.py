@@ -4,14 +4,14 @@ The derivation filter and the patching evaluation both need a single creativity 
 per response (and per collection). We isolate that behind ``CreativityScorer`` so the
 underlying evaluator can be swapped later (the user explicitly wants this option):
 
-  * ``CreativityEvaluatorScorer`` (factory name ``"real"``) — wraps the full
-    ``creativity_evaluator`` package, now vendored *inside* this repo (it was removed from
-    the parent repo's clean-up). Gives the richer signal: Vendi diversity, self-BLEU /
-    distinct-n lexical metrics, embedding prompt-distance, and an optional Prism LLM judge.
-    Needs the ``real`` extra (sentence-transformers, vendi-score, nltk, scipy, and — only if
-    the judge is enabled — anthropic/openai). Used in real runs, not in fast unit tests.
-  * ``EmbeddingCreativityScorer`` (factory name ``"embedding"``) — a lighter self-contained
-    embedding + lexical scorer (prompt distance + distinct-2 + low repetition).
+  * ``EmbeddingCreativityScorer`` (factory names ``"embedding"`` and ``"real"``) — a
+    self-contained embedding + lexical per-item scorer (prompt distance + distinct-2 + low
+    repetition). Needs the ``embedding`` extra (sentence-transformers); imported lazily so the
+    rest of the package stays offline. This is the per-item scorer used by the *patching*
+    evaluation. The former vendored ``creativity_evaluator`` wrapper has been retired — the
+    richer two-stage signal (DSI + LLM-as-judge) now lives in the sibling
+    ``creativity_evaluators`` package and is used for *derivation* filtering via
+    ``derivation/evaluator_filter.py``.
   * ``HeuristicScorer`` (factory name ``"heuristic"``) — dependency-free lexical proxy. The
     default for offline/mock runs and the whole test suite.
   * ``FakeScorer`` — returns caller-supplied scores; for deterministic unit tests.
@@ -147,43 +147,17 @@ class EmbeddingCreativityScorer(CreativityScorer):
         return float(max(0.0, min(1.0, 1.0 - off_diag)))
 
 
-class CreativityEvaluatorScorer(CreativityScorer):
-    """Wraps the vendored ``creativity_evaluator.CreativityEvaluator`` (the full evaluator).
-
-    ``score_single`` → ``evaluate_single(text, prompt).score``; ``score_collection`` →
-    ``evaluate(texts, prompt).score``. Pass ``judge=`` (a ``creativity_evaluator`` judge, e.g.
-    ``ClaudeJudge()``) to fold the Prism LLM originality dimensions into the score; the
-    default (``None``) uses the structural + lexical + embedding metrics only. The package
-    and its model are imported/loaded lazily, so this stays out of the offline path until used.
-    """
-
-    def __init__(self, judge=None) -> None:  # noqa: ANN001 — optional creativity_evaluator judge
-        self._judge = judge
-        self._evaluator = None
-
-    def _ev(self):
-        if self._evaluator is None:
-            from creativity_evaluator.evaluator import CreativityEvaluator
-
-            self._evaluator = CreativityEvaluator(judge=self._judge)
-        return self._evaluator
-
-    def score_single(self, text: str, prompt: str) -> float:
-        return float(self._ev().evaluate_single(text, prompt).score)
-
-    def score_collection(self, texts: list[str], prompt: str | None = None) -> float:
-        return float(self._ev().evaluate(texts, prompt).score)
-
-
 def make_scorer(name: str) -> CreativityScorer:
-    """Factory: ``"real"`` (full vendored evaluator) | ``"embedding"`` | ``"heuristic"``.
+    """Factory for the per-item *patching-eval* scorer.
 
-    (``"fake"`` is constructed directly in tests.)
+    ``"embedding"`` / ``"real"`` → ``EmbeddingCreativityScorer`` (the former vendored "real"
+    evaluator has been retired); ``"heuristic"`` → ``HeuristicScorer``. (``"fake"`` is built
+    directly in tests.) Derivation *filtering* with the full two-stage stack is configured
+    separately via ``FilterConfig.method == "evaluator_stack"`` (see
+    ``derivation/evaluator_filter.py``).
     """
     name = name.lower()
-    if name == "real":
-        return CreativityEvaluatorScorer()
-    if name == "embedding":
+    if name in ("real", "embedding"):
         return EmbeddingCreativityScorer()
     if name == "heuristic":
         return HeuristicScorer()

@@ -24,8 +24,17 @@ to: we generate **responses**, keep only the ones a creativity **evaluator verif
 ### 1. Vector derivation (`derivation/`)
 1. **Generate** responses to a creativity-invoking framing and a neutral framing over a
    shared set of topics, caching each response's per-layer residual activations
-   (`generate.py`). Default capture position is the **last generated token**; `mean_response`
-   and `assistant_start` are cached too for comparison.
+   (`generate.py`). The contrast is driven by **decoding as well as framing**: each pool has
+   its own `SamplingPreset` (`config.py`). The **creative** pool samples at high temperature
+   (1.2) with a 0.95 nucleus, top-k off, a 0.02 min-p coherence floor, and a mild 1.1
+   repetition penalty; the **neutral** pool decodes **greedily** (the most standard, expected
+   output). A knob left at its no-op value is not forwarded, so the model's own generation
+   default applies (`build_generate_kwargs`). Default capture position is the **last generated
+   token**; `mean_response` and `assistant_start` are cached too for comparison.
+
+   *Note:* greedy is deterministic, so on the real model the neutral pool yields one response
+   per topic regardless of `samples_per_prompt` — size that pool via the topic count (and mind
+   `min_per_class`), not by sampling more.
 2. **Filter** to an evaluator-verified subset (`filter.py`): a creative-framed response is a
    *positive* only if its creativity score ≥ `creative_min`; a neutral-framed response is a
    *negative* only if ≤ `neutral_max`. The ambiguous middle is dropped, so the two pools are
@@ -53,13 +62,19 @@ to: we generate **responses**, keep only the ones a creativity **evaluator verif
 
 Every patched generation is scored by a **creativity scorer** (`scoring.py`) behind the
 swappable `CreativityScorer` interface:
-- `"real"` — the full `creativity_evaluator`, **vendored under `src/creativity_evaluator/`**
-  (recovered from the parent repo before its clean-up): Vendi diversity, self-BLEU /
-  distinct-n, embedding prompt-distance, and an optional Prism LLM judge. Needs the `real` extra.
-- `"embedding"` — a lighter self-contained embedding + lexical scorer (`real`-free except
-  sentence-transformers).
+- `"real"` / `"embedding"` — a self-contained embedding + lexical scorer (prompt distance +
+  distinct-2 + low repetition); needs the `embedding` extra (sentence-transformers). The
+  former vendored `creativity_evaluator` wrapper has been retired (parked at the repo root as
+  `old_creativity_evaluators/`); the richer two-stage signal now lives in the sibling
+  `creativity_evaluators` package — see *derivation filtering* below.
 - `"heuristic"` — dependency-free lexical proxy; the default for offline/mock runs and the
   test suite.
+
+**Derivation filtering** can optionally use the full two-stage `creativity_evaluators` stack
+(Stage 1 model-free signals — DSI etc. — plus a Stage 2 LLM-as-judge ensemble) instead of the
+per-item scorer: set `FilterConfig.method = "evaluator_stack"`. It scores every generated
+response, keeps the highest-scoring creative-framed and lowest-scoring neutral-framed
+responses (by quantile), and feeds only those to DiffMeans. See `derivation/evaluator_filter.py`.
 
 ## Layer convention
 
@@ -107,6 +122,7 @@ backend is not unit-tested (it needs a model download); exercise it with the `hf
 - [x] Full scaffolding: derivation, analysis, patching, CLI, configs, mock + HF backends.
 - [ ] Wire the real `LatentQAOracle` adapter on a GPU pod (documented slot in `oracle.py`).
 - [ ] Run on Qwen2.5-14B on RunPod and re-tune thresholds/alphas against real evaluator scores.
-- [ ] Optional: swap in a more verifiable evaluator (the `CreativityScorer` adapter isolates
-      this; `"real"` currently uses the full vendored `creativity_evaluator`). Enabling its
-      Prism LLM judge needs an Anthropic/OpenAI key.
+- [x] Verifiable two-stage filtering: `FilterConfig.method = "evaluator_stack"` runs the
+      sibling `creativity_evaluators` stack (DSI + LLM-as-judge ensemble) over the generated
+      responses and keeps only the top creative / bottom neutral examples for DiffMeans. The
+      Stage-2 judge ensemble needs Anthropic/OpenAI/Google keys.

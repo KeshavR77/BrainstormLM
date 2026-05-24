@@ -58,6 +58,9 @@ extend-exclude = [
     ".venv",
     "node_modules",
     "frontend",
+    # Parked legacy evaluator (formerly vendored in creativity_steering); kept for reference
+    # only, carries its own lint regime — superseded by the top-level creativity_evaluators.
+    "old_creativity_evaluators",
 ]
 
 [tool.coverage.run]

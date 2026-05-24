@@ -8,23 +8,18 @@ dependencies = [
     "typer>=0.12",
 ]
 
-# This package is standalone: the full creativity_evaluator is vendored under
-# src/creativity_evaluator (recovered from the parent repo before its clean-up). Heavy deps
-# are optional so the mock backend + heuristic scorer + the whole analysis / derivation core
-# run on numpy alone:
-#   hf   — real Qwen backend (torch/transformers)
-#   real — full vendored creativity_evaluator (Vendi + lexical + embedding + optional LLM judge)
+# Heavy deps are optional so the mock backend + heuristic scorer + the whole analysis /
+# derivation core run on numpy alone:
+#   hf        — real Qwen backend (torch/transformers)
+#   embedding — self-contained sentence-transformers per-item scorer (factory name "real")
+#   evaluator — the two-stage `creativity_evaluators` stack used for evaluator-stack
+#               derivation filtering. It is a sibling package at the repo root, imported via a
+#               path bridge (see derivation/evaluator_filter.py); its model scorers + LLM
+#               judges need `creativity_evaluators[all]` installed for a real run.
 [project.optional-dependencies]
 hf = ["torch>=2.2", "transformers>=4.44"]
-real = [
-    "sentence-transformers>=2.2",
-    "vendi-score>=0.0.3",
-    "nltk>=3.8",
-    "scipy>=1.10",
-    "anthropic>=0.25",
-    "openai>=1.0",
-]
 embedding = ["sentence-transformers>=2.2"]
+evaluator = ["numpy>=1.24", "scipy>=1.10", "pydantic>=2.0"]
 dev = ["pytest>=7.0", "ruff>=0.5"]
 
 [project.scripts]
@@ -35,7 +30,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/creativity_steering", "src/creativity_evaluator"]
+packages = ["src/creativity_steering"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
@@ -43,7 +38,3 @@ testpaths = ["tests"]
 
 [tool.ruff]
 line-length = 100
-# src/creativity_evaluator is vendored verbatim from the parent repo's former
-# creativity_evaluator package; it carries its own lint regime, so exclude it from this
-# project's lint (mirrors how the parent repo originally excluded vendored code).
-extend-exclude = ["src/creativity_evaluator"]
