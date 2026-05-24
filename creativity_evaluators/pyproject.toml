@@ -1,0 +1,47 @@
+[project]
+name = "creativity-evaluators"
+version = "0.1.0"
+description = "Two-stage creativity evaluator (model-free signals + LLM-judge ensemble) for filtering DiffMeans contrast sets."
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=1.24",
+    "scipy>=1.10",
+    "pydantic>=2.0",
+]
+
+# Design note: the spec lists torch/transformers/spacy as "core". We follow the sibling
+# `creativity_steering` package's house style instead and keep every heavy/model/API
+# dependency *optional* + lazily imported, so the pure-Python cores (DSI math, slop
+# overlap, z-scoring, ensemble aggregation, composite) and the whole test suite run on
+# numpy/scipy alone. A real scoring run installs the extras below.
+#   stage1 — model-free scorers that load weights: BERT (DSI), GPT-2 (PPL), Skywork (reward)
+#   nlp    — spaCy for POS-template overlap (also needs: python -m spacy download en_core_web_sm)
+#   judges — Stage-2 LLM-as-judge API clients
+[project.optional-dependencies]
+stage1 = ["torch>=2.2", "transformers>=4.44"]
+nlp = ["spacy>=3.7"]
+judges = ["anthropic>=0.40", "openai>=1.40", "google-genai>=1.0"]
+dev = ["pytest>=7.0", "pytest-cov>=4.0", "ruff>=0.5"]
+all = [
+    "torch>=2.2",
+    "transformers>=4.44",
+    "spacy>=3.7",
+    "anthropic>=0.40",
+    "openai>=1.40",
+    "google-genai>=1.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["creativity_evaluators"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.ruff]
+line-length = 100
