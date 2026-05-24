@@ -51,6 +51,8 @@ def derive_vectors(
     config: ExperimentConfig,
     scorer: CreativityScorer,
     prompt_set: PromptSet | None = None,
+    *,
+    eval_scorers=None,  # creativity_evaluators.Scorers for the evaluator_stack method (testing)
 ) -> DerivationOutput:
     prompt_set = prompt_set or default_prompt_set()
     positions = config.all_capture_positions
@@ -63,15 +65,35 @@ def derive_vectors(
         max_new_tokens=config.generation.max_new_tokens,
         temperature=config.generation.temperature,
         seed=config.generation.seed,
+        sampling=config.generation.sampling_by_framing(),
     )
 
-    subset = label_and_filter(
-        examples,
-        scorer,
-        creative_min=config.filtering.creative_min,
-        neutral_max=config.filtering.neutral_max,
-        min_per_class=config.filtering.min_per_class,
-    )
+    fc = config.filtering
+    if fc.method == "evaluator_stack":
+        # Score with the two-stage creativity_evaluators stack; keep top-creative /
+        # bottom-neutral by quantile. The sibling-package import stays lazy in here.
+        from creativity_steering.derivation.evaluator_filter import evaluate_and_filter
+
+        subset = evaluate_and_filter(
+            examples,
+            scorers=eval_scorers,
+            creative_quantile=fc.creative_quantile,
+            neutral_quantile=fc.neutral_quantile,
+            enable_judge=fc.enable_judge,
+            generator_family=fc.generator_family,
+            stage1_floor_percentile=fc.stage1_floor_percentile,
+            length_match=fc.length_match,
+            length_match_tolerance=fc.length_match_tolerance,
+            min_per_class=fc.min_per_class,
+        )
+    else:
+        subset = label_and_filter(
+            examples,
+            scorer,
+            creative_min=fc.creative_min,
+            neutral_max=fc.neutral_max,
+            min_per_class=fc.min_per_class,
+        )
 
     per_position: dict[str, SteeringVectorSet] = {}
     for position in positions:

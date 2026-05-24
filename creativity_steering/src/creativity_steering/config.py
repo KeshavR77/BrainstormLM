@@ -18,30 +18,97 @@ CAPTURE_ASSISTANT_START = "assistant_start"  # last prompt token (conformity-pap
 VALID_CAPTURES = (CAPTURE_LAST_RESPONSE, CAPTURE_MEAN_RESPONSE, CAPTURE_ASSISTANT_START)
 
 
+@dataclass(frozen=True)
+class SamplingPreset:
+    """Decoding parameters for one generation pool.
+
+    The creative/neutral contrast is driven by decoding as well as framing: the creative
+    pool samples at high temperature with a nucleus + min-p floor; the neutral pool decodes
+    greedily. ``temperature == 0`` means greedy (argmax), and the other knobs are then
+    irrelevant. A knob left at its no-op value (``top_p == 1.0``, ``top_k == 0``,
+    ``min_p == 0.0``, ``repetition_penalty == 1.0``) is *not* forwarded to the model, so its
+    own generation default applies — this is how the legacy "temperature only" behaviour is
+    preserved (see ``models/hf.build_generate_kwargs``).
+    """
+
+    temperature: float = 0.9
+    top_p: float = 1.0
+    top_k: int = 0
+    min_p: float = 0.0
+    repetition_penalty: float = 1.0
+
+    @property
+    def do_sample(self) -> bool:
+        return self.temperature > 0.0
+
+
+# The two derivation pools. Values chosen with the user: creative = temp 1.2 with a 0.95
+# nucleus, top-k off, a 0.02 min-p coherence floor, and mild 1.1 repetition penalty; neutral
+# = pure greedy (the most standard/expected decode).
+CREATIVE_SAMPLING = SamplingPreset(
+    temperature=1.2, top_p=0.95, top_k=0, min_p=0.02, repetition_penalty=1.1
+)
+GREEDY_SAMPLING = SamplingPreset(temperature=0.0)
+
+
 @dataclass
 class GenerationConfig:
-    """Sampling settings for response gathering and patched generation."""
+    """Sampling settings for response gathering and patched generation.
+
+    ``temperature`` is the scalar used by the *patching* phase (steered generation). The
+    *derivation* phase instead uses the per-pool presets ``creative_sampling`` /
+    ``neutral_sampling`` (see ``sampling_by_framing``), so the creative and neutral pools can
+    be decoded differently.
+    """
 
     max_new_tokens: int = 256
     temperature: float = 0.9
     samples_per_prompt: int = 4  # multiple stochastic samples to grow the verified subset
     seed: int = 0
+    creative_sampling: SamplingPreset = CREATIVE_SAMPLING
+    neutral_sampling: SamplingPreset = GREEDY_SAMPLING
+
+    def sampling_by_framing(self) -> dict[str, SamplingPreset]:
+        """Map each prompt framing to its decoding preset (used by ``gather_responses``)."""
+        return {"creative": self.creative_sampling, "neutral": self.neutral_sampling}
 
 
 @dataclass
 class FilterConfig:
-    """Evaluator thresholds that turn raw responses into a verified subset.
+    """Turn raw responses into a verified contrast subset.
 
-    A creative-framing response is kept as a *positive* only if its single-response
-    creativity score >= ``creative_min``; a neutral-framing response is kept as a
-    *negative* only if its score <= ``neutral_max``. Everything in the ambiguous middle
-    is dropped. ``min_per_class`` guards against deriving DiffMeans on too little data.
+    Two methods (``method``):
+
+    * ``"threshold"`` (the original per-item path) — a creative-framing response is kept as a
+      *positive* only if its single-response creativity score >= ``creative_min``; a neutral
+      response is kept as a *negative* only if its score <= ``neutral_max``. ``scorer`` selects
+      the per-item ``CreativityScorer``.
+    * ``"evaluator_stack"`` — score every response with the two-stage ``creativity_evaluators``
+      stack (Stage 1 model-free + optional Stage 2 LLM-as-judge), then keep the highest-scoring
+      creative responses (at/above ``creative_quantile``) and lowest-scoring neutral responses
+      (at/below ``neutral_quantile``). ``enable_judge`` toggles Stage 2; ``generator_family``
+      drives judge-family exclusion; ``length_match`` length-matches the kept pools for
+      DiffMeans hygiene.
+
+    ``min_per_class`` guards (both methods) against deriving DiffMeans on too little data.
     """
 
+    method: str = "threshold"  # "threshold" | "evaluator_stack"
+    min_per_class: int = 100  # the conformity paper used N=100 per condition
+
+    # --- threshold method ---
     creative_min: float = 0.55
     neutral_max: float = 0.45
-    min_per_class: int = 100  # the conformity paper used N=100 per condition
-    scorer: str = "real"  # "real" | "heuristic" | "fake"
+    scorer: str = "real"  # "real" | "embedding" | "heuristic" | "fake"
+
+    # --- evaluator_stack method ---
+    creative_quantile: float = 0.8  # keep creative-framed at/above this quantile of their scores
+    neutral_quantile: float = 0.2  # keep neutral-framed at/below this quantile of their scores
+    enable_judge: bool = True  # run the Stage-2 LLM-as-judge ensemble (the "both phases" path)
+    generator_family: str | None = "qwen"  # judge-family exclusion (the generator is Qwen)
+    stage1_floor_percentile: float = 20.0  # Stage-2 gating floor inside the evaluator stack
+    length_match: bool = False  # length-match kept pools (prevents encoding verbosity)
+    length_match_tolerance: float = 0.10
 
 
 @dataclass
@@ -110,7 +177,11 @@ def _build_nested(raw: dict) -> ExperimentConfig:
     """Construct ExperimentConfig from a (possibly nested) plain dict."""
     raw = dict(raw)
     if "generation" in raw and isinstance(raw["generation"], dict):
-        raw["generation"] = GenerationConfig(**raw["generation"])
+        g = dict(raw["generation"])
+        for key in ("creative_sampling", "neutral_sampling"):
+            if key in g and isinstance(g[key], dict):
+                g[key] = SamplingPreset(**g[key])
+        raw["generation"] = GenerationConfig(**g)
     if "filtering" in raw and isinstance(raw["filtering"], dict):
         raw["filtering"] = FilterConfig(**raw["filtering"])
     if "patching" in raw and isinstance(raw["patching"], dict):

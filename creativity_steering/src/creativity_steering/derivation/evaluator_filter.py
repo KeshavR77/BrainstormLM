@@ -1,0 +1,158 @@
+"""Evaluator-stack filtering — the verified-contrast idea in its strongest form.
+
+Instead of a per-item heuristic, score *every* generated response with the two-stage
+``creativity_evaluators`` stack (Stage 1 model-free signals — DSI, lexical/slop, perplexity,
+reward — plus an optional Stage 2 LLM-as-judge ensemble), then keep only the highest-scoring
+creative-framed responses and the lowest-scoring neutral-framed responses. Those clean pools
+are what DiffMeans sees, so the steering vector contrasts *actually-creative* against
+*actually-not-creative* text rather than just the two framings.
+
+``creativity_evaluators`` is a sibling package at the repo root (not pip-installed in this
+standalone package), so we put it on ``sys.path`` lazily. Its composite is batch-relative
+(z-scored within the batch), which is why selection is by **quantile** rather than a fixed
+threshold.
+"""
+
+from __future__ import annotations
+
+import sys
+from collections.abc import Iterable
+from pathlib import Path
+
+import numpy as np
+
+from creativity_steering.derivation.records import ResponseExample, VerifiedSubset
+
+
+def _ensure_creativity_evaluators_importable() -> None:
+    """Put the sibling ``creativity_evaluators`` package on ``sys.path`` if needed."""
+    try:
+        import creativity_evaluators  # noqa: F401
+
+        return
+    except ImportError:
+        pass
+    # This file: <repo>/creativity_steering/src/creativity_steering/derivation/evaluator_filter.py
+    repo_root = Path(__file__).resolve().parents[4]
+    sibling = repo_root / "creativity_evaluators"
+    if (sibling / "creativity_evaluators" / "__init__.py").exists():
+        sys.path.insert(0, str(sibling))
+
+
+def select_by_quantile(
+    pool: list[ResponseExample], *, quantile: float, keep: str
+) -> list[ResponseExample]:
+    """Keep examples on one side of a within-pool score quantile.
+
+    ``keep="high"`` keeps scores at/above the ``quantile``-th score; ``keep="low"`` keeps
+    scores at/below it. Empty pool -> empty list.
+    """
+    if not pool:
+        return []
+    scores = np.array([ex.score for ex in pool], dtype=float)
+    threshold = float(np.quantile(scores, quantile))
+    if keep == "high":
+        return [ex for ex in pool if ex.score >= threshold]
+    if keep == "low":
+        return [ex for ex in pool if ex.score <= threshold]
+    raise ValueError(f"keep must be 'high' or 'low', got {keep!r}")
+
+
+def _length_match(
+    positives: list[ResponseExample],
+    negatives: list[ResponseExample],
+    tolerance: float,
+) -> tuple[list[ResponseExample], list[ResponseExample]]:
+    """Greedily pair each positive with the nearest unused negative within ``±tolerance``
+    (relative to the positive's token count). Unmatched positives are dropped."""
+    from creativity_evaluators.utils.length import count_tokens
+
+    neg_tokens = [count_tokens(ex.response) for ex in negatives]
+    used = [False] * len(negatives)
+    matched_pos: list[ResponseExample] = []
+    matched_neg: list[ResponseExample] = []
+    for pos in positives:
+        nc = count_tokens(pos.response)
+        best_j, best_diff = None, None
+        for j, nt in enumerate(neg_tokens):
+            if used[j]:
+                continue
+            diff = abs(nt - nc)
+            if nc > 0 and diff <= tolerance * nc and (best_diff is None or diff < best_diff):
+                best_diff, best_j = diff, j
+        if best_j is None:
+            continue
+        used[best_j] = True
+        matched_pos.append(pos)
+        matched_neg.append(negatives[best_j])
+    return matched_pos, matched_neg
+
+
+def evaluate_and_filter(
+    examples: Iterable[ResponseExample],
+    *,
+    eval_config=None,  # creativity_evaluators.EvalConfig; built from the kwargs if None
+    scorers=None,  # creativity_evaluators.Scorers; built from eval_config if None (real run)
+    creative_quantile: float = 0.8,
+    neutral_quantile: float = 0.2,
+    enable_judge: bool = True,
+    generator_family: str | None = "qwen",
+    stage1_floor_percentile: float = 20.0,
+    length_match: bool = False,
+    length_match_tolerance: float = 0.10,
+    min_per_class: int = 0,
+) -> VerifiedSubset:
+    """Score every example with the two-stage stack, then keep top-creative / bottom-neutral.
+
+    Mutates each example's ``.score`` in place with its composite creativity score (useful
+    provenance to persist). Raises ``ValueError`` if ``min_per_class`` is set and a kept pool
+    falls short.
+    """
+    _ensure_creativity_evaluators_importable()
+    from creativity_evaluators import EvalConfig, PromptCategory
+    from creativity_evaluators.pipeline import evaluate_batch
+
+    examples = list(examples)
+    if not examples:
+        return VerifiedSubset(positives=[], negatives=[], n_dropped=0)
+
+    if eval_config is None:
+        eval_config = EvalConfig(
+            enable_stage2=enable_judge,
+            generator_family=generator_family,
+            stage1_percentile_floor=stage1_floor_percentile,
+        )
+
+    records = [
+        {
+            "prompt": ex.prompt,
+            "response": ex.response,
+            "category": (
+                PromptCategory.CREATIVE if ex.framing == "creative" else PromptCategory.NEUTRAL
+            ),
+        }
+        for ex in examples
+    ]
+    results = evaluate_batch(records, eval_config, scorers=scorers)
+    for ex, result in zip(examples, results):
+        ex.score = float(result.creativity_score)
+
+    creatives = [ex for ex in examples if ex.framing == "creative"]
+    neutrals = [ex for ex in examples if ex.framing == "neutral"]
+    positives = select_by_quantile(creatives, quantile=creative_quantile, keep="high")
+    negatives = select_by_quantile(neutrals, quantile=neutral_quantile, keep="low")
+
+    if length_match:
+        positives, negatives = _length_match(positives, negatives, length_match_tolerance)
+
+    dropped = len(examples) - len(positives) - len(negatives)
+
+    if min_per_class > 0 and (len(positives) < min_per_class or len(negatives) < min_per_class):
+        raise ValueError(
+            f"verified subset too small: {len(positives)} positives / {len(negatives)} "
+            f"negatives < min_per_class={min_per_class}. Gather more prompts/samples or relax "
+            f"the quantiles (creative_quantile={creative_quantile}, "
+            f"neutral_quantile={neutral_quantile})."
+        )
+
+    return VerifiedSubset(positives=positives, negatives=negatives, n_dropped=dropped)
