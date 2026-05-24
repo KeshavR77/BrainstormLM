@@ -1,0 +1,20 @@
+{
+  "_schema": {
+    "description": "Hand-rated mini gold set for calibrating the composite scorer. Replace this PLACEHOLDER with the real 50-100 item set. Each item: prompt (str), response (str), category ('creative'|'neutral'), human_score (float 1-5, the mean human creativity rating).",
+    "fields": ["prompt", "response", "category", "human_score"]
+  },
+  "items": [
+    {"prompt": "Invent an unusual use for a paperclip.", "response": "A tiny lightning rod for a dollhouse, grounding static off the carpet so the porcelain family never gets a shock.", "category": "creative", "human_score": 5.0},
+    {"prompt": "Invent an unusual use for a paperclip.", "response": "Bend it into a hook to fish a dropped earring out of a sink drain.", "category": "creative", "human_score": 3.0},
+    {"prompt": "Invent an unusual use for a paperclip.", "response": "You can use a paperclip to hold papers together.", "category": "creative", "human_score": 1.0},
+    {"prompt": "Write the first line of a story about the sea.", "response": "The tide kept a ledger of everyone who had ever drowned, and that morning it asked the lighthouse to co-sign.", "category": "creative", "human_score": 5.0},
+    {"prompt": "Write the first line of a story about the sea.", "response": "The sea was big and blue and the waves were crashing on the shore that day.", "category": "creative", "human_score": 2.0},
+    {"prompt": "Give a metaphor for forgetting.", "response": "Forgetting is a librarian who reshelves your memories under a language you never learned.", "category": "creative", "human_score": 5.0},
+    {"prompt": "Give a metaphor for forgetting.", "response": "Forgetting is like when you forget something and it is gone.", "category": "creative", "human_score": 1.0},
+    {"prompt": "What is the capital of France?", "response": "The capital of France is Paris.", "category": "neutral", "human_score": 1.0},
+    {"prompt": "How many days are in a week?", "response": "There are seven days in a week.", "category": "neutral", "human_score": 1.0},
+    {"prompt": "Summarize what a thermometer does.", "response": "A thermometer measures temperature and shows the reading on a scale.", "category": "neutral", "human_score": 1.5},
+    {"prompt": "List the primary colors.", "response": "The primary colors are red, blue, and yellow.", "category": "neutral", "human_score": 1.0},
+    {"prompt": "Explain what water is.", "response": "Water is a clear liquid made of hydrogen and oxygen that people and animals drink.", "category": "neutral", "human_score": 1.5}
+  ]
+}

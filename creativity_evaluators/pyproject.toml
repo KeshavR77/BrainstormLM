@@ -45,3 +45,4 @@ filterwarnings = ["ignore::DeprecationWarning"]
 
 [tool.ruff]
 line-length = 100
+extend-exclude = ["notebooks"]
