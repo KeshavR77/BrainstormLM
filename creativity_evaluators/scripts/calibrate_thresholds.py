@@ -30,7 +30,7 @@ import numpy as np
 from scipy.stats import pearsonr, spearmanr
 
 # Make the package importable when this script is run directly (without `pip install -e .`).
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
 from creativity_evaluators.pipeline import evaluate_batch  # noqa: E402
 from creativity_evaluators.types import EvalConfig  # noqa: E402
