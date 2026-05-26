@@ -129,6 +129,40 @@ def test_enable_judge_without_ensemble_is_graceful():
     assert res.best_cell()["label"] == "L6_pos"
 
 
+class _StubVectorSet:
+    """Minimal stand-in exposing what the cell builders need (unit_vectors + n_layers)."""
+
+    def __init__(self, n_layers, dim):
+        self.n_layers = n_layers
+        self._u = np.tile(np.arange(1, dim + 1, dtype=np.float32), (n_layers, 1))
+
+    def unit_vectors(self):
+        return self._u
+
+
+def test_build_all_layers_cells():
+    from creativity_steering.patching.evaluate_stack import build_all_layers_cells
+
+    vs = _StubVectorSet(n_layers=6, dim=4)
+    cells = build_all_layers_cells(vs, source_layers=[4, 2], alphas=[0.1, -0.1])
+    assert len(cells) == 4  # 2 sources x 2 alphas
+    c = cells[0]
+    assert c.meta["experiment"] == "all_layers" and c.meta["source_layer"] == 4
+    assert len(c.injections) == 6  # injected at *every* layer
+    assert {inj.layer for inj in c.injections} == set(range(6))
+
+
+def test_build_multi_vector_cells():
+    from creativity_steering.patching.evaluate_stack import build_multi_vector_cells
+
+    vs = _StubVectorSet(n_layers=8, dim=4)
+    cells = build_multi_vector_cells(vs, layer_groups=[[5, 6, 7]], alphas=[1.0])
+    assert len(cells) == 1
+    c = cells[0]
+    assert c.meta["experiment"] == "multi_vector" and c.meta["layers"] == [5, 6, 7]
+    assert {inj.layer for inj in c.injections} == {5, 6, 7}  # each at its own layer
+
+
 def test_to_dict_is_serializable_and_carries_best():
     import json
 

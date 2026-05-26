@@ -261,3 +261,52 @@ def build_alpha_cells(vector_set, layers, alphas, *, rescale: bool = True) -> li
                 )
             )
     return cells
+
+
+def build_all_layers_cells(
+    vector_set, source_layers, alphas, *, rescale: bool = True
+) -> list[StackCell]:
+    """Experiment 2a cells: one chosen layer's vector injected at *every* layer.
+
+    Tests how large an effect a single direction produces when reinforced across the whole
+    forward pass (needs a small alpha). One cell per (source_layer, alpha)."""
+    from creativity_steering.patching.steering import inject_all_layers
+
+    cells: list[StackCell] = []
+    for src in source_layers:
+        for alpha in alphas:
+            cells.append(
+                StackCell(
+                    label=f"allL_src{int(src)}_a{float(alpha)}",
+                    injections=inject_all_layers(vector_set, int(src), float(alpha), rescale=rescale),
+                    meta={
+                        "experiment": "all_layers",
+                        "source_layer": int(src),
+                        "alpha": float(alpha),
+                    },
+                )
+            )
+    return cells
+
+
+def build_multi_vector_cells(
+    vector_set, layer_groups, alphas, *, rescale: bool = True
+) -> list[StackCell]:
+    """Experiment 2b cells: several layers' own vectors injected at their own layers at once.
+
+    Tests whether stacking complementary directions beats any single layer. One cell per
+    (layer group, alpha)."""
+    from creativity_steering.patching.steering import inject_multi
+
+    cells: list[StackCell] = []
+    for group in layer_groups:
+        g = [int(layer) for layer in group]
+        for alpha in alphas:
+            cells.append(
+                StackCell(
+                    label=f"multi_{'-'.join(str(layer) for layer in g)}_a{float(alpha)}",
+                    injections=inject_multi(vector_set, g, float(alpha), rescale=rescale),
+                    meta={"experiment": "multi_vector", "layers": g, "alpha": float(alpha)},
+                )
+            )
+    return cells

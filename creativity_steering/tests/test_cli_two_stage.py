@@ -107,3 +107,38 @@ def test_cli_sweep_two_stage(tmp_path, monkeypatch):
     assert data["best"] is not None
     # 3 layers x 2 alphas = 6 cells
     assert len(data["cells"]) == 6
+
+
+def test_cli_experiments_two_stage(tmp_path, monkeypatch):
+    """The `experiments` command (Exp-2: all-layers + multi-vector on promising layers)."""
+    import creativity_evaluators.pipeline as ce_pipeline
+
+    monkeypatch.setattr(ce_pipeline, "build_scorers", _fake_scorers)
+
+    cfg = _config(tmp_path / "run")
+    backend = MockBackend(num_layers=8, hidden_dim=16, creative_layer=4, seed=0)
+    prompts = PromptSet(CREATIVE_SYSTEM, NEUTRAL_SYSTEM, TOPICS[:8])
+    out = derive_vectors(backend, cfg, HeuristicScorer(), prompt_set=prompts, eval_scorers=_fake_scorers())
+    run_dir = tmp_path / "run"
+    save_derivation(out, run_dir)
+    cfg_path = tmp_path / "cfg.json"
+    cfg.save(cfg_path)
+
+    # analyze -> writes report.json with candidate_layers
+    r1 = runner.invoke(app, ["analyze", "--run", str(run_dir), "--position", "last_response_token"])
+    assert r1.exit_code == 0, r1.output
+
+    r2 = runner.invoke(
+        app,
+        ["experiments", "--run", str(run_dir), "--config", str(cfg_path),
+         "--position", "last_response_token", "--n-promising", "3"],
+    )
+    assert r2.exit_code == 0, r2.output
+    assert "Exp-2 on promising layers" in r2.output
+    assert "best experiment" in r2.output
+
+    data = json.loads((run_dir / "patching" / "last_response_token" / "experiments_results.json").read_text())
+    assert data["evaluator"] == "two_stage"
+    assert data["best"] is not None
+    # all-layers: 2 sources x 4 alphas = 8; multi-vector: 1 group x 2 alphas = 2 -> 10 cells
+    assert len(data["cells"]) == 10
