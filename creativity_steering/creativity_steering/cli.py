@@ -91,14 +91,56 @@ def sweep(
     position: Annotated[str | None, typer.Option()] = None,
     layers: Annotated[str | None, typer.Option(help="Comma-separated layers (default: all).")] = None,
 ) -> None:
-    """Phase 3, Experiment 1 — per-layer matched alpha sweep."""
+    """Phase 3, Experiment 1 — per-layer matched alpha sweep.
+
+    Scores each (layer, alpha) cell with ``patching.sweep_evaluator``: the cheap per-item
+    scorer (``"per_item"``) or the full two-stage ``creativity_evaluators`` stack
+    (``"two_stage"`` — DSI + LLM-judge, judges gated to the top-k cells).
+    """
     from creativity_steering.models.factory import build_backend
-    from creativity_steering.patching.sweep import per_layer_alpha_sweep
 
     cfg = load_config(config)
     vs, chosen = _load_vector_set(run, position)
     backend = build_backend(cfg)
-    layer_list = [int(x) for x in layers.split(",")] if layers else None
+    layer_list = list(range(vs.n_layers)) if not layers else [int(x) for x in layers.split(",")]
+
+    out_dir = run / "patching" / chosen
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    if cfg.patching.sweep_evaluator == "two_stage":
+        from creativity_steering.patching.evaluate import DEFAULT_BRIEFS
+        from creativity_steering.patching.evaluate_stack import (
+            build_alpha_cells,
+            two_stage_cell_sweep,
+        )
+
+        fc = cfg.filtering
+        cells = build_alpha_cells(vs, layer_list, cfg.patching.alphas, rescale=cfg.patching.rescale)
+        typer.echo(
+            f"two-stage sweep: {len(cells)} cells, judges on top-{cfg.patching.judge_top_k} "
+            f"(enable_judge={fc.enable_judge})"
+        )
+        result = two_stage_cell_sweep(
+            backend, cells,
+            briefs=DEFAULT_BRIEFS,
+            n_samples=cfg.patching.eval_samples,
+            max_new_tokens=cfg.generation.max_new_tokens,
+            temperature=cfg.generation.temperature,
+            enable_judge=fc.enable_judge,
+            judge_top_k=cfg.patching.judge_top_k,
+            generator_family=fc.generator_family,
+            stage1_floor_percentile=fc.stage1_floor_percentile,
+            use_reward_fallback=fc.use_reward_fallback,
+        )
+        (out_dir / "sweep_results.json").write_text(json.dumps(result.to_dict(), indent=2))
+        best = result.best_cell()
+        typer.echo(f"baseline composite={result.baseline.composite:.3f}  judged={result.judged_labels}")
+        typer.echo(f"best cell: layer={best['layer']} alpha={best['alpha']} "
+                   f"composite={best['composite']:.3f} (delta={best['delta']:+.3f}, judged={best['judged']})")
+        typer.echo(f"Saved sweep to {out_dir}")
+        return
+
+    from creativity_steering.patching.sweep import per_layer_alpha_sweep
 
     result = per_layer_alpha_sweep(
         backend, vs, _scorer(cfg),
@@ -106,8 +148,6 @@ def sweep(
         n_samples=cfg.patching.eval_samples,
         max_new_tokens=cfg.generation.max_new_tokens, temperature=cfg.generation.temperature,
     )
-    out_dir = run / "patching" / chosen
-    out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "sweep_results.json").write_text(json.dumps(result.to_dict(), indent=2))
     best = result.best_cell()
     typer.echo(f"baseline composite={result.baseline.composite:.3f}")

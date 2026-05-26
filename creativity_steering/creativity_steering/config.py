@@ -123,6 +123,13 @@ class PatchingConfig:
     rescale: bool = True  # match injection magnitude to per-token activation norm
     eval_samples: int = 5  # samples per (layer, alpha) cell, scored for diversity
 
+    # How the sweep scores each cell:
+    #  * "per_item"  — the per-item CreativityScorer (filtering.scorer); cheap, offline-friendly.
+    #  * "two_stage" — the full creativity_evaluators stack (DSI + LLM-judge), batch-relative,
+    #                  with judges gated to the top-k cells (see patching/evaluate_stack.py).
+    sweep_evaluator: str = "per_item"  # "per_item" | "two_stage"
+    judge_top_k: int = 3  # two_stage only: run Stage-2 judges on the top-k cells by Stage-1 score
+
 
 @dataclass
 class ExperimentConfig:

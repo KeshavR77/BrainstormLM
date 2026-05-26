@@ -33,10 +33,11 @@ def _ensure_creativity_evaluators_importable() -> None:
     except ImportError:
         pass
     # This file: <repo>/creativity_steering/creativity_steering/derivation/evaluator_filter.py
+    # The sibling package uses a ``src`` layout: <repo>/creativity_evaluators/src/creativity_evaluators
     repo_root = Path(__file__).resolve().parents[3]
-    sibling = repo_root / "creativity_evaluators"
-    if (sibling / "creativity_evaluators" / "__init__.py").exists():
-        sys.path.insert(0, str(sibling))
+    sibling_src = repo_root / "creativity_evaluators" / "src"
+    if (sibling_src / "creativity_evaluators" / "__init__.py").exists():
+        sys.path.insert(0, str(sibling_src))
 
 
 def select_by_quantile(
