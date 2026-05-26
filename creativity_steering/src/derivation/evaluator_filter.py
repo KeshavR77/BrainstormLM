@@ -32,8 +32,8 @@ def _ensure_creativity_evaluators_importable() -> None:
         return
     except ImportError:
         pass
-    # This file: <repo>/creativity_steering/src/creativity_steering/derivation/evaluator_filter.py
-    repo_root = Path(__file__).resolve().parents[4]
+    # This file: <repo>/creativity_steering/creativity_steering/derivation/evaluator_filter.py
+    repo_root = Path(__file__).resolve().parents[3]
     sibling = repo_root / "creativity_evaluators"
     if (sibling / "creativity_evaluators" / "__init__.py").exists():
         sys.path.insert(0, str(sibling))
@@ -100,6 +100,7 @@ def evaluate_and_filter(
     stage1_floor_percentile: float = 20.0,
     length_match: bool = False,
     length_match_tolerance: float = 0.10,
+    use_reward_fallback: bool = False,
     min_per_class: int = 0,
 ) -> VerifiedSubset:
     """Score every example with the two-stage stack, then keep top-creative / bottom-neutral.
@@ -121,6 +122,7 @@ def evaluate_and_filter(
             enable_stage2=enable_judge,
             generator_family=generator_family,
             stage1_percentile_floor=stage1_floor_percentile,
+            use_reward_fallback=use_reward_fallback,
         )
 
     records = [

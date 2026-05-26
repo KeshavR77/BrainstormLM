@@ -22,10 +22,42 @@ from creativity_steering.config import (
     CAPTURE_ASSISTANT_START,
     CAPTURE_LAST_RESPONSE,
     CAPTURE_MEAN_RESPONSE,
+    SamplingPreset,
 )
 from creativity_steering.models.backend import Injection, ModelBackend
 
 _DTYPES = {"bf16": "bfloat16", "fp16": "float16", "fp32": "float32"}
+
+
+def build_generate_kwargs(
+    sampling: SamplingPreset, *, max_new_tokens: int, pad_token_id: int | None
+) -> dict:
+    """Translate a ``SamplingPreset`` into ``model.generate`` kwargs.
+
+    Greedy presets set ``do_sample=False`` and forward no sampling knobs. For sampling
+    presets, each knob is forwarded only when it is *active* (``top_p < 1``, ``top_k > 0``,
+    ``min_p > 0``, ``repetition_penalty != 1``); a no-op knob is omitted so the model's own
+    generation default applies — that is what keeps a bare ``SamplingPreset(temperature=t)``
+    behaviourally identical to the previous temperature-only generate call.
+
+    (``min_p`` needs transformers >= 4.41; it is only emitted when a preset sets it.)
+    """
+    kwargs: dict = {
+        "max_new_tokens": max_new_tokens,
+        "pad_token_id": pad_token_id,
+        "do_sample": sampling.do_sample,
+    }
+    if sampling.do_sample:
+        kwargs["temperature"] = max(sampling.temperature, 1e-5)
+        if sampling.top_p < 1.0:
+            kwargs["top_p"] = sampling.top_p
+        if sampling.top_k > 0:
+            kwargs["top_k"] = sampling.top_k
+        if sampling.min_p > 0.0:
+            kwargs["min_p"] = sampling.min_p
+        if sampling.repetition_penalty != 1.0:
+            kwargs["repetition_penalty"] = sampling.repetition_penalty
+    return kwargs
 
 
 class HFBackend(ModelBackend):
@@ -110,22 +142,22 @@ class HFBackend(ModelBackend):
         max_new_tokens: int = 256,
         temperature: float = 0.9,
         seed: int = 0,
+        sampling: SamplingPreset | None = None,
     ) -> str:
         import torch
 
         self._ensure_loaded()
         torch.manual_seed(seed)
+        if sampling is None:
+            sampling = SamplingPreset(temperature=temperature)
+        gen_kwargs = build_generate_kwargs(
+            sampling, max_new_tokens=max_new_tokens, pad_token_id=self._tokenizer.eos_token_id
+        )
         inputs = self._tokenizer(
             self._prompt_text(prompt, system), return_tensors="pt"
         ).to(self._device)
         with torch.no_grad():
-            out = self._model.generate(
-                **inputs,
-                max_new_tokens=max_new_tokens,
-                do_sample=temperature > 0,
-                temperature=max(temperature, 1e-5),
-                pad_token_id=self._tokenizer.eos_token_id,
-            )
+            out = self._model.generate(**inputs, **gen_kwargs)
         new = out[0, inputs["input_ids"].shape[1]:]
         return self._tokenizer.decode(new, skip_special_tokens=True)
 

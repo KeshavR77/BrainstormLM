@@ -200,6 +200,11 @@ class GoogleJudge(BaseJudge):
                 "temperature": self.temperature,
                 "max_output_tokens": self.max_tokens,
                 "response_mime_type": "application/json",
+                # Disable Gemini 2.5 "thinking": its reasoning tokens count against
+                # max_output_tokens and, on richer prompts, consume the whole budget before
+                # any JSON is emitted (empty response). A judge only needs to emit small JSON,
+                # so thinking buys nothing here. Requires a Flash-class model (Pro cannot set 0).
+                "thinking_config": {"thinking_budget": 0},
             },
         )
         return resp.text or ""

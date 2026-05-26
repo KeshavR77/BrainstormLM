@@ -170,7 +170,7 @@ def _default_judges() -> list[JudgeSpec]:
             provider="anthropic", model="claude-sonnet-4-5", name="claude", family="anthropic"
         ),
         JudgeSpec(provider="openai", model="gpt-4o", name="gpt4o", family="openai"),
-        JudgeSpec(provider="google", model="gemini-2.5-pro", name="gemini", family="google"),
+        JudgeSpec(provider="google", model="gemini-2.5-flash", name="gemini", family="google"),
     ]
 
 
@@ -185,7 +185,11 @@ class EvalConfig(BaseModel):
     run_dsi: bool = True
     run_lexical: bool = True
     run_ppl: bool = True
-    run_reward: bool = True
+    # Off by default: the default reward model (Skywork 27B) is too large for most
+    # environments. With Stage 2 on, the judges' Pragmaticality dimension carries the
+    # quality pole; flip this back to True (optionally with use_reward_fallback) to add a
+    # model-free Stage-1 quality signal.
+    run_reward: bool = False
 
     # --- Stage 1 model ids ---
     dsi_model: str = "bert-base-uncased"

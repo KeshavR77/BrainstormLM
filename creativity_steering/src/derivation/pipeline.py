@@ -84,6 +84,7 @@ def derive_vectors(
             stage1_floor_percentile=fc.stage1_floor_percentile,
             length_match=fc.length_match,
             length_match_tolerance=fc.length_match_tolerance,
+            use_reward_fallback=fc.use_reward_fallback,
             min_per_class=fc.min_per_class,
         )
     else:

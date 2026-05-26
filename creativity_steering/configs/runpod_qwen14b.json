@@ -7,7 +7,23 @@
   "capture_position": "last_response_token",
   "extra_capture_positions": ["mean_response", "assistant_start"],
   "out_dir": "artifacts/qwen14b_run",
-  "generation": {"max_new_tokens": 256, "temperature": 0.9, "samples_per_prompt": 6, "seed": 0},
-  "filtering": {"creative_min": 0.6, "neutral_max": 0.4, "min_per_class": 100, "scorer": "real"},
+  "generation": {
+    "max_new_tokens": 256, "temperature": 0.9, "samples_per_prompt": 6, "seed": 0,
+    "creative_sampling": {"temperature": 1.2, "top_p": 0.95, "top_k": 0, "min_p": 0.02, "repetition_penalty": 1.1},
+    "neutral_sampling": {"temperature": 0.0}
+  },
+  "filtering": {
+    "method": "evaluator_stack",
+    "min_per_class": 100,
+    "creative_quantile": 0.8,
+    "neutral_quantile": 0.2,
+    "enable_judge": true,
+    "generator_family": "qwen",
+    "stage1_floor_percentile": 20.0,
+    "length_match": true,
+    "length_match_tolerance": 0.1,
+    "use_reward_fallback": false,
+    "scorer": "real"
+  },
   "patching": {"alphas": [-4.0, -2.0, -1.0, 1.0, 2.0, 4.0], "all_layers_alpha": 0.1, "rescale": true, "eval_samples": 5}
 }

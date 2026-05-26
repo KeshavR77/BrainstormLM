@@ -24,6 +24,8 @@ from dataclasses import dataclass
 
 import numpy as np
 
+from creativity_steering.config import SamplingPreset
+
 
 @dataclass
 class ActivationRecord:
@@ -75,8 +77,14 @@ class ModelBackend(ABC):
         max_new_tokens: int = 256,
         temperature: float = 0.9,
         seed: int = 0,
+        sampling: SamplingPreset | None = None,
     ) -> str:
-        """Sample a single response to ``prompt`` under an optional ``system`` framing."""
+        """Sample a single response to ``prompt`` under an optional ``system`` framing.
+
+        If ``sampling`` is given it fully specifies the decode (temperature, nucleus, etc.)
+        and the scalar ``temperature`` argument is ignored; otherwise the legacy
+        ``temperature``-only path is used (the patching phase relies on this).
+        """
 
     @abstractmethod
     def capture_activations(
@@ -114,6 +122,7 @@ class ModelBackend(ABC):
         max_new_tokens: int = 256,
         temperature: float = 0.9,
         seed: int = 0,
+        sampling: SamplingPreset | None = None,
     ) -> ActivationRecord:
         text = self.generate(
             prompt,
@@ -121,6 +130,7 @@ class ModelBackend(ABC):
             max_new_tokens=max_new_tokens,
             temperature=temperature,
             seed=seed,
+            sampling=sampling,
         )
         acts = self.capture_activations(prompt, text, system=system, positions=positions)
         return ActivationRecord(text=text, activations=acts)

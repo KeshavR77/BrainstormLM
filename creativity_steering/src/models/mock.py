@@ -150,7 +150,10 @@ class MockBackend(ModelBackend):
         max_new_tokens: int = 256,
         temperature: float = 0.9,
         seed: int = 0,
+        sampling=None,  # noqa: ANN001 — SamplingPreset, accepted for interface parity
     ) -> str:
+        # The mock derives creativity from the framing words, not from decoding, so the
+        # sampling preset is accepted (interface parity with HFBackend) but not applied.
         base = _framing_level(system, prompt)
         jitter = (np.random.default_rng(_seed_from(prompt, system or "", str(seed))).random() - 0.5) * 0.2
         n_words = max(20, min(max_new_tokens // 4, 80))

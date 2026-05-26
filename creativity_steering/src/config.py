@@ -109,6 +109,7 @@ class FilterConfig:
     stage1_floor_percentile: float = 20.0  # Stage-2 gating floor inside the evaluator stack
     length_match: bool = False  # length-match kept pools (prevents encoding verbosity)
     length_match_tolerance: float = 0.10
+    use_reward_fallback: bool = False  # use Skywork 8B reward instead of the 27B (tighter pods)
 
 
 @dataclass

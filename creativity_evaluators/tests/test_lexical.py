@@ -45,9 +45,13 @@ def test_scorer_combined_higher_for_slop():
 
 
 def test_clean_text_combined_near_zero():
-    scorer = LexicalScorer()
+    # Isolate the slop signal (empty template set) so this holds whether or not spaCy is
+    # installed: ordinary English legitimately matches some POS templates, but it has no slop,
+    # so the slop-driven score must be ~0.
+    scorer = LexicalScorer(templates=frozenset())
     res = scorer.score(CLEAN_TEXT)
-    assert res.combined < 0.05
+    assert res.slop_rate == 0.0
+    assert res.combined < 1e-9
 
 
 def test_slop_hits_recorded():

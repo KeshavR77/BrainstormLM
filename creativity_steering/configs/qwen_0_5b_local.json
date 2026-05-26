@@ -7,7 +7,11 @@
   "capture_position": "last_response_token",
   "extra_capture_positions": ["mean_response"],
   "out_dir": "artifacts/qwen05b_run",
-  "generation": {"max_new_tokens": 200, "temperature": 0.9, "samples_per_prompt": 4, "seed": 0},
+  "generation": {
+    "max_new_tokens": 200, "temperature": 0.9, "samples_per_prompt": 4, "seed": 0,
+    "creative_sampling": {"temperature": 1.2, "top_p": 0.95, "top_k": 0, "min_p": 0.02, "repetition_penalty": 1.1},
+    "neutral_sampling": {"temperature": 0.0}
+  },
   "filtering": {"creative_min": 0.55, "neutral_max": 0.45, "min_per_class": 60, "scorer": "real"},
   "patching": {"alphas": [-4.0, -2.0, -1.0, 1.0, 2.0, 4.0], "all_layers_alpha": 0.1, "rescale": true, "eval_samples": 5}
 }
