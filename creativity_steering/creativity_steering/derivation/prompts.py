@@ -6,8 +6,10 @@ the creativity instruction (topic is held fixed). This matched-contrast design m
 conformity paper, and the framings reuse the repo's existing CREATIVE/GENERIC wording so
 behaviour is comparable to the current Conceptial pipeline.
 
-The default set has 48 topics; with several stochastic samples per (topic, framing) this
-comfortably clears the ``min_per_class`` (=100) verified-subset target after filtering.
+The default set has 75 topics. The creative pool is grown by stochastic samples per topic,
+but the neutral pool decodes greedily (deterministic), so the number of *distinct* negatives
+is bounded by the topic count — size the topic set to the verified-subset ``min_per_class``
+target (not by sampling more), since extra neutral samples are duplicates.
 """
 
 from __future__ import annotations
@@ -74,6 +76,33 @@ TOPICS: tuple[str, ...] = (
     "Pitch a short film set entirely in an elevator.",
     "Reinvent the greeting card.",
     "Concept a community seed library.",
+    "Invent a breakfast for astronauts.",
+    "Pitch a walking tour of an ordinary street.",
+    "Design a clock for someone who cannot see.",
+    "Reimagine the office water cooler.",
+    "Name a new colour and describe it.",
+    "Concept a subscription box for curiosity.",
+    "Invent a bedtime story for robots.",
+    "Describe a café that opens only at dawn.",
+    "Propose a public artwork powered by wind.",
+    "Design a backpack for city explorers.",
+    "Suggest uses for a retired subway car.",
+    "Pitch a board game about the weather.",
+    "Reinvent the house key.",
+    "Invent a sport for rainy days.",
+    "Concept a library that lends tools.",
+    "Describe a hotel built inside a cliff.",
+    "Propose a soda flavour for summer nights.",
+    "Design a uniform for future park rangers.",
+    "Suggest a name for a newly discovered bird.",
+    "Invent a machine that organises memories.",
+    "Pitch a museum dedicated to silence.",
+    "Reimagine the neighbourhood mailbox.",
+    "Invent a game for a long car ride.",
+    "Design a fruit bowl that reduces waste.",
+    "Pitch a radio show for night-shift workers.",
+    "Concept a park bench that tells stories.",
+    "Reimagine the garden hose.",
 )
 
 
