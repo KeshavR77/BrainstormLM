@@ -194,8 +194,14 @@ def two_stage_cell_sweep(
     )
 
     # --- Pass A: Stage 1 over every generation (cheap) ---
+    # Rank/gate by the Stage-1 *composite component* (novelty-based: DSI/PPL/lexical), not the
+    # final creativity_score. The final score is a novelty×quality geometric mean, so with no
+    # quality pole (judges off in Pass A, reward model off) it collapses to 0 for every cell —
+    # which would make the top-k judge gate arbitrary. stage1_composite stays discriminative.
     s1_results = evaluate_batch(records, stage1_cfg, scorers=scorers)
-    s1_scores = [float(r.creativity_score) for r in s1_results]
+    s1_scores = [
+        float(r.components.get("stage1_composite", r.creativity_score)) for r in s1_results
+    ]
     stage1_by_cell = _mean_by_cell(s1_scores, cell_idx, n_cells)
 
     # --- Decide which cells get judged: baseline + top-k non-baseline by Stage-1 ---

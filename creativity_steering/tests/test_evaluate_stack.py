@@ -116,6 +116,25 @@ def test_judge_gating_runs_stage2_only_on_top_k_cells():
     assert neg_cell.judged is False  # gated out
 
 
+def test_ranks_by_novelty_when_no_quality_pole():
+    # No reward model and no judges -> the final composite (novelty x quality) collapses to 0
+    # for every cell. The sweep must still rank cells by the Stage-1 novelty composite, so the
+    # creative cell wins. (This is the judge-gating fix; pre-fix every cell tied at 0.)
+    backend = MockBackend(num_layers=12, hidden_dim=32, creative_layer=6, seed=0)
+    pos, neg = _pos_neg_cells(backend)
+    scorers = Scorers(
+        dsi=DSIScorer(embed_fn=_fake_embed), lexical=None, ppl=None, reward=None, ensemble=None
+    )
+    res = two_stage_cell_sweep(
+        backend, [pos, neg], scorers=scorers, enable_judge=False,
+        briefs=BRIEFS, n_samples=4, seed=0,
+    )
+    pos_s = next(c.composite for c in res.cells if c.label == "L6_pos")
+    neg_s = next(c.composite for c in res.cells if c.label == "L6_neg")
+    assert pos_s > neg_s
+    assert res.best_cell()["label"] == "L6_pos"
+
+
 def test_enable_judge_without_ensemble_is_graceful():
     backend = MockBackend(num_layers=12, hidden_dim=32, creative_layer=6, seed=0)
     pos, neg = _pos_neg_cells(backend)
