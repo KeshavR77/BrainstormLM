@@ -85,6 +85,7 @@ def derive_vectors(
             length_match=fc.length_match,
             length_match_tolerance=fc.length_match_tolerance,
             use_reward_fallback=fc.use_reward_fallback,
+            stage1_device=config.device,
             min_per_class=fc.min_per_class,
         )
     else:

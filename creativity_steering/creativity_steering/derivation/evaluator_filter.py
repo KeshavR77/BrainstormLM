@@ -102,6 +102,7 @@ def evaluate_and_filter(
     length_match: bool = False,
     length_match_tolerance: float = 0.10,
     use_reward_fallback: bool = False,
+    stage1_device: str | None = None,
     min_per_class: int = 0,
 ) -> VerifiedSubset:
     """Score every example with the two-stage stack, then keep top-creative / bottom-neutral.
@@ -124,6 +125,7 @@ def evaluate_and_filter(
             generator_family=generator_family,
             stage1_percentile_floor=stage1_floor_percentile,
             use_reward_fallback=use_reward_fallback,
+            stage1_device=stage1_device,
         )
 
     records = [

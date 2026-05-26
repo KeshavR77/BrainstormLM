@@ -131,6 +131,7 @@ def sweep(
             generator_family=fc.generator_family,
             stage1_floor_percentile=fc.stage1_floor_percentile,
             use_reward_fallback=fc.use_reward_fallback,
+            stage1_device=cfg.device,
         )
         (out_dir / "sweep_results.json").write_text(json.dumps(result.to_dict(), indent=2))
         best = result.best_cell()

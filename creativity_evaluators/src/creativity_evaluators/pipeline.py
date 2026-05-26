@@ -54,17 +54,23 @@ def build_scorers(config: EvalConfig) -> Scorers:
             layers=tuple(config.dsi_layers),
             min_tokens=config.dsi_min_tokens,
             chunk_size=config.dsi_chunk_size,
+            device=config.stage1_device,
         )
         if config.run_dsi
         else None
     )
     lexical = LexicalScorer() if config.run_lexical else None
-    ppl = PerplexityScorer(model_name=config.ppl_model) if config.run_ppl else None
+    ppl = (
+        PerplexityScorer(model_name=config.ppl_model, device=config.stage1_device)
+        if config.run_ppl
+        else None
+    )
     reward = (
         RewardModelScorer(
             model_name=config.reward_model,
             fallback_model=config.reward_model_fallback,
             use_fallback=config.use_reward_fallback,
+            device=config.stage1_device,
             cache=cache,
         )
         if config.run_reward

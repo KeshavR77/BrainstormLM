@@ -202,6 +202,10 @@ class EvalConfig(BaseModel):
     reward_model: str = "Skywork/Skywork-Reward-Gemma-2-27B-v0.2"
     reward_model_fallback: str = "Skywork/Skywork-Reward-Llama-3.1-8B-v0.2"
     use_reward_fallback: bool = False
+    # Device for the Stage-1 model scorers (DSI/PPL/reward). None -> the scorers' own default
+    # (CPU). Set to "cuda" on a GPU pod so Stage 1 doesn't bottleneck on CPU next to the
+    # generation model. Only consumed by ``build_scorers``; injected scorers manage their own.
+    stage1_device: str | None = None
 
     # --- Stage 2 ---
     enable_stage2: bool = True
