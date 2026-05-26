@@ -10,16 +10,14 @@ from pydantic import BaseModel, ConfigDict, Field
 class FeedbackRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    trajectory_id: str
+    trajectory_id: str = Field(max_length=64)
     thumbs: Literal["up", "down"]
     rating: int | None = Field(default=None, ge=1, le=5)
-    critique: str | None = None
+    critique: str | None = Field(default=None, max_length=2000)
 
 
 class HealthzResponse(BaseModel):
     ok: bool
-    promoted_adapter: str | None = None
-    promoted_steering: str | None = None
 
 
 class FeedbackResponse(BaseModel):
@@ -36,11 +34,11 @@ class MetricsResponse(BaseModel):
 class BrainstormRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    prompt: str
-    context: str | None = None
+    prompt: str = Field(max_length=4000)
+    context: str | None = Field(default=None, max_length=4000)
     n_ideas: int = Field(default=4, ge=1, le=8)
     use_memory: bool = False
-    project_id: str | None = None
+    project_id: str | None = Field(default=None, max_length=128)
     reset_project: bool = False
 
 

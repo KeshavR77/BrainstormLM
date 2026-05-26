@@ -82,7 +82,14 @@ class _Bucket:
 
 
 class TokenBucket:
-    """In-process token bucket keyed by an opaque string (e.g. client IP)."""
+    """In-process token bucket keyed by an opaque string (e.g. client IP).
+
+    Includes periodic eviction: entries idle for >10 minutes are pruned
+    every 256 requests to prevent unbounded memory growth from IP rotation.
+    """
+
+    _EVICT_INTERVAL = 256  # check every N calls
+    _STALE_SECONDS = 600.0  # evict entries idle for >10 min
 
     def __init__(
         self,
@@ -99,6 +106,7 @@ class TokenBucket:
         self._refill = refill_per_sec
         self._clock = clock
         self._buckets: dict[str, _Bucket] = {}
+        self._call_count = 0
 
     def _refill_bucket(self, b: _Bucket, now: float) -> None:
         elapsed = now - b.last_refill
@@ -106,8 +114,21 @@ class TokenBucket:
             b.tokens = min(self._capacity, b.tokens + elapsed * self._refill)
             b.last_refill = now
 
+    def _maybe_evict(self, now: float) -> None:
+        self._call_count += 1
+        if self._call_count < self._EVICT_INTERVAL:
+            return
+        self._call_count = 0
+        stale_keys = [
+            k for k, b in self._buckets.items()
+            if (now - b.last_refill) > self._STALE_SECONDS
+        ]
+        for k in stale_keys:
+            del self._buckets[k]
+
     def take(self, key: str) -> bool:
         now = self._clock()
+        self._maybe_evict(now)
         b = self._buckets.get(key)
         if b is None:
             b = _Bucket(tokens=self._capacity, last_refill=now)

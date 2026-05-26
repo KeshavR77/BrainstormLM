@@ -59,7 +59,12 @@ def test_brainstorm_persists_trajectories(client):
 
 def test_brainstorm_rejects_oversized_prompt(client):
     tc, _ = client
+    # 5000 chars exceeds Pydantic max_length=4000 → 422 (schema validation)
     res = tc.post("/brainstorm", json={"prompt": "x" * 5000, "n_ideas": 2})
+    assert res.status_code == 422
+
+    # 3000 chars passes schema but exceeds validate_user_prompt max_len=2000 → 400
+    res = tc.post("/brainstorm", json={"prompt": "x" * 3000, "n_ideas": 2})
     assert res.status_code == 400
 
 
