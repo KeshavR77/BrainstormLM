@@ -161,7 +161,11 @@ class AnthropicJudge(BaseJudge):
             system=system,
             messages=[{"role": "user", "content": user}],
         )
-        return resp.content[0].text
+        # Concatenate text blocks; tolerate empty/non-text content (refusal, empty response,
+        # or thinking-only blocks) instead of IndexError on resp.content[0]. An empty string
+        # flows to parse_judge_json, which skips this judge for the item (same as the `or ""`
+        # guards on the OpenAI/Google judges).
+        return "".join(b.text for b in resp.content if getattr(b, "type", None) == "text")
 
 
 class OpenAIJudge(BaseJudge):
