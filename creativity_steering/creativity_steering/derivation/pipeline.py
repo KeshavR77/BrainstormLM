@@ -118,13 +118,39 @@ def derive_vectors(
 
 
 def save_derivation(output: DerivationOutput, out_dir: str | Path) -> Path:
-    """Write one vector set per capture position under ``out_dir/vectors/<position>/``."""
-    root = Path(out_dir) / "vectors"
-    for position, vs in output.per_position.items():
-        vs.save(root / position)
+    """Write one vector set per capture position under ``out_dir/vectors/<position>/``.
+
+    Also persists the verified contrast set (the actual DiffMeans inputs) to
+    ``contrast_set.jsonl`` — text only (activations live in the vector sets) — so the pools
+    can be inspected and re-filtered without re-generating.
+    """
     import json
 
-    (Path(out_dir) / "derivation_summary.json").write_text(
+    base = Path(out_dir)
+    root = base / "vectors"
+    for position, vs in output.per_position.items():
+        vs.save(root / position)
+
+    (base / "derivation_summary.json").write_text(
         json.dumps(output.summary(), indent=2, sort_keys=True)
     )
+
+    lines = [
+        json.dumps(
+            {
+                "pool": pool,
+                "framing": ex.framing,
+                "prompt": ex.prompt,
+                "response": ex.response,
+                "score": ex.score,
+            }
+        )
+        for pool, examples in (
+            ("positive", output.subset.positives),
+            ("negative", output.subset.negatives),
+        )
+        for ex in examples
+    ]
+    base.mkdir(parents=True, exist_ok=True)
+    (base / "contrast_set.jsonl").write_text("\n".join(lines) + ("\n" if lines else ""))
     return root

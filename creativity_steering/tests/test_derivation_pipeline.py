@@ -74,3 +74,24 @@ def test_save_and_reload_roundtrip(tmp_path):
     np.testing.assert_allclose(reloaded.vectors, out.vector_set.vectors, atol=1e-5)
     assert reloaded.capture_position == CAPTURE_LAST_RESPONSE
     assert reloaded.n_positive == out.subset.n_positive
+
+
+def test_save_persists_verified_contrast_set(tmp_path):
+    import json
+
+    cfg = _small_config()
+    backend = _backend(cfg)
+    prompts = PromptSet(CREATIVE_SYSTEM, NEUTRAL_SYSTEM, TOPICS[:12])
+    out = derive_vectors(backend, cfg, HeuristicScorer(), prompt_set=prompts)
+
+    save_derivation(out, tmp_path)
+    rows = [json.loads(line) for line in (tmp_path / "contrast_set.jsonl").read_text().splitlines()]
+
+    # one row per DiffMeans input, labeled by pool, with the response text + score.
+    assert len(rows) == out.subset.n_positive + out.subset.n_negative
+    pos = [r for r in rows if r["pool"] == "positive"]
+    neg = [r for r in rows if r["pool"] == "negative"]
+    assert len(pos) == out.subset.n_positive and len(neg) == out.subset.n_negative
+    assert all(r["framing"] == "creative" for r in pos)
+    assert all(r["framing"] == "neutral" for r in neg)
+    assert all({"prompt", "response", "score"} <= r.keys() for r in rows)
