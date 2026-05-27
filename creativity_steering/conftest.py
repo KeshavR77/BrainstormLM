@@ -16,8 +16,9 @@ if str(_PKG_ROOT) not in sys.path:
     sys.path.insert(0, str(_PKG_ROOT))
 
 # The evaluator-stack filter (derivation/evaluator_filter.py) imports the sibling
-# ``creativity_evaluators`` package, which lives at the repo root. Put it on the path so
+# ``creativity_evaluators`` package, which lives at the repo root under a ``src`` layout
+# (``creativity_evaluators/src/creativity_evaluators``). Put that ``src`` dir on the path so
 # this package's tests can import it when run standalone (not just in a full-repo pytest run).
-_CE = Path(__file__).parent.parent / "creativity_evaluators"
-if (_CE / "creativity_evaluators" / "__init__.py").exists() and str(_CE) not in sys.path:
-    sys.path.insert(0, str(_CE))
+_CE_SRC = Path(__file__).parent.parent / "creativity_evaluators" / "src"
+if (_CE_SRC / "creativity_evaluators" / "__init__.py").exists() and str(_CE_SRC) not in sys.path:
+    sys.path.insert(0, str(_CE_SRC))

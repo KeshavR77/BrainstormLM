@@ -49,6 +49,12 @@ CREATIVE_SAMPLING = SamplingPreset(
     temperature=1.2, top_p=0.95, top_k=0, min_p=0.02, repetition_penalty=1.1
 )
 GREEDY_SAMPLING = SamplingPreset(temperature=0.0)
+# Single-context ("score_split") derivation: no system prompt, one decode for every response,
+# at a temperature that yields a creativity *spread* the evaluator can split into a creative
+# tail (positives) and a dull tail (negatives). Diverse but still coherent.
+DIVERSE_SAMPLING = SamplingPreset(
+    temperature=1.0, top_p=0.95, top_k=0, min_p=0.02, repetition_penalty=1.1
+)
 
 
 @dataclass
@@ -67,6 +73,9 @@ class GenerationConfig:
     seed: int = 0
     creative_sampling: SamplingPreset = CREATIVE_SAMPLING
     neutral_sampling: SamplingPreset = GREEDY_SAMPLING
+    # Decode for the single-context ("score_split") derivation — one preset for every response,
+    # no system prompt. Only used when filtering.method == "score_split".
+    unframed_sampling: SamplingPreset = DIVERSE_SAMPLING
 
     def sampling_by_framing(self) -> dict[str, SamplingPreset]:
         """Map each prompt framing to its decoding preset (used by ``gather_responses``)."""
@@ -102,6 +111,15 @@ class FilterConfig:
     scorer: str = "real"  # "real" | "embedding" | "heuristic" | "fake"
 
     # --- evaluator_stack method ---
+    # Selection is quantile-based by default. Set BOTH score thresholds below to switch to
+    # explicit absolute-score selection instead: keep creative-framed with composite
+    # >= creative_score_min ("strongly creative") and neutral-framed with composite
+    # <= neutral_score_max ("weakly creative"); the ambiguous middle is dropped. The composite
+    # is batch-relative (z-scored within the run), so these are in roughly std-dev units around
+    # the batch mean — calibrate against the printed score distribution. Use stage1_floor=0
+    # (judge everything) so every item has a real composite to threshold on.
+    creative_score_min: float | None = None  # e.g. 0.5 — keep creative-framed at/above this
+    neutral_score_max: float | None = None  # e.g. 0.1 — keep neutral-framed at/below this
     creative_quantile: float = 0.8  # keep creative-framed at/above this quantile of their scores
     neutral_quantile: float = 0.2  # keep neutral-framed at/below this quantile of their scores
     enable_judge: bool = True  # run the Stage-2 LLM-as-judge ensemble (the "both phases" path)
@@ -109,7 +127,16 @@ class FilterConfig:
     stage1_floor_percentile: float = 20.0  # Stage-2 gating floor inside the evaluator stack
     length_match: bool = False  # length-match kept pools (prevents encoding verbosity)
     length_match_tolerance: float = 0.10
+    enable_reward: bool = False  # run the Skywork reward model as a model-free Stage-1 quality pole
     use_reward_fallback: bool = False  # use Skywork 8B reward instead of the 27B (tighter pods)
+
+    # --- score_split method (single-context, behavior-only contrast) ---
+    # Generate every response under NO system prompt at one decode (generation.unframed_sampling),
+    # then split the whole pool by evaluator score (no framing): positives are responses with
+    # composite >= creative_score_min, negatives <= neutral_score_max. This removes the
+    # creative/neutral *instruction* from the contrast and matches the unframed sweep context,
+    # so the DiffMeans direction is "creative vs dull content", not "creative-instruction present".
+    # Uses creative_score_min / neutral_score_max (above); set samples_per_prompt > 1 for a spread.
 
 
 @dataclass
@@ -122,6 +149,13 @@ class PatchingConfig:
     all_layers_alpha: float = 0.1
     rescale: bool = True  # match injection magnitude to per-token activation norm
     eval_samples: int = 5  # samples per (layer, alpha) cell, scored for diversity
+
+    # How the sweep scores each cell:
+    #  * "per_item"  — the per-item CreativityScorer (filtering.scorer); cheap, offline-friendly.
+    #  * "two_stage" — the full creativity_evaluators stack (DSI + LLM-judge), batch-relative,
+    #                  with judges gated to the top-k cells (see patching/evaluate_stack.py).
+    sweep_evaluator: str = "per_item"  # "per_item" | "two_stage"
+    judge_top_k: int = 3  # two_stage only: run Stage-2 judges on the top-k cells by Stage-1 score
 
 
 @dataclass
@@ -179,7 +213,7 @@ def _build_nested(raw: dict) -> ExperimentConfig:
     raw = dict(raw)
     if "generation" in raw and isinstance(raw["generation"], dict):
         g = dict(raw["generation"])
-        for key in ("creative_sampling", "neutral_sampling"):
+        for key in ("creative_sampling", "neutral_sampling", "unframed_sampling"):
             if key in g and isinstance(g[key], dict):
                 g[key] = SamplingPreset(**g[key])
         raw["generation"] = GenerationConfig(**g)

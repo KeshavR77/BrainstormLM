@@ -91,14 +91,58 @@ def sweep(
     position: Annotated[str | None, typer.Option()] = None,
     layers: Annotated[str | None, typer.Option(help="Comma-separated layers (default: all).")] = None,
 ) -> None:
-    """Phase 3, Experiment 1 — per-layer matched alpha sweep."""
+    """Phase 3, Experiment 1 — per-layer matched alpha sweep.
+
+    Scores each (layer, alpha) cell with ``patching.sweep_evaluator``: the cheap per-item
+    scorer (``"per_item"``) or the full two-stage ``creativity_evaluators`` stack
+    (``"two_stage"`` — DSI + LLM-judge, judges gated to the top-k cells).
+    """
     from creativity_steering.models.factory import build_backend
-    from creativity_steering.patching.sweep import per_layer_alpha_sweep
 
     cfg = load_config(config)
     vs, chosen = _load_vector_set(run, position)
     backend = build_backend(cfg)
-    layer_list = [int(x) for x in layers.split(",")] if layers else None
+    layer_list = list(range(vs.n_layers)) if not layers else [int(x) for x in layers.split(",")]
+
+    out_dir = run / "patching" / chosen
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    if cfg.patching.sweep_evaluator == "two_stage":
+        from creativity_steering.patching.evaluate import DEFAULT_BRIEFS
+        from creativity_steering.patching.evaluate_stack import (
+            build_alpha_cells,
+            two_stage_cell_sweep,
+        )
+
+        fc = cfg.filtering
+        cells = build_alpha_cells(vs, layer_list, cfg.patching.alphas, rescale=cfg.patching.rescale)
+        typer.echo(
+            f"two-stage sweep: {len(cells)} cells, judges on top-{cfg.patching.judge_top_k} "
+            f"(enable_judge={fc.enable_judge})"
+        )
+        result = two_stage_cell_sweep(
+            backend, cells,
+            briefs=DEFAULT_BRIEFS,
+            n_samples=cfg.patching.eval_samples,
+            max_new_tokens=cfg.generation.max_new_tokens,
+            temperature=cfg.generation.temperature,
+            enable_judge=fc.enable_judge,
+            judge_top_k=cfg.patching.judge_top_k,
+            generator_family=fc.generator_family,
+            stage1_floor_percentile=fc.stage1_floor_percentile,
+            enable_reward=fc.enable_reward,
+            use_reward_fallback=fc.use_reward_fallback,
+            stage1_device=cfg.device,
+        )
+        (out_dir / "sweep_results.json").write_text(json.dumps(result.to_dict(), indent=2))
+        best = result.best_cell()
+        typer.echo(f"baseline composite={result.baseline.composite:.3f}  judged={result.judged_labels}")
+        typer.echo(f"best cell: layer={best['layer']} alpha={best['alpha']} "
+                   f"composite={best['composite']:.3f} (delta={best['delta']:+.3f}, judged={best['judged']})")
+        typer.echo(f"Saved sweep to {out_dir}")
+        return
+
+    from creativity_steering.patching.sweep import per_layer_alpha_sweep
 
     result = per_layer_alpha_sweep(
         backend, vs, _scorer(cfg),
@@ -106,8 +150,6 @@ def sweep(
         n_samples=cfg.patching.eval_samples,
         max_new_tokens=cfg.generation.max_new_tokens, temperature=cfg.generation.temperature,
     )
-    out_dir = run / "patching" / chosen
-    out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "sweep_results.json").write_text(json.dumps(result.to_dict(), indent=2))
     best = result.best_cell()
     typer.echo(f"baseline composite={result.baseline.composite:.3f}")
@@ -152,6 +194,87 @@ def multi(
     typer.echo(f"{all_layers.label}: delta={all_layers.delta:+.3f}")
     typer.echo(f"{combo.label}: delta={combo.delta:+.3f}")
     typer.echo(f"Saved multilayer results to {out_dir}")
+
+
+@app.command()
+def experiments(
+    run: Annotated[Path, typer.Option(help="Run directory from `derive`.")],
+    config: Annotated[Path, typer.Option(help="ExperimentConfig JSON.")],
+    position: Annotated[str | None, typer.Option()] = None,
+    layers: Annotated[
+        str | None, typer.Option(help="Promising layers (default: analysis candidate_layers).")
+    ] = None,
+    n_promising: Annotated[
+        int, typer.Option(help="How many candidate layers to use when --layers is omitted.")
+    ] = 3,
+) -> None:
+    """Phase 3, Experiment 2 — multi-layer experiments on promising layers, two-stage scored.
+
+    Builds *all-layers-single-vector* cells (each promising layer's vector injected at every
+    layer, small alphas) and a *multi-vector-combo* cell (the promising layers' own vectors at
+    their own layers), then scores them with the DSI + LLM-judge stack (judges gated to the
+    top-k cells). Promising layers default to the analysis ``report.json`` candidate_layers.
+    """
+    from creativity_steering.models.factory import build_backend
+    from creativity_steering.patching.evaluate import DEFAULT_BRIEFS
+    from creativity_steering.patching.evaluate_stack import (
+        build_all_layers_cells,
+        build_multi_vector_cells,
+        two_stage_cell_sweep,
+    )
+
+    cfg = load_config(config)
+    vs, chosen = _load_vector_set(run, position)
+    backend = build_backend(cfg)
+
+    if layers:
+        promising = [int(x) for x in layers.split(",")]
+    else:
+        report_path = run / "analysis" / chosen / "report.json"
+        if not report_path.exists():
+            raise typer.BadParameter(
+                f"no analysis report at {report_path}; run `analyze` first or pass --layers"
+            )
+        promising = list(json.loads(report_path.read_text())["candidate_layers"])[:n_promising]
+    if not promising:
+        raise typer.BadParameter("no promising layers to experiment on")
+
+    a = cfg.patching.all_layers_alpha
+    cells = build_all_layers_cells(
+        vs, source_layers=promising[:2], alphas=[a, -a, 2 * a, -2 * a], rescale=cfg.patching.rescale
+    )
+    cells += build_multi_vector_cells(
+        vs, layer_groups=[promising], alphas=[1.0, 2.0], rescale=cfg.patching.rescale
+    )
+
+    fc = cfg.filtering
+    typer.echo(
+        f"Exp-2 on promising layers {promising}: {len(cells)} cells, "
+        f"judges on top-{cfg.patching.judge_top_k} (enable_judge={fc.enable_judge})"
+    )
+    result = two_stage_cell_sweep(
+        backend, cells,
+        briefs=DEFAULT_BRIEFS,
+        n_samples=cfg.patching.eval_samples,
+        max_new_tokens=cfg.generation.max_new_tokens,
+        temperature=cfg.generation.temperature,
+        enable_judge=fc.enable_judge,
+        judge_top_k=cfg.patching.judge_top_k,
+        generator_family=fc.generator_family,
+        stage1_floor_percentile=fc.stage1_floor_percentile,
+        use_reward_fallback=fc.use_reward_fallback,
+        stage1_device=cfg.device,
+    )
+    out_dir = run / "patching" / chosen
+    out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / "experiments_results.json").write_text(json.dumps(result.to_dict(), indent=2))
+    best = result.best_cell()
+    typer.echo(f"baseline composite={result.baseline.composite:.3f}  judged={result.judged_labels}")
+    typer.echo(
+        f"best experiment: {best['label']} composite={best['composite']:.3f} "
+        f"(delta={best['delta']:+.3f}, judged={best['judged']})"
+    )
+    typer.echo(f"Saved Exp-2 results to {out_dir}")
 
 
 @app.command()

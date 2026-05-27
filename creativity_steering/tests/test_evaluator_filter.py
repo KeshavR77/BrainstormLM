@@ -24,6 +24,7 @@ from creativity_steering.config import (
 from creativity_steering.derivation.evaluator_filter import (
     evaluate_and_filter,
     select_by_quantile,
+    select_by_threshold,
 )
 from creativity_steering.derivation.pipeline import derive_vectors
 from creativity_steering.derivation.prompts import (
@@ -96,6 +97,51 @@ def test_select_by_quantile_high_and_low():
     assert {round(e.score, 1) for e in top} == {0.5}
     bottom = select_by_quantile(pool, quantile=0.2, keep="low")
     assert {round(e.score, 1) for e in bottom} == {0.1}
+
+
+def test_select_by_threshold_high_and_low():
+    pool = [_ex("creative", "x") for _ in range(5)]
+    for ex, s in zip(pool, [0.1, 0.2, 0.3, 0.4, 0.5]):
+        ex.score = s
+    hi = select_by_threshold(pool, threshold=0.35, keep="high")
+    assert sorted(round(e.score, 1) for e in hi) == [0.4, 0.5]
+    lo = select_by_threshold(pool, threshold=0.25, keep="low")
+    assert sorted(round(e.score, 1) for e in lo) == [0.1, 0.2]
+
+
+def test_evaluate_and_filter_uses_thresholds_when_both_set():
+    # Permissive thresholds keep every creative as positive / every neutral as negative,
+    # proving the threshold path (not the quantile path) is taken.
+    examples = [
+        _ex("creative", DIVERSE),
+        _ex("creative", DIVERSE2),
+        _ex("neutral", REPET),
+        _ex("neutral", REPET2),
+    ]
+    subset = evaluate_and_filter(
+        examples, scorers=_scorers(), enable_judge=False,
+        creative_score_min=-1e9, neutral_score_max=1e9,
+    )
+    assert subset.n_positive == 2 and subset.n_negative == 2 and subset.n_dropped == 0
+
+
+def test_split_by_score_ignores_framing():
+    # High-scoring responses tagged "neutral", low-scoring tagged "creative". With
+    # split_by="score" the pools are formed from the whole set by score — framing is ignored —
+    # so the high-scoring (neutral-framed) responses must land in positives.
+    examples = [
+        _ex("neutral", DIVERSE),
+        _ex("neutral", DIVERSE2),
+        _ex("creative", REPET),
+        _ex("creative", REPET2),
+    ]
+    subset = evaluate_and_filter(
+        examples, scorers=_scorers(), enable_judge=False, split_by="score",
+        creative_score_min=0.2, neutral_score_max=0.05,
+    )
+    assert {p.response for p in subset.positives} == {DIVERSE, DIVERSE2}
+    assert all(p.framing == "neutral" for p in subset.positives)  # framing ignored
+    assert {n.response for n in subset.negatives} == {REPET, REPET2}
 
 
 # ---------------------------------------------------------------------------
