@@ -185,7 +185,7 @@ class BaseJudge(ABC):
 
 
 class AnthropicJudge(BaseJudge):
-    def __init__(self, model: str = "claude-sonnet-4-5", *, name: str = "claude", **kw):
+    def __init__(self, model: str = "claude-sonnet-4-6", *, name: str = "claude", **kw):
         super().__init__(name=name, model=model, family="anthropic", **kw)
 
     def _call(self, system: str, user: str) -> str:

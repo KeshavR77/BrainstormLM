@@ -167,7 +167,7 @@ class JudgeSpec(BaseModel):
 def _default_judges() -> list[JudgeSpec]:
     return [
         JudgeSpec(
-            provider="anthropic", model="claude-sonnet-4-5", name="claude", family="anthropic"
+            provider="anthropic", model="claude-sonnet-4-6", name="claude", family="anthropic"
         ),
         JudgeSpec(provider="openai", model="gpt-4o", name="gpt4o", family="openai"),
         JudgeSpec(provider="google", model="gemini-2.5-flash", name="gemini", family="google"),
