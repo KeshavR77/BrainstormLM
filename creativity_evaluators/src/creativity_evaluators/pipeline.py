@@ -86,6 +86,7 @@ def build_scorers(config: EvalConfig) -> Scorers:
                 temperature=config.judge_temperature,
                 max_retries=config.judge_max_retries,
                 truncate_chars=config.judge_truncate_chars,
+                timeout=config.judge_timeout,
             )
             for spec in config.judges
         ]

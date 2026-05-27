@@ -92,6 +92,16 @@ def test_failed_judge_skipped_and_counted():
     assert res.per_judge[0].judge_name == "g"
 
 
+def test_failed_judge_logged_at_error(caplog):
+    # A dropped judge degrades the ensemble silently otherwise; surface it at ERROR so a
+    # 2-judge run can't pass unnoticed.
+    with caplog.at_level(logging.ERROR):
+        Ensemble([BoomJudge(), FakeJudge("g", "y", _sd(3, 3, 3, 3, 3))]).score("p", "r")
+    assert any(
+        r.levelno == logging.ERROR and "boom" in r.message.lower() for r in caplog.records
+    )
+
+
 # ---------------------------------------------------------------------------
 # Inter-judge agreement
 # ---------------------------------------------------------------------------

@@ -92,3 +92,59 @@ def test_cache_hit_avoids_second_call(tmp_path):
     b = j.score("p", "r")
     assert a.scores == b.scores
     assert j.calls == 1
+
+
+# ---------------------------------------------------------------------------
+# Rate-limit-aware retry (the "Claude silently dropped on 429" fix)
+# ---------------------------------------------------------------------------
+
+
+class _FakeResponse:
+    """Mimics the httpx.Response carried on a provider APIStatusError."""
+
+    def __init__(self, headers: dict):
+        self.headers = headers
+
+
+class FakeRateLimitError(Exception):
+    """Stand-in for a provider 429 that carries a ``Retry-After`` header."""
+
+    def __init__(self, retry_after=None):
+        super().__init__("429 rate limited")
+        headers = {} if retry_after is None else {"retry-after": str(retry_after)}
+        self.response = _FakeResponse(headers)
+
+
+def test_retry_honors_retry_after_header(monkeypatch):
+    # When the server says "wait 2.5s", the wrapper sleeps exactly that — not its own
+    # (here zero) exponential default — so it rides out the rate-limit window.
+    slept: list[float] = []
+    monkeypatch.setattr("creativity_evaluators.stage2.judge.time.sleep", slept.append)
+    j = ScriptedJudge([FakeRateLimitError(retry_after=2.5), VALID])
+    res = j.score("p", "r")
+    assert res.scores["Originality"] == 4
+    assert slept == [2.5]
+
+
+def test_backoff_is_capped_without_header(monkeypatch):
+    # No Retry-After -> exponential backoff, capped at ``max_backoff``.
+    slept: list[float] = []
+    monkeypatch.setattr("creativity_evaluators.stage2.judge.time.sleep", slept.append)
+    boom = RuntimeError("boom")
+    j = ScriptedJudge([boom, boom, boom, boom, VALID])
+    j.backoff_base = 1.0
+    j.max_backoff = 4.0
+    res = j.score("p", "r")
+    assert res.scores["Originality"] == 4
+    assert slept == [1.0, 2.0, 4.0, 4.0]
+
+
+def test_default_retries_ride_out_a_throttle_burst(monkeypatch):
+    # The default budget must survive a sustained throttle (the Tier-1 ITPM case) instead
+    # of giving up after ~3 tries and letting the ensemble silently drop the judge.
+    monkeypatch.setattr("creativity_evaluators.stage2.judge.time.sleep", lambda _s: None)
+    script = [FakeRateLimitError(retry_after=0)] * 5 + [VALID]
+    j = ScriptedJudge(script)
+    res = j.score("p", "r")
+    assert res.scores["Originality"] == 4
+    assert j.calls == 6

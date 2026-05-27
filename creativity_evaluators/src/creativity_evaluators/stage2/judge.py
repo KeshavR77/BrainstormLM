@@ -9,7 +9,8 @@ Required behaviors (from the research synthesis):
   * temperature low (0.0 default) for stability;
   * response truncated to 4,000 chars before judging (EQ-Bench v3 length-bias control);
   * all judge calls cached to disk (Stage 2 is the cost driver);
-  * 3 retries with exponential backoff on transient failures.
+  * retries with Retry-After-aware backoff on transient failures — critically, 429 rate
+    limits, where giving up too soon makes the ensemble silently drop a whole judge.
 """
 
 from __future__ import annotations
@@ -48,6 +49,27 @@ def _strip_fences(raw: str) -> str:
     return raw.strip()
 
 
+def _retry_after_seconds(exc: Exception) -> float | None:
+    """Best-effort extract of a server-provided ``Retry-After`` (in seconds) from a provider
+    exception. The anthropic/openai SDKs raise ``APIStatusError`` subclasses that carry the
+    HTTP response on ``.response``; a 429 includes the rate-limit reset there. Returns None
+    when the header is absent or in HTTP-date form, so the caller falls back to backoff."""
+    response = getattr(exc, "response", None)
+    headers = getattr(response, "headers", None)
+    if headers is None:
+        return None
+    try:
+        value = headers.get("retry-after")
+    except AttributeError:
+        return None
+    if value is None:
+        return None
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None  # HTTP-date form — fall back to exponential backoff
+
+
 def parse_judge_json(raw: str, judge_name: str) -> JudgeResult:
     """Parse a judge reply into a ``JudgeResult``; clamps each score to the 1-5 integer range.
 
@@ -82,10 +104,12 @@ class BaseJudge(ABC):
         api_key: str | None = None,
         temperature: float = 0.0,
         max_tokens: int = 512,
-        max_retries: int = 3,
+        max_retries: int = 6,
         truncate_chars: int = 4000,
         cache: DiskCache | None = None,
         backoff_base: float = 1.0,
+        max_backoff: float = 60.0,
+        timeout: float = 60.0,
     ):
         self.name = name
         self.model = model
@@ -93,10 +117,15 @@ class BaseJudge(ABC):
         self.api_key = api_key
         self.temperature = temperature
         self.max_tokens = max_tokens
+        # Retry budget is sized to ride out a rate-limit window: Anthropic's Tier-1 token
+        # buckets reset within ~60s, and the wrapper honors the server's Retry-After, so a
+        # handful of retries lets a throttled judge recover rather than being dropped.
         self.max_retries = max_retries
         self.truncate_chars = truncate_chars
         self.cache = cache
         self.backoff_base = backoff_base
+        self.max_backoff = max_backoff
+        self.timeout = timeout
 
     @abstractmethod
     def _call(self, system: str, user: str) -> str:
@@ -132,13 +161,22 @@ class BaseJudge(ABC):
         for attempt in range(self.max_retries):
             try:
                 return self._call(system, user)
-            except Exception as exc:  # transient API failures: back off and retry
+            except Exception as exc:  # transient API failures (esp. 429s): back off and retry
                 last_exc = exc
                 if attempt == self.max_retries - 1:
                     break
-                time.sleep(self.backoff_base * (2**attempt))
+                time.sleep(self._backoff_seconds(attempt, exc))
         assert last_exc is not None
         raise last_exc
+
+    def _backoff_seconds(self, attempt: int, exc: Exception) -> float:
+        """How long to wait before the next retry. A server ``Retry-After`` (the rate-limit
+        reset) wins when present; otherwise capped exponential backoff. Capping at
+        ``max_backoff`` keeps a single stuck call from stalling a whole worker thread."""
+        retry_after = _retry_after_seconds(exc)
+        if retry_after is not None:
+            return min(retry_after, self.max_backoff)
+        return min(self.backoff_base * (2**attempt), self.max_backoff)
 
 
 # ---------------------------------------------------------------------------
@@ -153,7 +191,12 @@ class AnthropicJudge(BaseJudge):
     def _call(self, system: str, user: str) -> str:
         import anthropic  # type: ignore
 
-        client = anthropic.Anthropic(api_key=self.api_key)
+        # ``max_retries=0``: BaseJudge._call_with_retry is the single, Retry-After-aware retry
+        # layer (so the SDK's own retries don't double up with it); ``timeout`` bounds a
+        # stalled connection so it can't hang a worker thread indefinitely.
+        client = anthropic.Anthropic(
+            api_key=self.api_key, timeout=self.timeout, max_retries=0
+        )
         resp = client.messages.create(
             model=self.model,
             max_tokens=self.max_tokens,
@@ -175,7 +218,8 @@ class OpenAIJudge(BaseJudge):
     def _call(self, system: str, user: str) -> str:
         from openai import OpenAI  # type: ignore
 
-        client = OpenAI(api_key=self.api_key)
+        # See AnthropicJudge: own the retry in the wrapper, bound the socket with a timeout.
+        client = OpenAI(api_key=self.api_key, timeout=self.timeout, max_retries=0)
         resp = client.chat.completions.create(
             model=self.model,
             temperature=self.temperature,

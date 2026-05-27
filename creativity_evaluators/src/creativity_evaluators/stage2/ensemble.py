@@ -91,7 +91,11 @@ class Ensemble:
             try:
                 per_judge.append(judge.score(prompt, response))
             except Exception as exc:  # one judge failing must not sink the ensemble
-                logger.warning("judge %s failed and was skipped: %s", getattr(judge, "name", "?"), exc)
+                # ERROR, not WARNING: a dropped judge silently degrades the run to a smaller
+                # ensemble (the "Claude vanished after rate-limiting" case), so make it loud.
+                logger.error(
+                    "judge %s failed and was skipped: %s", getattr(judge, "name", "?"), exc
+                )
 
         if not per_judge:
             return EnsembleResult(

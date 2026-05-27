@@ -213,7 +213,10 @@ class EvalConfig(BaseModel):
     stage1_percentile_floor: float = 20.0  # responses below this S1-composite pct skip S2
     judge_truncate_chars: int = 4000  # EQ-Bench v3 length-bias control
     judge_temperature: float = 0.0
-    judge_max_retries: int = 3
+    # Sized to ride out a rate-limit window rather than dropping a judge: the wrapper honors
+    # the server Retry-After (e.g. Anthropic Tier-1's ~60s ITPM reset) on each attempt.
+    judge_max_retries: int = 6
+    judge_timeout: float = 60.0  # per-request timeout (s); bounds a stalled judge connection
     # Family of the model that generated the responses; judges in this family are excluded.
     generator_family: str | None = None
     inter_judge_warn_threshold: float = 0.5
