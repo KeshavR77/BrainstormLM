@@ -102,6 +102,15 @@ class FilterConfig:
     scorer: str = "real"  # "real" | "embedding" | "heuristic" | "fake"
 
     # --- evaluator_stack method ---
+    # Selection is quantile-based by default. Set BOTH score thresholds below to switch to
+    # explicit absolute-score selection instead: keep creative-framed with composite
+    # >= creative_score_min ("strongly creative") and neutral-framed with composite
+    # <= neutral_score_max ("weakly creative"); the ambiguous middle is dropped. The composite
+    # is batch-relative (z-scored within the run), so these are in roughly std-dev units around
+    # the batch mean — calibrate against the printed score distribution. Use stage1_floor=0
+    # (judge everything) so every item has a real composite to threshold on.
+    creative_score_min: float | None = None  # e.g. 0.5 — keep creative-framed at/above this
+    neutral_score_max: float | None = None  # e.g. 0.1 — keep neutral-framed at/below this
     creative_quantile: float = 0.8  # keep creative-framed at/above this quantile of their scores
     neutral_quantile: float = 0.2  # keep neutral-framed at/below this quantile of their scores
     enable_judge: bool = True  # run the Stage-2 LLM-as-judge ensemble (the "both phases" path)

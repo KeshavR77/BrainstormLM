@@ -59,6 +59,22 @@ def select_by_quantile(
     raise ValueError(f"keep must be 'high' or 'low', got {keep!r}")
 
 
+def select_by_threshold(
+    pool: list[ResponseExample], *, threshold: float, keep: str
+) -> list[ResponseExample]:
+    """Keep examples on one side of an absolute score ``threshold``.
+
+    ``keep="high"`` keeps scores ``>= threshold`` (strongly creative); ``keep="low"`` keeps
+    scores ``<= threshold`` (weakly creative). Unlike ``select_by_quantile``, the cut is an
+    explicit score, not a within-pool fraction — so the pool size is whatever clears the bar.
+    """
+    if keep == "high":
+        return [ex for ex in pool if ex.score is not None and ex.score >= threshold]
+    if keep == "low":
+        return [ex for ex in pool if ex.score is not None and ex.score <= threshold]
+    raise ValueError(f"keep must be 'high' or 'low', got {keep!r}")
+
+
 def _length_match(
     positives: list[ResponseExample],
     negatives: list[ResponseExample],
@@ -96,6 +112,8 @@ def evaluate_and_filter(
     scorers=None,  # creativity_evaluators.Scorers; built from eval_config if None (real run)
     creative_quantile: float = 0.8,
     neutral_quantile: float = 0.2,
+    creative_score_min: float | None = None,
+    neutral_score_max: float | None = None,
     enable_judge: bool = True,
     generator_family: str | None = "qwen",
     stage1_floor_percentile: float = 20.0,
@@ -144,8 +162,13 @@ def evaluate_and_filter(
 
     creatives = [ex for ex in examples if ex.framing == "creative"]
     neutrals = [ex for ex in examples if ex.framing == "neutral"]
-    positives = select_by_quantile(creatives, quantile=creative_quantile, keep="high")
-    negatives = select_by_quantile(neutrals, quantile=neutral_quantile, keep="low")
+    # Explicit absolute-score selection when both thresholds are set; else quantile.
+    if creative_score_min is not None and neutral_score_max is not None:
+        positives = select_by_threshold(creatives, threshold=creative_score_min, keep="high")
+        negatives = select_by_threshold(neutrals, threshold=neutral_score_max, keep="low")
+    else:
+        positives = select_by_quantile(creatives, quantile=creative_quantile, keep="high")
+        negatives = select_by_quantile(neutrals, quantile=neutral_quantile, keep="low")
 
     if length_match:
         positives, negatives = _length_match(positives, negatives, length_match_tolerance)
@@ -153,11 +176,20 @@ def evaluate_and_filter(
     dropped = len(examples) - len(positives) - len(negatives)
 
     if min_per_class > 0 and (len(positives) < min_per_class or len(negatives) < min_per_class):
+        if creative_score_min is not None and neutral_score_max is not None:
+            cut = (
+                f"the score thresholds (creative_score_min={creative_score_min}, "
+                f"neutral_score_max={neutral_score_max})"
+            )
+        else:
+            cut = (
+                f"the quantiles (creative_quantile={creative_quantile}, "
+                f"neutral_quantile={neutral_quantile})"
+            )
         raise ValueError(
             f"verified subset too small: {len(positives)} positives / {len(negatives)} "
             f"negatives < min_per_class={min_per_class}. Gather more prompts/samples or relax "
-            f"the quantiles (creative_quantile={creative_quantile}, "
-            f"neutral_quantile={neutral_quantile})."
+            f"{cut}."
         )
 
     return VerifiedSubset(positives=positives, negatives=negatives, n_dropped=dropped)

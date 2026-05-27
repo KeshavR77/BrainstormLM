@@ -79,6 +79,8 @@ def derive_vectors(
             scorers=eval_scorers,
             creative_quantile=fc.creative_quantile,
             neutral_quantile=fc.neutral_quantile,
+            creative_score_min=fc.creative_score_min,
+            neutral_score_max=fc.neutral_score_max,
             enable_judge=fc.enable_judge,
             generator_family=fc.generator_family,
             stage1_floor_percentile=fc.stage1_floor_percentile,
