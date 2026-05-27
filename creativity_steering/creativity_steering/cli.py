@@ -130,6 +130,7 @@ def sweep(
             judge_top_k=cfg.patching.judge_top_k,
             generator_family=fc.generator_family,
             stage1_floor_percentile=fc.stage1_floor_percentile,
+            enable_reward=fc.enable_reward,
             use_reward_fallback=fc.use_reward_fallback,
             stage1_device=cfg.device,
         )

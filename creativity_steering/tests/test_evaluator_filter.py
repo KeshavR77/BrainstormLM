@@ -125,6 +125,25 @@ def test_evaluate_and_filter_uses_thresholds_when_both_set():
     assert subset.n_positive == 2 and subset.n_negative == 2 and subset.n_dropped == 0
 
 
+def test_split_by_score_ignores_framing():
+    # High-scoring responses tagged "neutral", low-scoring tagged "creative". With
+    # split_by="score" the pools are formed from the whole set by score — framing is ignored —
+    # so the high-scoring (neutral-framed) responses must land in positives.
+    examples = [
+        _ex("neutral", DIVERSE),
+        _ex("neutral", DIVERSE2),
+        _ex("creative", REPET),
+        _ex("creative", REPET2),
+    ]
+    subset = evaluate_and_filter(
+        examples, scorers=_scorers(), enable_judge=False, split_by="score",
+        creative_score_min=0.2, neutral_score_max=0.05,
+    )
+    assert {p.response for p in subset.positives} == {DIVERSE, DIVERSE2}
+    assert all(p.framing == "neutral" for p in subset.positives)  # framing ignored
+    assert {n.response for n in subset.negatives} == {REPET, REPET2}
+
+
 # ---------------------------------------------------------------------------
 # evaluate_and_filter
 # ---------------------------------------------------------------------------

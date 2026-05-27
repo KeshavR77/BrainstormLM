@@ -152,6 +152,7 @@ def two_stage_cell_sweep(
     judge_top_k: int = 3,
     generator_family: str | None = "qwen",
     stage1_floor_percentile: float = 20.0,
+    enable_reward: bool = False,
     use_reward_fallback: bool = False,
     stage1_device: str | None = None,
     baseline_injections: Sequence[Injection] = (),
@@ -179,6 +180,7 @@ def two_stage_cell_sweep(
             enable_stage2=enable_judge,
             generator_family=generator_family,
             stage1_percentile_floor=stage1_floor_percentile,
+            run_reward=enable_reward,
             use_reward_fallback=use_reward_fallback,
             stage1_device=stage1_device,
         )

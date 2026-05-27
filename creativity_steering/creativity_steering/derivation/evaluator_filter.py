@@ -114,11 +114,13 @@ def evaluate_and_filter(
     neutral_quantile: float = 0.2,
     creative_score_min: float | None = None,
     neutral_score_max: float | None = None,
+    split_by: str = "framing",
     enable_judge: bool = True,
     generator_family: str | None = "qwen",
     stage1_floor_percentile: float = 20.0,
     length_match: bool = False,
     length_match_tolerance: float = 0.10,
+    enable_reward: bool = False,
     use_reward_fallback: bool = False,
     stage1_device: str | None = None,
     min_per_class: int = 0,
@@ -142,6 +144,7 @@ def evaluate_and_filter(
             enable_stage2=enable_judge,
             generator_family=generator_family,
             stage1_percentile_floor=stage1_floor_percentile,
+            run_reward=enable_reward,
             use_reward_fallback=use_reward_fallback,
             stage1_device=stage1_device,
         )
@@ -160,15 +163,22 @@ def evaluate_and_filter(
     for ex, result in zip(examples, results):
         ex.score = float(result.creativity_score)
 
-    creatives = [ex for ex in examples if ex.framing == "creative"]
-    neutrals = [ex for ex in examples if ex.framing == "neutral"]
-    # Explicit absolute-score selection when both thresholds are set; else quantile.
-    if creative_score_min is not None and neutral_score_max is not None:
-        positives = select_by_threshold(creatives, threshold=creative_score_min, keep="high")
-        negatives = select_by_threshold(neutrals, threshold=neutral_score_max, keep="low")
+    if split_by == "score":
+        # Single-context: ignore framing entirely; split the whole pool by score thresholds.
+        if creative_score_min is None or neutral_score_max is None:
+            raise ValueError("split_by='score' requires creative_score_min and neutral_score_max")
+        positives = select_by_threshold(examples, threshold=creative_score_min, keep="high")
+        negatives = select_by_threshold(examples, threshold=neutral_score_max, keep="low")
     else:
-        positives = select_by_quantile(creatives, quantile=creative_quantile, keep="high")
-        negatives = select_by_quantile(neutrals, quantile=neutral_quantile, keep="low")
+        creatives = [ex for ex in examples if ex.framing == "creative"]
+        neutrals = [ex for ex in examples if ex.framing == "neutral"]
+        # Explicit absolute-score selection when both thresholds are set; else quantile.
+        if creative_score_min is not None and neutral_score_max is not None:
+            positives = select_by_threshold(creatives, threshold=creative_score_min, keep="high")
+            negatives = select_by_threshold(neutrals, threshold=neutral_score_max, keep="low")
+        else:
+            positives = select_by_quantile(creatives, quantile=creative_quantile, keep="high")
+            negatives = select_by_quantile(neutrals, quantile=neutral_quantile, keep="low")
 
     if length_match:
         positives, negatives = _length_match(positives, negatives, length_match_tolerance)

@@ -16,7 +16,7 @@ from creativity_steering.artifacts import SteeringVectorSet
 from creativity_steering.config import ExperimentConfig
 from creativity_steering.derivation.diffmeans import DiffMeansResult
 from creativity_steering.derivation.filter import label_and_filter
-from creativity_steering.derivation.generate import gather_responses
+from creativity_steering.derivation.generate import gather_responses, gather_responses_unframed
 from creativity_steering.derivation.prompts import PromptSet, default_prompt_set
 from creativity_steering.derivation.records import VerifiedSubset
 from creativity_steering.models.backend import ModelBackend
@@ -57,21 +57,36 @@ def derive_vectors(
     prompt_set = prompt_set or default_prompt_set()
     positions = config.all_capture_positions
 
-    examples = gather_responses(
-        backend,
-        prompt_set,
-        positions=positions,
-        samples_per_prompt=config.generation.samples_per_prompt,
-        max_new_tokens=config.generation.max_new_tokens,
-        temperature=config.generation.temperature,
-        seed=config.generation.seed,
-        sampling=config.generation.sampling_by_framing(),
-    )
-
     fc = config.filtering
-    if fc.method == "evaluator_stack":
-        # Score with the two-stage creativity_evaluators stack; keep top-creative /
-        # bottom-neutral by quantile. The sibling-package import stays lazy in here.
+
+    if fc.method == "score_split":
+        # Single-context: one decode, no system prompt; the contrast comes from the evaluator
+        # score split, not a creative/neutral instruction (matches the unframed sweep context).
+        examples = gather_responses_unframed(
+            backend,
+            prompt_set.topics,
+            positions=positions,
+            samples_per_prompt=config.generation.samples_per_prompt,
+            max_new_tokens=config.generation.max_new_tokens,
+            temperature=config.generation.temperature,
+            seed=config.generation.seed,
+            sampling=config.generation.unframed_sampling,
+        )
+    else:
+        examples = gather_responses(
+            backend,
+            prompt_set,
+            positions=positions,
+            samples_per_prompt=config.generation.samples_per_prompt,
+            max_new_tokens=config.generation.max_new_tokens,
+            temperature=config.generation.temperature,
+            seed=config.generation.seed,
+            sampling=config.generation.sampling_by_framing(),
+        )
+
+    if fc.method in ("evaluator_stack", "score_split"):
+        # Two-stage evaluator filtering. ``evaluator_stack`` splits by framing; ``score_split``
+        # splits the single-context pool by score. The sibling-package import stays lazy here.
         from creativity_steering.derivation.evaluator_filter import evaluate_and_filter
 
         subset = evaluate_and_filter(
@@ -81,11 +96,13 @@ def derive_vectors(
             neutral_quantile=fc.neutral_quantile,
             creative_score_min=fc.creative_score_min,
             neutral_score_max=fc.neutral_score_max,
+            split_by="score" if fc.method == "score_split" else "framing",
             enable_judge=fc.enable_judge,
             generator_family=fc.generator_family,
             stage1_floor_percentile=fc.stage1_floor_percentile,
             length_match=fc.length_match,
             length_match_tolerance=fc.length_match_tolerance,
+            enable_reward=fc.enable_reward,
             use_reward_fallback=fc.use_reward_fallback,
             stage1_device=config.device,
             min_per_class=fc.min_per_class,

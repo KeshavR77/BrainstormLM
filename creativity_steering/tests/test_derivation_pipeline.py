@@ -76,6 +76,21 @@ def test_save_and_reload_roundtrip(tmp_path):
     assert reloaded.n_positive == out.subset.n_positive
 
 
+def test_gather_responses_unframed():
+    from creativity_steering.config import DIVERSE_SAMPLING
+    from creativity_steering.derivation.generate import gather_responses_unframed
+
+    cfg = _small_config()
+    backend = _backend(cfg)
+    ex = gather_responses_unframed(
+        backend, list(TOPICS[:5]), positions=[CAPTURE_LAST_RESPONSE],
+        samples_per_prompt=2, sampling=DIVERSE_SAMPLING,
+    )
+    assert len(ex) == 10  # 5 topics x 2 samples, no framing distinction
+    assert all(e.framing == "unframed" and e.system == "" for e in ex)
+    assert all(CAPTURE_LAST_RESPONSE in e.activations for e in ex)
+
+
 def test_save_persists_verified_contrast_set(tmp_path):
     import json
 
