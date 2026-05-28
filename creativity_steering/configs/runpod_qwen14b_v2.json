@@ -4,14 +4,14 @@
   "device": "cuda",
   "dtype": "bf16",
   "seed": 0,
-  "capture_position": "mean_response",
-  "extra_capture_positions": ["last_response_token", "assistant_start"],
+  "capture_position": "last_response_token",
+  "extra_capture_positions": ["mean_response", "assistant_start"],
   "out_dir": "artifacts/qwen14b_run_v2",
   "generation": {
-    "max_new_tokens": 256, "temperature": 0.9, "samples_per_prompt": 2, "seed": 0,
+    "max_new_tokens": 256, "temperature": 1.0, "samples_per_prompt": 1, "seed": 0,
     "creative_sampling": {"temperature": 1.2, "top_p": 0.95, "top_k": 0, "min_p": 0.02, "repetition_penalty": 1.1},
     "neutral_sampling": {"temperature": 0.6, "top_p": 0.9, "top_k": 0, "min_p": 0.0, "repetition_penalty": 1.0},
-    "unframed_sampling": {"temperature": 1.0, "top_p": 0.95, "top_k": 0, "min_p": 0.02, "repetition_penalty": 1.1}
+    "unframed_sampling": {"temperature": 1.15, "top_p": 0.95, "top_k": 0, "min_p": 0.02, "repetition_penalty": 1.1}
   },
   "filtering": {
     "method": "score_split",
