@@ -1,0 +1,48 @@
+{
+  "id": "corpius_2_14b_awq",
+  "display_name": "Corpius 2 (14B-AWQ)",
+  "description": "Qwen2.5-14B-Instruct AWQ 4-bit with steering vectors re-derived on quantized activations. Same layer/schedule as FP16 14B (L17 creative, L24 technical). Validation target: creativity/logic scores within 2 points of FP16 baseline.",
+  "base_model": "Qwen/Qwen2.5-14B-Instruct-AWQ",
+  "benchmark_arm": "qwen_v17_14b_awq",
+  "local_variants": "v17_14b_awq",
+  "local_arms": "additive",
+  "steering_method": "v10_parametric_preset_v17",
+  "steering_vectors": {
+    "creative": "data/steering_14b_awq/hyper_creative_purified_vector_L17.pt",
+    "technical": "data/steering_14b_awq/hyper_technical_purified_vector_L24.pt"
+  },
+  "layers": {
+    "creative_layer": 17,
+    "technical_layer": 24,
+    "note": "Same layers as FP16 14B. Vectors re-derived on AWQ-quantized model to match the quantized activation geometry."
+  },
+  "schedule": {
+    "creative_start_alpha": 1.5,
+    "exp_zero_by_step": 168,
+    "technical_start_alpha": 0.86,
+    "sigmoid_mid_step": 52.0,
+    "sigmoid_steepness": 0.095,
+    "steering_math": "additive"
+  },
+  "aliases": [
+    "qwen_v17_14b_awq",
+    "conceptial-14b-awq"
+  ],
+  "quantization": {
+    "method": "awq",
+    "bits": 4,
+    "group_size": 128,
+    "version": "GEMM",
+    "vram_estimate_gb": 7.5,
+    "note": "Quantized from Qwen/Qwen2.5-14B-Instruct. Steering vectors MUST be re-derived on quantized model — FP16 vectors will produce degraded output."
+  },
+  "runtime_defaults": {
+    "iterative_anti_mode_benchmark": true,
+    "iterative_anti_mode_notes": "Same as FP16: captures first generated token's L17 residual per sample and orthogonalizes the creative vector against the mean prior residual."
+  },
+  "known_caveats": [
+    "Steering vectors must be extracted from the AWQ model, not the FP16 model.",
+    "AWQ 4-bit may slightly reduce tail creativity (rare/unusual idea paths); validate with eval harness.",
+    "Alpha schedule inherited from FP16 sweep — may benefit from re-sweep on quantized model."
+  ]
+}
