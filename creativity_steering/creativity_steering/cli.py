@@ -202,10 +202,10 @@ def experiments(
     config: Annotated[Path, typer.Option(help="ExperimentConfig JSON.")],
     position: Annotated[str | None, typer.Option()] = None,
     layers: Annotated[
-        str | None, typer.Option(help="Promising layers (default: analysis candidate_layers).")
+        str | None, typer.Option(help="Promising layers (default: top from the sweep results).")
     ] = None,
     n_promising: Annotated[
-        int, typer.Option(help="How many candidate layers to use when --layers is omitted.")
+        int, typer.Option(help="How many promising layers to use when --layers is omitted.")
     ] = 3,
 ) -> None:
     """Phase 3, Experiment 2 — multi-layer experiments on promising layers, two-stage scored.
@@ -213,7 +213,8 @@ def experiments(
     Builds *all-layers-single-vector* cells (each promising layer's vector injected at every
     layer, small alphas) and a *multi-vector-combo* cell (the promising layers' own vectors at
     their own layers), then scores them with the DSI + LLM-judge stack (judges gated to the
-    top-k cells). Promising layers default to the analysis ``report.json`` candidate_layers.
+    top-k cells). Promising layers default to the top layers from Experiment 1's
+    ``sweep_results.json`` (best behavioural creativity), not the cheaper vector analysis.
     """
     from creativity_steering.models.factory import build_backend
     from creativity_steering.patching.evaluate import DEFAULT_BRIEFS
@@ -230,12 +231,14 @@ def experiments(
     if layers:
         promising = [int(x) for x in layers.split(",")]
     else:
-        report_path = run / "analysis" / chosen / "report.json"
-        if not report_path.exists():
+        from creativity_steering.patching.sweep import select_promising_layers
+
+        sweep_path = run / "patching" / chosen / "sweep_results.json"
+        if not sweep_path.exists():
             raise typer.BadParameter(
-                f"no analysis report at {report_path}; run `analyze` first or pass --layers"
+                f"no sweep results at {sweep_path}; run `sweep` first or pass --layers"
             )
-        promising = list(json.loads(report_path.read_text())["candidate_layers"])[:n_promising]
+        promising = select_promising_layers(json.loads(sweep_path.read_text()), n_promising)
     if not promising:
         raise typer.BadParameter("no promising layers to experiment on")
 
@@ -294,7 +297,10 @@ def demo(
     )
     from creativity_steering.models.factory import build_backend
     from creativity_steering.patching.multilayer import all_layers_single_vector
-    from creativity_steering.patching.sweep import per_layer_alpha_sweep
+    from creativity_steering.patching.sweep import (
+        per_layer_alpha_sweep,
+        select_promising_layers,
+    )
     from creativity_steering.scoring import HeuristicScorer
 
     cfg = ExperimentConfig(
@@ -330,8 +336,10 @@ def demo(
                f"alpha={best['alpha']} composite={best['composite']:.3f} (delta={best['delta']:+.3f})")
 
     typer.echo("\n== Phase 3: Experiment 2 (best vector at every layer) ==")
+    source = select_promising_layers(sweep.to_dict(), 1)[0]
+    typer.echo(f"promising source layer from sweep: L{source}")
     res = all_layers_single_vector(
-        backend, output.vector_set, scorer, source_layer=report.candidate_layers[0],
+        backend, output.vector_set, scorer, source_layer=source,
         alpha=cfg.patching.all_layers_alpha, n_samples=cfg.patching.eval_samples,
     )
     typer.echo(f"{res.label}: delta={res.delta:+.3f}")

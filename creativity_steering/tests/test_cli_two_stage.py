@@ -124,8 +124,12 @@ def test_cli_experiments_two_stage(tmp_path, monkeypatch):
     cfg_path = tmp_path / "cfg.json"
     cfg.save(cfg_path)
 
-    # analyze -> writes report.json with candidate_layers
-    r1 = runner.invoke(app, ["analyze", "--run", str(run_dir), "--position", "last_response_token"])
+    # sweep -> writes sweep_results.json; `experiments` selects promising layers from it.
+    r1 = runner.invoke(
+        app,
+        ["sweep", "--run", str(run_dir), "--config", str(cfg_path),
+         "--position", "last_response_token", "--layers", "3,4,5"],
+    )
     assert r1.exit_code == 0, r1.output
 
     r2 = runner.invoke(

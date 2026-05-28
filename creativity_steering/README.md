@@ -49,14 +49,18 @@ to: we generate **responses**, keep only the ones a creativity **evaluator verif
 - **Activation oracle** (`oracle.py`) — probe each layer's vector for the trait of
   creativity. `StubOracle` runs offline (norm-percentile placeholder); `LatentQAOracle` is a
   documented slot to wire the real LatentQA adapter on a GPU.
-- **Report** (`report.py`) fuses all three into a ranked list of **candidate layers** for
-  patching.
+- **Report** (`report.py`) fuses all three into a ranked list of **candidate layers** — a
+  cheap, generation-free pre-filter for which layers to sweep first in Experiment 1. The
+  layers carried into Experiment 2 come from the sweep itself (see below), not this analysis.
 
 ### 3. Activation patching (`patching/`)
 - **Experiment 1 — per-layer alpha sweep** (`sweep.py`): for every layer `L` and every
   `alpha` (both signs), inject `alpha · d_L` at layer `L` (matched extract-and-inject) and
   score creativity. Localises where/which-sign has the largest effect.
-- **Experiment 2 — multi-layer** (`multilayer.py`):
+- **Experiment 2 — multi-layer** (`multilayer.py`), run on the **promising layers Experiment 1
+  surfaced** — the top layers by behavioural creativity in `sweep_results.json`
+  (`select_promising_layers`; judged cells first, then by Stage-1 score), not the cheaper
+  vector analysis:
   - `all_layers_single_vector`: inject one chosen vector at *every* layer with a small alpha.
   - `multi_vector_combo`: inject several layer-specific vectors at their own layers at once.
 

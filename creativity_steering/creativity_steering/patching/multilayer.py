@@ -1,6 +1,7 @@
 """Experiment 2 — push creativity past the single-layer ceiling.
 
-Two designs, both starting from the candidate vectors the analysis + sweep surfaced:
+Two designs, both starting from the promising layers the Experiment 1 sweep surfaced
+(top behavioural-creativity layers; see ``sweep.select_promising_layers``):
 
   * ``all_layers_single_vector`` — inject one chosen vector at *every* layer with a small
     alpha (the conformity paper's Experiment 2). Tests how large an effect a single

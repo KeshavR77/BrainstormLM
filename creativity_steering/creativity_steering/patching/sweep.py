@@ -49,6 +49,55 @@ class SweepResult:
         }
 
 
+def select_promising_layers(sweep_results: dict, n: int) -> list[int]:
+    """Rank layers by their best sweep cell and return the top ``n``.
+
+    Operates on the serialized sweep dict from either ``per_layer_alpha_sweep``
+    (``SweepResult``) or ``two_stage_cell_sweep`` (``TwoStageSweepResult``) — i.e. the
+    ``sweep_results.json`` Experiment 1 writes. Each layer is scored by its best cell over
+    alphas; layers are then ranked, ties broken by ascending layer index.
+
+    For a two-stage sweep the cells are on two scales: judged cells (the top-k by Stage-1)
+    carry the full two-stage ``composite``; un-judged cells keep their Stage-1 score. We rank
+    **judged-first** — every layer with a judged cell ranks above every un-judged layer,
+    ordered by its best judged two-stage composite — then fill remaining slots from un-judged
+    layers by their best Stage-1 score (the only signal present on one scale for every cell).
+    A per-item sweep has no judging, so layers simply rank by best ``composite``.
+    """
+    cells = sweep_results.get("cells", [])
+    two_stage = sweep_results.get("evaluator") == "two_stage"
+
+    judged_best: dict[int, float] = {}  # layer -> best two-stage composite (judged cells)
+    stage1_best: dict[int, float] = {}  # layer -> best consistent score (every cell)
+    for c in cells:
+        if "layer" not in c:
+            continue
+        layer = int(c["layer"])
+        # Stage-1 is present on every two-stage cell; the per-item cell only has ``composite``,
+        # which is itself the consistent score there.
+        base = c.get("stage1", c.get("composite"))
+        if base is None:
+            continue
+        base = float(base)
+        if base > stage1_best.get(layer, float("-inf")):
+            stage1_best[layer] = base
+        if two_stage and c.get("judged"):
+            comp = float(c.get("composite", base))
+            if comp > judged_best.get(layer, float("-inf")):
+                judged_best[layer] = comp
+
+    if judged_best:
+        judged = sorted(judged_best, key=lambda layer: (-judged_best[layer], layer))
+        rest = sorted(
+            (layer for layer in stage1_best if layer not in judged_best),
+            key=lambda layer: (-stage1_best[layer], layer),
+        )
+        ranked = judged + rest
+    else:
+        ranked = sorted(stage1_best, key=lambda layer: (-stage1_best[layer], layer))
+    return ranked[:n]
+
+
 def per_layer_alpha_sweep(
     backend: ModelBackend,
     vector_set: SteeringVectorSet,
