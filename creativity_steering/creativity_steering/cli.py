@@ -55,7 +55,7 @@ def derive(
     backend = build_backend(cfg)
     typer.echo(f"Deriving vectors with backend={cfg.backend} model={backend.model_id} ...")
     output = derive_vectors(backend, cfg, _scorer(cfg))
-    save_derivation(output, out)
+    save_derivation(output, out, save_scored_pool=cfg.save_scored_pool)
     cfg.save(out / "config.json")
     typer.echo(json.dumps(output.summary(), indent=2))
     typer.echo(f"Saved vectors + summary to {out}")

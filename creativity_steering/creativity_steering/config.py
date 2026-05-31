@@ -181,6 +181,16 @@ class ExperimentConfig:
     filtering: FilterConfig = field(default_factory=FilterConfig)
     patching: PatchingConfig = field(default_factory=PatchingConfig)
 
+    # Optional JSON path with a custom prompt set
+    # (``{creative_system, neutral_system, topics: [...]}``). When set, overrides the
+    # built-in default_prompt_set() — used to grow the topic pool without editing prompts.py.
+    topics_file: str | None = None
+
+    # When True, derive_vectors writes per-example activations and scored-pool metadata to
+    # disk under out_dir, so the contrast set can be re-filtered at different cutoffs (or
+    # different capture positions) without re-running generation or scoring.
+    save_scored_pool: bool = False
+
     out_dir: str = "artifacts/run"
 
     def __post_init__(self) -> None:

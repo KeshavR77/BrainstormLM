@@ -174,11 +174,18 @@ def evaluate_and_filter(
           flush=True)
 
     if split_by == "score":
-        # Single-context: ignore framing entirely; split the whole pool by score thresholds.
-        if creative_score_min is None or neutral_score_max is None:
-            raise ValueError("split_by='score' requires creative_score_min and neutral_score_max")
-        positives = select_by_threshold(examples, threshold=creative_score_min, keep="high")
-        negatives = select_by_threshold(examples, threshold=neutral_score_max, keep="low")
+        # Single-context: ignore framing entirely; split the whole pool.
+        # Absolute-score thresholds when both are set; else quantile cuts on the unified pool
+        # (creative_quantile = lower edge of "creative" tail, neutral_quantile = upper edge of
+        # "dull" tail). Quantile mode gives a deterministic count proportional to pool size and
+        # a guaranteed separating band, which matters when the score distribution is skewed and
+        # absolute thresholds end up landing in noise (cf. v2's 0.05/0.00 collapse).
+        if creative_score_min is not None and neutral_score_max is not None:
+            positives = select_by_threshold(examples, threshold=creative_score_min, keep="high")
+            negatives = select_by_threshold(examples, threshold=neutral_score_max, keep="low")
+        else:
+            positives = select_by_quantile(examples, quantile=creative_quantile, keep="high")
+            negatives = select_by_quantile(examples, quantile=neutral_quantile, keep="low")
     else:
         creatives = [ex for ex in examples if ex.framing == "creative"]
         neutrals = [ex for ex in examples if ex.framing == "neutral"]
