@@ -162,6 +162,16 @@ def evaluate_and_filter(
     results = evaluate_batch(records, eval_config, scorers=scorers)
     for ex, result in zip(examples, results):
         ex.score = float(result.creativity_score)
+    import numpy as _np
+    all_scores = _np.array([ex.score for ex in examples], dtype=float)
+
+    def _pct(q: float) -> float:
+        return float(_np.percentile(all_scores, q))
+
+    print(f"[evaluator_filter] composite score distribution (n={len(all_scores)}): "
+          f"min={all_scores.min():.3f} p10={_pct(10):.3f} p25={_pct(25):.3f} "
+          f"p50={_pct(50):.3f} p75={_pct(75):.3f} p90={_pct(90):.3f} max={all_scores.max():.3f}",
+          flush=True)
 
     if split_by == "score":
         # Single-context: ignore framing entirely; split the whole pool by score thresholds.
@@ -180,8 +190,10 @@ def evaluate_and_filter(
             positives = select_by_quantile(creatives, quantile=creative_quantile, keep="high")
             negatives = select_by_quantile(neutrals, quantile=neutral_quantile, keep="low")
 
+    print(f"[evaluator_filter] post-threshold: {len(positives)} positives / {len(negatives)} negatives (of {len(examples)} examples)", flush=True)
     if length_match:
         positives, negatives = _length_match(positives, negatives, length_match_tolerance)
+        print(f"[evaluator_filter] post-length-match: {len(positives)} positives / {len(negatives)} negatives (tolerance={length_match_tolerance})", flush=True)
 
     dropped = len(examples) - len(positives) - len(negatives)
 
