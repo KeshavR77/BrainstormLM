@@ -1,0 +1,60 @@
+DOWNSTREAM_V2_START Fri May 29 07:13:22 UTC 2026
+== DERIVE: score_split, unframed temp=1.15, 1 sample/prompt ==
+Deriving vectors with backend=hf model=Qwen/Qwen2.5-14B-Instruct ...
+Loading checkpoint shards:   0%|          | 0/8 [00:00<?, ?it/s]Loading checkpoint shards:  88%|████████▊ | 7/8 [00:00<00:00, 65.35it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:00<00:00, 73.96it/s]
+`loss_type=None` was set in the config but it is unrecognised.Using the default loss: `ForCausalLMLoss`.
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:03<00:10,  3.49s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:07<00:07,  3.57s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:11<00:03,  3.78s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:11<00:00,  2.81s/it]
+low inter-judge agreement (Spearman=-0.275 < 0.50); distrust this score
+low inter-judge agreement (Spearman=0.351 < 0.50); distrust this score
+low inter-judge agreement (Spearman=0.285 < 0.50); distrust this score
+low inter-judge agreement (Spearman=0.050 < 0.50); distrust this score
+low inter-judge agreement (Spearman=0.333 < 0.50); distrust this score
+low inter-judge agreement (Spearman=0.364 < 0.50); distrust this score
+low inter-judge agreement (Spearman=0.271 < 0.50); distrust this score
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /workspace/BrainstormLM/creativity_steering/creativity_steering/cli.py:57 in │
+│ derive                                                                       │
+│                                                                              │
+│    54 │   cfg = load_config(config)                                          │
+│    55 │   backend = build_backend(cfg)                                       │
+│    56 │   typer.echo(f"Deriving vectors with backend={cfg.backend}           │
+│       model={backend.model_id} ...")                                         │
+│ ❱  57 │   output = derive_vectors(backend, cfg, _scorer(cfg))                │
+│    58 │   save_derivation(output, out)                                       │
+│    59 │   cfg.save(out / "config.json")                                      │
+│    60 │   typer.echo(json.dumps(output.summary(), indent=2))                 │
+│                                                                              │
+│ /workspace/BrainstormLM/creativity_steering/creativity_steering/derivation/p │
+│ ipeline.py:92 in derive_vectors                                              │
+│                                                                              │
+│    89 │   │   # splits the single-context pool by score. The sibling-package │
+│       import stays lazy here.                                                │
+│    90 │   │   from creativity_steering.derivation.evaluator_filter import    │
+│       evaluate_and_filter                                                    │
+│    91 │   │                                                                  │
+│ ❱  92 │   │   subset = evaluate_and_filter(                                  │
+│    93 │   │   │   examples,                                                  │
+│    94 │   │   │   scorers=eval_scorers,                                      │
+│    95 │   │   │   creative_quantile=fc.creative_quantile,                    │
+│                                                                              │
+│ /workspace/BrainstormLM/creativity_steering/creativity_steering/derivation/e │
+│ valuator_filter.py:199 in evaluate_and_filter                                │
+│                                                                              │
+│   196 │   │   │   │   f"the quantiles                                        │
+│       (creative_quantile={creative_quantile}, "                              │
+│   197 │   │   │   │   f"neutral_quantile={neutral_quantile})"                │
+│   198 │   │   │   )                                                          │
+│ ❱ 199 │   │   raise ValueError(                                              │
+│   200 │   │   │   f"verified subset too small: {len(positives)} positives /  │
+│       {len(negatives)} "                                                     │
+│   201 │   │   │   f"negatives < min_per_class={min_per_class}. Gather more   │
+│       prompts/samples or relax "                                             │
+│   202 │   │   │   f"{cut}."                                                  │
+╰──────────────────────────────────────────────────────────────────────────────╯
+ValueError: verified subset too small: 16 positives / 16 negatives < 
+min_per_class=50. Gather more prompts/samples or relax the score thresholds 
+(creative_score_min=0.5, neutral_score_max=0.1).
+
+real	37m27.450s
+user	35m42.010s
+sys	0m20.982s

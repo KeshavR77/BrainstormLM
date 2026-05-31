@@ -1,0 +1,15 @@
+{
+  "hidden_dim": 5120,
+  "model_id": "Qwen/Qwen2.5-14B-Instruct",
+  "n_dropped": 1,
+  "n_examples": 150,
+  "n_layers": 48,
+  "n_negative": 73,
+  "n_positive": 76,
+  "positions": [
+    "assistant_start",
+    "last_response_token",
+    "mean_response"
+  ],
+  "primary_capture_position": "last_response_token"
+}

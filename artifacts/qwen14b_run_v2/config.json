@@ -1,0 +1,76 @@
+{
+  "backend": "hf",
+  "capture_position": "last_response_token",
+  "device": "cuda",
+  "dtype": "bf16",
+  "extra_capture_positions": [
+    "mean_response",
+    "assistant_start"
+  ],
+  "filtering": {
+    "creative_min": 0.55,
+    "creative_quantile": 0.8,
+    "creative_score_min": 0.05,
+    "enable_judge": true,
+    "enable_reward": true,
+    "generator_family": "qwen",
+    "length_match": false,
+    "length_match_tolerance": 0.3,
+    "method": "score_split",
+    "min_per_class": 50,
+    "neutral_max": 0.45,
+    "neutral_quantile": 0.2,
+    "neutral_score_max": 0.0,
+    "scorer": "real",
+    "stage1_floor_percentile": 0.0,
+    "use_reward_fallback": true
+  },
+  "generation": {
+    "creative_sampling": {
+      "min_p": 0.02,
+      "repetition_penalty": 1.1,
+      "temperature": 1.2,
+      "top_k": 0,
+      "top_p": 0.95
+    },
+    "max_new_tokens": 256,
+    "neutral_sampling": {
+      "min_p": 0.0,
+      "repetition_penalty": 1.0,
+      "temperature": 0.6,
+      "top_k": 0,
+      "top_p": 0.9
+    },
+    "samples_per_prompt": 1,
+    "seed": 0,
+    "temperature": 1.0,
+    "unframed_sampling": {
+      "min_p": 0.02,
+      "repetition_penalty": 1.1,
+      "temperature": 1.15,
+      "top_k": 0,
+      "top_p": 0.95
+    }
+  },
+  "hidden_dim": 128,
+  "mock_creative_layer": 12,
+  "model_id": "Qwen/Qwen2.5-14B-Instruct",
+  "num_layers": 24,
+  "out_dir": "artifacts/qwen14b_run_v2",
+  "patching": {
+    "all_layers_alpha": 0.1,
+    "alphas": [
+      -4.0,
+      -2.0,
+      -1.0,
+      1.0,
+      2.0,
+      4.0
+    ],
+    "eval_samples": 5,
+    "judge_top_k": 5,
+    "rescale": true,
+    "sweep_evaluator": "two_stage"
+  },
+  "seed": 0
+}
