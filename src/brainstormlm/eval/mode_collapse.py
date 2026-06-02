@@ -32,33 +32,54 @@ def _embed(texts: Sequence[str]) -> np.ndarray:
     return matrix
 
 
-def cluster_count(
+def cluster_labels(
     embeddings: np.ndarray,
     *,
     threshold: float = DEFAULT_CLUSTER_THRESHOLD,
-) -> int:
-    """Greedy cluster count: a new point joins the first centroid it matches
-    (cosine ≥ threshold), otherwise becomes a new centroid.
+) -> list[int]:
+    """Greedy single-pass cluster assignment, one label per input row.
+
+    Each point joins the first existing centroid it matches (cosine ≥
+    threshold); otherwise it opens a new centroid. Centroids are numbered
+    0, 1, 2 … in creation order, so ``len(result) == len(embeddings)``. This is
+    the shared primitive behind :func:`cluster_count`, NoveltyBench-Distinct,
+    and the DivPO rarity signal.
     """
     n = len(embeddings)
     if n == 0:
-        return 0
-    if n == 1:
-        return 1
+        return []
 
     v = embeddings.astype(np.float64)
     v = v / (np.linalg.norm(v, axis=1, keepdims=True) + 1e-12)
 
     centroids: list[np.ndarray] = []
+    labels: list[int] = []
     for i in range(n):
-        matched = False
-        for c in centroids:
+        assigned: int | None = None
+        for idx, c in enumerate(centroids):
             if float(np.dot(v[i], c)) >= threshold:
-                matched = True
+                assigned = idx
                 break
-        if not matched:
+        if assigned is None:
+            assigned = len(centroids)
             centroids.append(v[i])
-    return len(centroids)
+        labels.append(assigned)
+    return labels
+
+
+def cluster_count(
+    embeddings: np.ndarray,
+    *,
+    threshold: float = DEFAULT_CLUSTER_THRESHOLD,
+) -> int:
+    """Number of distinct greedy clusters (cosine ≥ threshold).
+
+    Pure mode collapse → 1 cluster; fully distinct → n clusters.
+    """
+    labels = cluster_labels(embeddings, threshold=threshold)
+    if not labels:
+        return 0
+    return max(labels) + 1
 
 
 def mode_collapse_at_k(
