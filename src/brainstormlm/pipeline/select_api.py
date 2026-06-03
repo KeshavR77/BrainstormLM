@@ -6,9 +6,12 @@ primitive that returns exactly the response contract the public API expects
 body}) plus a ``DiversityScoreV1`` Vendi score on the chosen set.
 
 The arch-doc step ④ is "quality-gate AND coverage MMR · Vendi score":
-  1. quality gate — drop degenerate ("salad") candidates;
-  2. coverage     — greedy embedding-repulsion over the survivors;
-  3. measure      — Vendi score on the selected embeddings (single embed pass).
+  1. coherence gate — drop incoherent candidates (token-loop / non-ASCII only; a
+                      finished idea may be terse, so micro-output / comma-bleed do
+                      NOT gate the response — the full salad_detector stays the
+                      diverger / CI gate);
+  2. coverage       — greedy embedding-repulsion over the survivors;
+  3. measure        — Vendi score on the selected embeddings (single embed pass).
 
 This module owns the API-schema coupling (``IdeaV1``/``DiversityScoreV1``) so the
 core ``select.py`` primitive stays schema-free. Nothing calls this yet — it is
@@ -29,6 +32,18 @@ from brainstormlm.eval.salad import salad_detector
 from brainstormlm.pipeline.select import _embed, select_by_repulsion
 
 _VENDI_METHOD = "vendi"
+
+# The response gate is coherence-only: a finished idea may be legitimately terse,
+# so micro_output and comma_bleed do NOT drop it here — only token_loop and
+# non_ascii (genuine gibberish) do. The full salad_detector (all four modes)
+# stays the diverger / CI gate.
+_COHERENCE_SALAD_MODES = ("token_loop", "non_ascii")
+
+
+def _is_incoherent(text: str) -> bool:
+    """True if ``text`` trips a coherence failure mode (token-loop or non-ASCII)."""
+    flags = salad_detector(text)
+    return any(flags[mode] for mode in _COHERENCE_SALAD_MODES)
 
 
 @dataclass(frozen=True)
@@ -84,15 +99,17 @@ def select_response_ideas(
 ) -> SelectedIdeas:
     """Select ``n`` diverse, coherent ideas and shape them for the API response.
 
-    Drops salad candidates (when ``drop_salad``), runs embedding-repulsion
-    coverage selection over the survivors, parses each kept text into
-    ``{id, title, body}``, and scores the chosen set with Vendi. Returns the
-    ``IdeaV1`` list + ``DiversityScoreV1`` the public endpoint assembles into its
-    response.
+    Drops only *incoherent* candidates (token-loop / non-ASCII) when
+    ``drop_salad`` is set — a finished idea may be legitimately terse, so
+    micro-output and comma-bleed are not grounds to drop it from the response.
+    Then runs embedding-repulsion coverage selection over the survivors, parses
+    each kept text into ``{id, title, body}``, and scores the chosen set with
+    Vendi. Returns the ``IdeaV1`` list + ``DiversityScoreV1`` the public endpoint
+    assembles into its response.
     """
     texts = list(candidates)
     if drop_salad:
-        keep = [i for i, t in enumerate(texts) if not salad_detector(t)["is_salad"]]
+        keep = [i for i, t in enumerate(texts) if not _is_incoherent(t)]
     else:
         keep = list(range(len(texts)))
 

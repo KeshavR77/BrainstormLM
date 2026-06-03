@@ -105,6 +105,19 @@ def test_salad_gate_drops_incoherent() -> None:
     assert [i.title for i in res.ideas] == ["Tidal Lagoon Grid"]
 
 
+def test_response_gate_is_coherence_only() -> None:
+    # A finished idea may be legitimately terse: micro_output / comma_bleed must
+    # NOT drop it from the response gate, but token-loop / non-ASCII still do.
+    terse = "Solar Roof\nSolar tiles."  # < 20 tokens (micro) yet coherent
+    looped = "Broken Loop\n" + " ".join(["loop"] * 25)  # token_loop
+    garbled = "Garbled\n" + ("é" * 60)  # > 5% non-ASCII
+    embed = _vec_embed({terse: [1.0, 0.0]})  # incoherent ones filtered pre-embed
+    res = select_response_ideas(
+        [terse, looped, garbled], n=3, drop_salad=True, embed_fn=embed
+    )
+    assert [i.title for i in res.ideas] == ["Solar Roof"]
+
+
 def test_empty_pool_returns_empty_contract() -> None:
     res = select_response_ideas([], n=3)
     assert res.ideas == []
