@@ -10,6 +10,7 @@ class Settings(BaseSettings):
 
     openai_api_key: SecretStr = Field(alias="OPENAI_API_KEY")
     together_api_key: SecretStr | None = Field(default=None, alias="TOGETHER_API_KEY")
+    gemini_api_key: SecretStr | None = Field(default=None, alias="GEMINI_API_KEY")
 
     data_dir: Path = Field(default=Path("./data"), alias="BRAINSTORMLM_DATA_DIR")
     cache_dir: Path = Field(default=Path("./data/cache"), alias="BRAINSTORMLM_CACHE_DIR")
@@ -21,6 +22,12 @@ class Settings(BaseSettings):
 
     prompter_model: str = "gpt-4o-mini"
     evaluator_model: str = "gpt-4o-mini"
+
+    # Refine step (brief-refine + planner-angles + verbalized-sampling). Cheapest
+    # capable chat model is Gemini 2.5 Flash-Lite ($0.10/$0.40 per 1M in/out);
+    # called via Google's OpenAI-compatible endpoint. Embeddings stay on OpenAI.
+    refine_provider: str = "gemini"
+    refine_model: str = "gemini-2.5-flash-lite"
     trajectories_path: Path = Field(
         default=Path("./data/trajectories.jsonl"),
         alias="BRAINSTORMLM_TRAJECTORIES_PATH",
