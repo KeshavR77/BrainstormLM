@@ -47,8 +47,8 @@ Usage
     uv run python scripts/validate_diversity.py --mock --k 8
 
 # Real 14B on RunPod pod:
-    uv run --extra hf python scripts/validate_diversity.py \\
-        --config config/conceptial_14b.json --layer 17 --alpha 0.3 --k 8
+    uv run python scripts/validate_diversity.py \\
+        --config creativity_steering/configs/runpod_qwen14b_v2.json --layer 17 --alpha 0.3 --k 8
 
 """
 
@@ -68,6 +68,12 @@ import numpy as np
 # ---------------------------------------------------------------------------
 # Path setup — allow running from repo root without editable install
 # ---------------------------------------------------------------------------
+# _SRC points to <repo>/src  (makes `import brainstormlm` work)
+# _STEERING points to <repo>/creativity_steering  (the OUTER dir that CONTAINS
+#   creativity_steering/creativity_steering/ — inserting it lets Python find
+#   the inner package as `import creativity_steering`).
+# Mirrors how creativity_steering/scripts/smoke_semantic_spread.py adds
+#   parents[2]/src for brainstormlm.
 _REPO = Path(__file__).resolve().parents[1]
 _SRC = _REPO / "src"
 _STEERING = _REPO / "creativity_steering"
@@ -866,16 +872,17 @@ def main() -> int:
 
     print("\n14B POD COMMAND (do NOT run without GPU):")
     print(
-        "  uv run --extra hf python scripts/validate_diversity.py \\\n"
-        "      --config config/conceptial_14b.json \\\n"
+        "  uv run python scripts/validate_diversity.py \\\n"
+        "      --config creativity_steering/configs/runpod_qwen14b_v2.json \\\n"
         "      --layer 17 --alpha 0.3 --k 8 \\\n"
         "      --out results/validate_14b_alpha0.3.json"
     )
     print(
         "\n  Alpha sweep (recommended before committing):\n"
         "  for ALPHA in 0.3 0.5 0.8 1.0; do\n"
-        "    uv run --extra hf python scripts/validate_diversity.py \\\n"
-        "      --config config/conceptial_14b.json --layer 17 --alpha $ALPHA --k 8 \\\n"
+        "    uv run python scripts/validate_diversity.py \\\n"
+        "      --config creativity_steering/configs/runpod_qwen14b_v2.json \\\n"
+        "      --layer 17 --alpha $ALPHA --k 8 \\\n"
         "      --out results/validate_14b_alpha${ALPHA}.json --quiet\n"
         "  done"
     )
