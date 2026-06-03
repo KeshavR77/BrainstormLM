@@ -6,6 +6,7 @@ import numpy as np
 
 from brainstormlm.eval.mode_collapse import (
     cluster_count,
+    cluster_labels,
     mode_collapse_at_k,
     mode_collapse_corpus,
 )
@@ -96,3 +97,63 @@ def test_mode_collapse_corpus_averages(monkeypatch) -> None:
     assert summary["n_prompts"] == 2
     # Collapsed prompt: 1/5 = 0.2. Orthogonal: 5/5 = 1.0. Mean = 0.6.
     assert abs(summary["mean_coverage_ratio"] - 0.6) < 1e-6
+
+
+# ---------------------------------------------------------------------------
+# cluster_labels — per-point centroid assignment (shared primitive)
+# ---------------------------------------------------------------------------
+
+
+def test_cluster_labels_identical_all_zero() -> None:
+    """Identical embeddings all join the first centroid → all label 0."""
+    emb = np.tile(np.array([[1.0, 0.0, 0.0]]), (5, 1))
+    assert cluster_labels(emb) == [0, 0, 0, 0, 0]
+
+
+def test_cluster_labels_orthogonal_each_new() -> None:
+    """Orthogonal embeddings each open a new centroid, numbered in order."""
+    emb = np.eye(4, dtype=np.float64)
+    assert cluster_labels(emb) == [0, 1, 2, 3]
+
+
+def test_cluster_labels_two_blobs() -> None:
+    """Two tight blobs → contiguous label runs [0,0,0,1,1,1]."""
+    blob_a = np.tile(np.array([[1.0, 0.0, 0.0]]), (3, 1))
+    blob_b = np.tile(np.array([[0.0, 1.0, 0.0]]), (3, 1))
+    emb = np.vstack([blob_a, blob_b])
+    assert cluster_labels(emb) == [0, 0, 0, 1, 1, 1]
+
+
+def test_cluster_labels_empty() -> None:
+    assert cluster_labels(np.zeros((0, 3))) == []
+
+
+def test_cluster_labels_single() -> None:
+    assert cluster_labels(np.array([[1.0, 0.0]])) == [0]
+
+
+def test_cluster_labels_length_equals_n() -> None:
+    emb = np.eye(5, dtype=np.float64)
+    assert len(cluster_labels(emb)) == 5
+
+
+def test_cluster_count_matches_distinct_labels() -> None:
+    """cluster_count is exactly the number of distinct labels."""
+    blob_a = np.tile(np.array([[1.0, 0.0, 0.0]]), (3, 1))
+    blob_b = np.tile(np.array([[0.0, 1.0, 0.0]]), (3, 1))
+    emb = np.vstack([blob_a, blob_b])
+    labels = cluster_labels(emb)
+    assert cluster_count(emb) == len(set(labels))
+
+
+def test_cluster_labels_threshold_controls_merging() -> None:
+    emb = np.array(
+        [
+            [1.0, 0.0, 0.0],
+            [0.9, 0.436, 0.0],  # cos ≈ 0.9 with the first
+        ],
+        dtype=np.float64,
+    )
+    emb = emb / np.linalg.norm(emb, axis=1, keepdims=True)
+    assert cluster_labels(emb, threshold=0.85) == [0, 0]
+    assert cluster_labels(emb, threshold=0.95) == [0, 1]
