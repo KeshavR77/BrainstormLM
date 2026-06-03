@@ -28,6 +28,7 @@ A lever WINS only if:
 VOID if quality breaks:
   * coherence_rate (= 1 - salad_rate, coherence modes: token_loop + non_ascii only) drops
     >2pp vs baseline, OR salad_rate not ≈ 0 (> 0.10 triggers void).
+  * quality_pass_rate (LLM judge: coherence>=3 AND on-topic>=4) drops >5pp vs baseline.
 
 Each lever must show positive MARGINAL contribution in the ablation or it does NOT ship.
 
@@ -36,8 +37,8 @@ ALPHA NOTE FOR 14B RUNS
 ==============================
 The coherence cliff for the 0.5B model is ~0.3–0.4; the 14B cliff has NOT been
 re-measured.  Start at --alpha 0.3 and sweep (0.3, 0.5, 0.8, 1.0) before committing.
-The L17 sweep winner used alpha=1.5 for the trained vector, but the ArchetypeBank
-directions here are on-the-fly DiffMeans — likely smaller norm, different cliff.
+The L17 vector was validated at alpha=1.5; its sweep is [1.0, 1.5, 2.0, 2.62].
+The ArchetypeBank on-the-fly DiffMeans directions likely have smaller norm → different cliff.
 
 ==============================
 Usage
@@ -48,7 +49,8 @@ Usage
 
 # Real 14B on RunPod pod:
     uv run python scripts/validate_diversity.py \\
-        --config creativity_steering/configs/runpod_qwen14b_v2.json --layer 17 --alpha 0.3 --k 8
+        --config creativity_steering/configs/runpod_qwen14b_v2.json --layer 17 \\
+        --alphas 1.0,1.5,2.0,2.62 --k 8
 
 """
 
@@ -82,22 +84,73 @@ for _p in (_SRC, _STEERING):
         sys.path.insert(0, str(_p))
 
 # ---------------------------------------------------------------------------
-# Built-in briefs (≥10, diverse domains)
+# FIX (a): Built-in briefs expanded to ~40 genuinely diverse domains
 # ---------------------------------------------------------------------------
 
 BUILTIN_BRIEFS: list[str] = [
+    # naming
     "Create a product name for a noise-canceling headphone brand targeting remote workers.",
+    "Name a new premium sparkling water brand that targets urban wellness enthusiasts.",
+    "Suggest a name for a DTC pet insurance company with a playful, millennial-friendly tone.",
+    # marketing campaign
     "Design a marketing campaign concept for a sustainable coffee subscription.",
+    "Pitch a summer campaign for a sunscreen brand targeting Gen-Z outdoor adventurers.",
+    "Propose a guerrilla marketing activation for a new airport lounge network.",
+    # logo
     "Pitch a logo concept for a fintech startup focused on micro-investing.",
+    "Describe a logo direction for a community-owned urban grocery cooperative.",
+    # GTM strategy
     "Develop a GTM strategy concept for launching an AI-powered legal document tool.",
+    "Outline a GTM approach for a B2B carbon-accounting SaaS entering the EU market.",
+    # product feature
     "Propose an app feature that helps fitness beginners stay accountable.",
+    "Suggest a new feature for a recipe app to reduce household food waste.",
+    # event theme
     "Suggest an event theme for a tech company's annual all-hands gathering.",
+    "Design a theme for a climate-tech investor summit that inspires action without doom.",
+    # packaging
     "Design packaging for a premium dark chocolate bar made with rare cacao.",
+    "Propose packaging for a refillable luxury hand cream sold direct-to-consumer.",
+    # slogan
     "Write a brand slogan for a children's coding education platform.",
+    "Craft a slogan for a neobank that targets gig-economy workers.",
+    # business model
     "Propose a business model innovation for a traditional bookstore chain.",
+    "Suggest a revenue model for a neighbourhood tool-lending library going national.",
+    # UX flow
     "Design a UX flow concept for a sleep-tracking wearable app's onboarding.",
-    "Create a naming concept for a community-driven urban vertical farm.",
-    "Pitch a marketing activation for an electric bicycle brand at music festivals.",
+    "Sketch a UX flow for a carbon-offset marketplace where consumers buy offsets at checkout.",
+    # tagline
+    "Write a tagline for a mental-health app targeting burned-out executives.",
+    "Create a tagline for a peer-to-peer luggage-storage marketplace.",
+    # mascot
+    "Design a mascot concept for a children's dental hygiene brand.",
+    "Propose a mascot for a cybersecurity firm that needs to appear approachable to SMEs.",
+    # partnership idea
+    "Propose a brand partnership between a running-shoe company and a mindfulness app.",
+    "Suggest a co-marketing idea between a cloud-kitchen brand and a fitness influencer platform.",
+    # pricing model
+    "Design a pricing model for a B2B SaaS HR tool targeting Series A startups.",
+    "Propose a pricing strategy for a premium AI tutoring service targeting high-school students.",
+    # onboarding hook
+    "Write an onboarding hook for a habit-tracking app that surfaces within the first 60 seconds.",
+    "Create an onboarding hook for a corporate expense management tool that wins over the CFO.",
+    # retention mechanic
+    "Invent a retention mechanic for a language-learning app to pull back churned users.",
+    "Design a loyalty mechanic for a direct-to-consumer supplement brand.",
+    # content series
+    "Pitch a content series concept for a B2B climate consultancy to build thought leadership.",
+    "Propose a social-media content series for a zero-waste kitchen product brand.",
+    # brand voice
+    "Define a brand voice for a telehealth startup serving rural communities.",
+    "Write a brand voice brief for a luxury pet-food brand targeting dog parents.",
+    # color story
+    "Develop a color story for a meditation app rebranding from clinical white to warmer tones.",
+    # campaign hashtag
+    "Invent a campaign hashtag and rally concept for a global reforestation charity's annual drive.",
+    # additional diverse domains
+    "Create a community activation idea for a craft brewery entering a new city.",
+    "Pitch a pop-up retail concept for a digitally-native eyewear brand.",
 ]
 
 # ---------------------------------------------------------------------------
@@ -160,13 +213,16 @@ class MockGenerator(GeneratorBase):
     - temp:   diverse + 2 near-duplicates
     - antimode: fully diverse
     - ortho:  diverse but slightly less than antimode
+    - ortho_temp: fully diverse (steering + sampling)
+    - ortho_L17: fully diverse (production L17 vector arm)
     - vs:     diverse, different texts
     - repulsion: diverse (repulsion selects well)
     - full:   diverse
     """
 
     def __init__(self, arm: str, seed: int = 0) -> None:
-        self.arm = arm
+        # Strip the alpha suffix if present (e.g. "ortho_L17@1.5" -> "ortho_L17")
+        self.arm = arm.split("@")[0]
         self._rng = random.Random(seed)
 
     def generate_k(self, brief: str, k: int) -> list[str]:
@@ -191,6 +247,9 @@ class MockGenerator(GeneratorBase):
             return pool[:k]
         if self.arm == "ortho_temp":
             # Steering + sampling (production config): fully diverse
+            return list(_MOCK_DIVERSE[:k])
+        if self.arm == "ortho_L17":
+            # Production L17 vector arm: fully diverse (same mock as ortho_temp)
             return list(_MOCK_DIVERSE[:k])
         if self.arm == "vs":
             return [f"VS-{i}: {_MOCK_DIVERSE[i % len(_MOCK_DIVERSE)]} [angle {i}]" for i in range(k)]
@@ -255,6 +314,88 @@ def _build_archetype_bank(backend, layer: int):
     n_layers = backend.num_layers
     arch_layers = [round(n_layers * f) for f in (0.25, 0.40, 0.55, 0.70)]
     return ArchetypeBank.from_stacks(pos, neg, archetype_layers=arch_layers)
+
+
+# ---------------------------------------------------------------------------
+# FIX (b): LLM judge — quality_pass_rate via gpt-4o-mini
+# ---------------------------------------------------------------------------
+
+_JUDGE_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "coherence": {"type": "integer"},
+        "on_topic": {"type": "integer"},
+    },
+    "required": ["coherence", "on_topic"],
+    "additionalProperties": False,
+}
+
+_JUDGE_SYSTEM = (
+    "You are a strict creative-output quality judge. "
+    "Given a brief and a generated output, score BOTH dimensions:\n"
+    "  coherence (1–5): 1=incoherent/gibberish, 3=readable but weak, 5=clear and well-formed.\n"
+    "  on_topic (1–5): 1=off-topic, 4=clearly addresses the brief, 5=directly relevant and specific.\n"
+    "Return ONLY a JSON object with keys 'coherence' and 'on_topic' (integers). No explanation."
+)
+
+
+def _judge_one(brief: str, text: str, *, use_cache: bool = True) -> dict[str, int]:
+    """Score a single (brief, text) pair via gpt-4o-mini.  Cached by request key."""
+    from brainstormlm.clients.openai import complete_json
+
+    messages = [
+        {
+            "role": "user",
+            "content": f"Brief: {brief}\n\nOutput: {text}",
+        }
+    ]
+    result, _ = complete_json(
+        system=_JUDGE_SYSTEM,
+        messages=messages,
+        model="gpt-4o-mini",
+        schema=_JUDGE_SCHEMA,
+        schema_name="quality_scores",
+        max_tokens=64,
+        temperature=0.0,
+        use_cache=use_cache,
+    )
+    return {"coherence": int(result.get("coherence", 1)), "on_topic": int(result.get("on_topic", 1))}
+
+
+def score_all_texts(
+    texts_per_brief: list[list[str]],
+    briefs: list[str],
+    *,
+    mock: bool = False,
+) -> list[list[dict[str, int]]]:
+    """Return per-text judge scores, shape [n_briefs, k].
+
+    Compute ONCE (outside bootstrap loop) and reuse.
+    In mock mode returns deterministic plausible scores.
+    """
+    scores: list[list[dict[str, int]]] = []
+    for bi, (brief, texts) in enumerate(zip(briefs, texts_per_brief)):
+        brief_scores: list[dict[str, int]] = []
+        for text in texts:
+            if mock:
+                # Deterministic mock scores: greedy/empty text gets low scores, others high
+                if not text.strip() or text.startswith("Standard solution"):
+                    brief_scores.append({"coherence": 2, "on_topic": 2})
+                else:
+                    brief_scores.append({"coherence": 4, "on_topic": 4})
+            else:
+                brief_scores.append(_judge_one(brief, text))
+        scores.append(brief_scores)
+    return scores
+
+
+def quality_pass_rate(scores_per_brief: list[list[dict[str, int]]]) -> float:
+    """Fraction of outputs with coherence>=3 AND on_topic>=4 (matches repo rubric)."""
+    all_scores = [s for group in scores_per_brief for s in group]
+    if not all_scores:
+        return 1.0
+    passed = sum(1 for s in all_scores if s["coherence"] >= 3 and s["on_topic"] >= 4)
+    return passed / len(all_scores)
 
 
 # ---------------------------------------------------------------------------
@@ -332,6 +473,33 @@ def run_arm_ortho(
         brief,
         dirs=res.dirs,
         layer=layer,
+        alpha=alpha,
+        sampling=SamplingPreset(temperature=temperature),
+        max_new_tokens=256,
+    )
+
+
+def run_arm_ortho_L17(
+    backend,
+    brief: str,
+    k: int,
+    alpha: float,
+    vec: np.ndarray,
+    temperature: float = 0.0,
+) -> list[str]:
+    """FIX (c): Production L17 steering vector arm (14B-only, 5120-dim).
+
+    Builds per-sample directions via stiefel_basis(vec, k), injects at layer 17.
+    Only called when backend.hidden_dim == vec.shape[-1].
+    """
+    from creativity_steering.config import SamplingPreset
+    from creativity_steering.patching.orthogonal import stiefel_basis
+
+    dirs = stiefel_basis(vec, k)  # (k, hidden_dim), one direction per sample
+    return backend.generate_steered_batch(
+        brief,
+        dirs=dirs,
+        layer=17,
         alpha=alpha,
         sampling=SamplingPreset(temperature=temperature),
         max_new_tokens=256,
@@ -440,6 +608,8 @@ def coherence_rate_from_texts(texts: Sequence[str]) -> float:
 class ArmResult:
     arm: str
     texts_per_brief: list[list[str]]  # shape: [n_briefs, k]
+    # Pre-computed judge scores; None until set by run_study (outside bootstrap)
+    judge_scores_per_brief: list[list[dict[str, int]]] | None = field(default=None)
 
     @property
     def all_texts(self) -> list[str]:
@@ -457,6 +627,9 @@ def compute_metrics(arm_result: ArmResult) -> dict[str, float]:
     salad_rate is the COHERENCE-ONLY rate (= 1 - coherence_rate; token_loop + non_ascii only).
     micro_output / comma_bleed are steering-degeneration signals, NOT quality signals for a
     finished idea (a terse idea is fine), so they must not gate the verdict.
+
+    quality_pass_rate: fraction of outputs with coherence>=3 AND on_topic>=4 (LLM judge).
+    Judge scores are pre-computed once outside the bootstrap loop; resampling reuses them.
     """
     from brainstormlm.eval import conditional_vendi, novelty_bench_distinct
 
@@ -468,12 +641,20 @@ def compute_metrics(arm_result: ArmResult) -> dict[str, float]:
     cr = coherence_rate_from_texts(arm_result.all_texts)
     sr = 1.0 - cr  # coherence-only salad rate, consistent with the quality gate
 
+    # FIX (b): quality_pass_rate — uses pre-computed judge scores, zero cost inside bootstrap
+    if arm_result.judge_scores_per_brief is not None:
+        qpr = quality_pass_rate(arm_result.judge_scores_per_brief)
+    else:
+        # Fallback for bare ArmResult instances in tests (judge not wired)
+        qpr = float("nan")
+
     return {
         "n_distinct": n_distinct,
         "distinct_ratio": distinct_ratio,
         "mean_per_prompt_vendi": float(cv["mean_within_vendi"]),
         "salad_rate": sr,
         "coherence_rate": cr,
+        "quality_pass_rate": qpr,
     }
 
 
@@ -491,10 +672,12 @@ def bootstrap_ci(
 ) -> dict[str, tuple[float, float]]:
     """95% bootstrap CIs by resampling over briefs (the unit of replication).
 
-    For each resample: draw n_briefs briefs with replacement, collect their texts,
-    re-compute the metrics. The CI is the [alpha/2, 1-alpha/2] percentile interval.
+    For each resample: draw n_briefs briefs with replacement, collect their texts
+    AND their pre-computed judge scores, re-compute the metrics.
+    The CI is the [alpha/2, 1-alpha/2] percentile interval.
 
     Returns dict mapping metric_name -> (lower, upper).
+    NaN metrics (no judge scores) are passed through as (nan, nan).
     """
     rng = np.random.default_rng(seed)
     n_briefs = len(arm_result.texts_per_brief)
@@ -503,15 +686,28 @@ def bootstrap_ci(
     for _ in range(n_resamples):
         idxs = rng.integers(0, n_briefs, size=n_briefs)
         resampled_texts = [arm_result.texts_per_brief[i] for i in idxs]
-        resampled_arm = ArmResult(arm=arm_result.arm, texts_per_brief=resampled_texts)
+        # Carry pre-computed judge scores along with the resample
+        resampled_scores = (
+            [arm_result.judge_scores_per_brief[i] for i in idxs]
+            if arm_result.judge_scores_per_brief is not None
+            else None
+        )
+        resampled_arm = ArmResult(
+            arm=arm_result.arm,
+            texts_per_brief=resampled_texts,
+            judge_scores_per_brief=resampled_scores,
+        )
         boot_rows.append(metric_fn(resampled_arm))
 
     alpha = 1.0 - ci
     lo_p, hi_p = alpha / 2 * 100, (1 - alpha / 2) * 100
     cis: dict[str, tuple[float, float]] = {}
     for key in boot_rows[0]:
-        vals = np.array([row[key] for row in boot_rows])
-        cis[key] = (float(np.percentile(vals, lo_p)), float(np.percentile(vals, hi_p)))
+        vals = np.array([row[key] for row in boot_rows], dtype=float)
+        if np.all(np.isnan(vals)):
+            cis[key] = (float("nan"), float("nan"))
+        else:
+            cis[key] = (float(np.nanpercentile(vals, lo_p)), float(np.nanpercentile(vals, hi_p)))
     return cis
 
 
@@ -531,6 +727,10 @@ def verdict(
     """Evaluate the pre-registered success criteria for one non-baseline arm.
 
     Returns (verdict_str, list_of_notes).
+
+    VOID if:
+    - coherence_rate drops >2pp vs baseline OR salad_rate > 0.10 (cheap canary, kept)
+    - quality_pass_rate drops >5pp vs baseline (LLM judge gate, new)
     """
     notes: list[str] = []
 
@@ -540,6 +740,14 @@ def verdict(
     void_coherence = (baseline_cr - arm_cr) > 0.02  # >2pp drop
     void_salad = metrics["salad_rate"] > 0.10
 
+    # FIX (b): LLM judge quality gate (>5pp drop triggers void)
+    baseline_qpr = baseline_metrics.get("quality_pass_rate", float("nan"))
+    arm_qpr = metrics.get("quality_pass_rate", float("nan"))
+    void_quality = (
+        not (np.isnan(baseline_qpr) or np.isnan(arm_qpr))
+        and (baseline_qpr - arm_qpr) > 0.05  # >5pp drop
+    )
+
     if void_coherence:
         notes.append(
             f"VOID: coherence_rate dropped {(baseline_cr - arm_cr) * 100:.1f}pp vs baseline "
@@ -547,8 +755,13 @@ def verdict(
         )
     if void_salad:
         notes.append(f"VOID: salad_rate = {metrics['salad_rate']:.3f} > 0.10")
+    if void_quality:
+        notes.append(
+            f"VOID: quality_pass_rate dropped {(baseline_qpr - arm_qpr) * 100:.1f}pp vs baseline "
+            f"(>5pp threshold); arm={arm_qpr:.3f} baseline={baseline_qpr:.3f}"
+        )
 
-    if void_coherence or void_salad:
+    if void_coherence or void_salad or void_quality:
         return "VOID", notes
 
     # -- Win criteria -------------------------------------------------------
@@ -602,6 +815,7 @@ _METRIC_LABELS = {
     "mean_per_prompt_vendi": "Vendi(mean/prompt)",
     "coherence_rate": "Coherence",
     "salad_rate": "Salad%",
+    "quality_pass_rate": "QualPassRate",
 }
 
 
@@ -612,22 +826,26 @@ def print_table(
 ) -> None:
     col_w = 22
     metric_keys = list(_METRIC_LABELS.keys())
-    header = f"{'ARM':<14}" + "".join(f"{_METRIC_LABELS[k]:>{col_w}}" for k in metric_keys)
+    header = f"{'ARM':<20}" + "".join(f"{_METRIC_LABELS[k]:>{col_w}}" for k in metric_keys)
     print("\n" + "=" * len(header))
     print("COMPARISON TABLE  (mean ± 95% CI, bootstrapped over briefs)")
     print("  NOTE: Vendi = mean per-prompt Vendi (NOT arXiv:2411.02817 Conditional-Vendi)")
     print("  NOTE: ortho arm is GREEDY; fair comparison is vs antimode/temp, not greedy")
+    print("  NOTE: QualPassRate = frac(coherence>=3 AND on_topic>=4) via gpt-4o-mini judge")
     print("=" * len(header))
     print(header)
     print("-" * len(header))
     for arm in arm_names:
         m = metrics_map[arm]
         ci = cis_map[arm]
-        row = f"{arm:<14}"
+        row = f"{arm:<20}"
         for k in metric_keys:
             lo, hi = ci[k]
             val = m[k]
-            cell = f"{val:.3f}[{lo:.3f},{hi:.3f}]"
+            if np.isnan(val):
+                cell = "n/a"
+            else:
+                cell = f"{val:.3f}[{lo:.3f},{hi:.3f}]"
             row += f"{cell:>{col_w}}"
         print(row)
     print("=" * len(header))
@@ -645,6 +863,7 @@ def print_verdict_block(
     print("  Baseline (shipping): antimode")
     print("  Win requires: NB-Distinct >= baseline+1 AND Vendi higher w/ non-overlapping CIs")
     print("  Void if: coherence_rate drops >2pp OR salad_rate > 0.10")
+    print("  Void if: quality_pass_rate drops >5pp vs baseline (LLM judge gate)")
     print("=" * 70)
     bm = metrics_map[baseline_arm]
     bc = cis_map[baseline_arm]
@@ -661,8 +880,14 @@ def print_verdict_block(
 
 
 # ---------------------------------------------------------------------------
-# Main orchestration
+# FIX (d): De-duplicated alpha sweep orchestration
 # ---------------------------------------------------------------------------
+
+# Arms that are alpha-independent (run once regardless of sweep)
+_ALPHA_INDEPENDENT_ARMS = ["greedy", "temp", "antimode", "vs", "repulsion", "full"]
+
+# Arms that sweep over alpha (appear as arm@alpha rows in the table)
+_ALPHA_DEPENDENT_ARMS = ["ortho", "ortho_temp", "ortho_L17"]
 
 
 def run_study(
@@ -673,16 +898,36 @@ def run_study(
     mock: bool = False,
     config_path: str | None = None,
     layer: int | None = None,
-    alpha: float = 0.3,
+    alphas: list[float] | None = None,
     n_resamples: int = 1000,
     temperature: float = 0.8,
     verbose: bool = True,
 ) -> dict:
-    """Run all arms over all briefs, compute metrics and CIs, return full results dict."""
+    """Run all arms over all briefs, compute metrics and CIs, return full results dict.
+
+    FIX (d): Alpha-independent arms (greedy/temp/antimode/vs/repulsion/full) generate ONCE.
+    Steering arms (ortho/ortho_temp/ortho_L17) loop over alphas, appearing as separate rows
+    named arm@alpha (e.g. ortho_L17@1.5).
+    """
+    if alphas is None or len(alphas) == 0:
+        alphas = [0.3]  # backward-compat default for non-L17 arms
+
+    # Separate arms by alpha dependence
+    alpha_independent = [a for a in arms if a in _ALPHA_INDEPENDENT_ARMS]
+    alpha_dependent = [a for a in arms if a in _ALPHA_DEPENDENT_ARMS]
+
+    # Build the expanded arm list for the table: independent first, then arm@alpha combos
+    expanded_arms: list[str] = list(alpha_independent)
+    for a in alpha_dependent:
+        for alpha in alphas:
+            expanded_arms.append(f"{a}@{alpha}")
 
     # -- Build backend / bank -----------------------------------------------
     backend = None
     bank = None
+    l17_vec: np.ndarray | None = None
+    l17_skipped = False
+
     if not mock:
         if config_path is None:
             raise ValueError("--config is required for real (non-mock) runs")
@@ -693,61 +938,137 @@ def run_study(
             print(f"  model={backend.model_id}  n_layers={backend.num_layers}", flush=True)
         inj_layer = layer if layer is not None else backend.num_layers // 2
         if verbose:
-            print(f"  inject_layer={inj_layer}  alpha={alpha}", flush=True)
-        if any(a in ("ortho", "ortho_temp") for a in arms):
+            print(f"  inject_layer={inj_layer}  alphas={alphas}", flush=True)
+        if any(a in ("ortho", "ortho_temp") for a in alpha_dependent):
             if verbose:
                 print("Building ArchetypeBank ...", flush=True)
             bank = _build_archetype_bank(backend, inj_layer)
             if verbose:
                 print(f"  bank.k={bank.k}", flush=True)
+
+        # FIX (c): Load the L17 production vector
+        if "ortho_L17" in alpha_dependent:
+            _vec_path = _REPO / "data" / "steering_14b" / "hyper_creative_purified_vector_L17.pt"
+            if _vec_path.exists():
+                import torch
+                _raw = torch.load(str(_vec_path), map_location="cpu")
+                if isinstance(_raw, torch.Tensor):
+                    l17_vec = _raw.float().numpy().reshape(-1)
+                else:
+                    # Some checkpoints store a dict
+                    _t = next(iter(_raw.values())) if isinstance(_raw, dict) else _raw
+                    l17_vec = _t.float().numpy().reshape(-1)
+
+                # Dim guard: only 14B-compatible (5120-dim)
+                if l17_vec.shape[-1] != backend.hidden_dim:
+                    print(
+                        f"  [ortho_L17] SKIP: vector dim={l17_vec.shape[-1]} != "
+                        f"backend.hidden_dim={backend.hidden_dim}. "
+                        f"This arm requires the 14B model (5120-dim).",
+                        flush=True,
+                    )
+                    l17_skipped = True
+                    l17_vec = None
+                else:
+                    if verbose:
+                        print(f"  [ortho_L17] loaded vector dim={l17_vec.shape[-1]}", flush=True)
+            else:
+                print(
+                    f"  [ortho_L17] SKIP: vector not found at {_vec_path}",
+                    flush=True,
+                )
+                l17_skipped = True
     else:
         inj_layer = layer or 17
+
+    # Remove skipped L17 combos from the table
+    if l17_skipped:
+        expanded_arms = [a for a in expanded_arms if not a.startswith("ortho_L17@")]
 
     # -- Generate per arm per brief -----------------------------------------
     arm_results: dict[str, ArmResult] = {}
 
-    for arm in arms:
-        if verbose:
-            print(f"\n-- ARM: {arm} --", flush=True)
+    def _generate_arm_briefs(arm_key: str, base_arm: str, alpha: float) -> ArmResult:
+        """Generate k texts per brief for one (arm, alpha) combination."""
         texts_per_brief: list[list[str]] = []
-
         for bi, brief in enumerate(briefs):
             if verbose:
-                print(f"  brief {bi + 1}/{len(briefs)}: {brief[:60]}...", flush=True, end="\r")
-
+                print(
+                    f"  brief {bi + 1}/{len(briefs)}: {brief[:55]}...",
+                    flush=True, end="\r",
+                )
             if mock:
-                gen = MockGenerator(arm=arm, seed=bi)
+                gen = MockGenerator(arm=arm_key, seed=bi)
                 texts = gen.generate_k(brief, k)
             else:
                 t0 = time.time()
-                if arm == "greedy":
+                if base_arm == "greedy":
                     texts = run_arm_greedy(backend, brief, k)
-                elif arm == "temp":
+                elif base_arm == "temp":
                     texts = run_arm_temp(backend, brief, k, temperature=temperature)
-                elif arm == "antimode":
+                elif base_arm == "antimode":
                     texts = run_arm_antimode(backend, brief, k, temperature=temperature)
-                elif arm == "ortho":
+                elif base_arm == "ortho":
                     texts = run_arm_ortho(backend, brief, k, inj_layer, alpha, bank)
-                elif arm == "ortho_temp":
-                    texts = run_arm_ortho(backend, brief, k, inj_layer, alpha, bank, temperature=temperature)
-                elif arm == "vs":
+                elif base_arm == "ortho_temp":
+                    texts = run_arm_ortho(
+                        backend, brief, k, inj_layer, alpha, bank, temperature=temperature
+                    )
+                elif base_arm == "ortho_L17":
+                    texts = run_arm_ortho_L17(backend, brief, k, alpha, l17_vec)
+                elif base_arm == "vs":
                     texts = run_arm_vs(backend, brief, k, temperature=temperature)
-                elif arm == "repulsion":
+                elif base_arm == "repulsion":
                     texts = run_arm_repulsion(backend, brief, k, temperature=temperature)
-                elif arm == "full":
+                elif base_arm == "full":
                     texts = run_arm_full(backend, brief, k, temperature=temperature)
                 else:
-                    raise ValueError(f"Unknown arm {arm!r}")
+                    raise ValueError(f"Unknown arm {base_arm!r}")
                 if verbose:
                     print(f"  brief {bi + 1} done in {time.time()-t0:.1f}s", flush=True)
 
-            # Ensure exactly k texts (pad/trim for safety)
             texts = (texts + [""] * k)[:k]
             texts_per_brief.append(texts)
 
-        arm_results[arm] = ArmResult(arm=arm, texts_per_brief=texts_per_brief)
+        return ArmResult(arm=arm_key, texts_per_brief=texts_per_brief)
+
+    # Run alpha-independent arms once
+    if verbose:
+        print("\n-- Alpha-independent arms (generated once) --", flush=True)
+    for arm in alpha_independent:
+        if verbose:
+            print(f"\n-- ARM: {arm} --", flush=True)
+        ar = _generate_arm_briefs(arm, arm, alpha=alphas[0])
+        arm_results[arm] = ar
         if verbose:
             print(f"  [done] {arm}: generated {len(briefs)} x {k} texts", flush=True)
+
+    # Run steering arms per alpha
+    if alpha_dependent:
+        if verbose:
+            print(f"\n-- Steering arms over alphas={alphas} --", flush=True)
+        for base_arm in alpha_dependent:
+            for alpha in alphas:
+                arm_key = f"{base_arm}@{alpha}"
+                if arm_key not in expanded_arms:
+                    continue  # skipped (e.g. ortho_L17 on 0.5B)
+                if verbose:
+                    print(f"\n-- ARM: {arm_key} --", flush=True)
+                ar = _generate_arm_briefs(arm_key, base_arm, alpha)
+                arm_results[arm_key] = ar
+                if verbose:
+                    print(f"  [done] {arm_key}: generated {len(briefs)} x {k} texts", flush=True)
+
+    # -- FIX (b): Compute LLM judge scores ONCE before bootstrap --------------
+    if verbose:
+        print("\nScoring outputs with LLM judge (gpt-4o-mini, cached) ...", flush=True)
+    for arm_key, ar in arm_results.items():
+        ar.judge_scores_per_brief = score_all_texts(
+            ar.texts_per_brief, briefs, mock=mock
+        )
+        if verbose:
+            qpr = quality_pass_rate(ar.judge_scores_per_brief)
+            print(f"  {arm_key}: quality_pass_rate={qpr:.3f}", flush=True)
 
     # -- Compute metrics and bootstrap CIs -----------------------------------
     if verbose:
@@ -755,19 +1076,23 @@ def run_study(
     metrics_map: dict[str, dict[str, float]] = {}
     cis_map: dict[str, dict[str, tuple[float, float]]] = {}
 
-    for arm, arm_result in arm_results.items():
+    for arm_key, arm_result in arm_results.items():
         if verbose:
-            print(f"  {arm} ...", flush=True, end="\r")
-        metrics_map[arm] = compute_metrics(arm_result)
-        cis_map[arm] = bootstrap_ci(
+            print(f"  {arm_key} ...", flush=True, end="\r")
+        metrics_map[arm_key] = compute_metrics(arm_result)
+        cis_map[arm_key] = bootstrap_ci(
             arm_result, compute_metrics, n_resamples=n_resamples
         )
         if verbose:
-            print(f"  {arm}: n_distinct={metrics_map[arm]['n_distinct']:.0f}  "
-                  f"vendi={metrics_map[arm]['mean_per_prompt_vendi']:.3f}", flush=True)
+            print(
+                f"  {arm_key}: n_distinct={metrics_map[arm_key]['n_distinct']:.0f}  "
+                f"vendi={metrics_map[arm_key]['mean_per_prompt_vendi']:.3f}  "
+                f"qpr={metrics_map[arm_key]['quality_pass_rate']:.3f}",
+                flush=True,
+            )
 
     return {
-        "arms": arms,
+        "arms": expanded_arms,
         "briefs": briefs,
         "k": k,
         "metrics": metrics_map,
@@ -777,7 +1102,8 @@ def run_study(
         },
         "arm_texts": {
             arm: arm_results[arm].texts_per_brief
-            for arm in arms
+            for arm in expanded_arms
+            if arm in arm_results
         },
     }
 
@@ -786,7 +1112,15 @@ def run_study(
 # Entrypoint
 # ---------------------------------------------------------------------------
 
-_DEFAULT_ARMS = ["greedy", "temp", "antimode", "ortho", "ortho_temp", "vs", "repulsion", "full"]
+_DEFAULT_ARMS = [
+    "greedy", "temp", "antimode",
+    "ortho", "ortho_temp", "ortho_L17",
+    "vs", "repulsion", "full",
+]
+
+# Default alphas for on-the-fly bank arms (ortho/ortho_temp) when not specified.
+# L17 validated alpha is 1.5; the full sweep is [1.0, 1.5, 2.0, 2.62].
+_DEFAULT_ALPHAS_L17 = [1.0, 1.5, 2.0, 2.62]
 
 
 def main() -> int:
@@ -798,11 +1132,17 @@ def main() -> int:
     ap.add_argument("--mock", action="store_true", help="Use mock generator (no model needed)")
     ap.add_argument("--config", default=None, help="ExperimentConfig JSON for real 14B run")
     ap.add_argument("--layer", type=int, default=None, help="Injection layer for ortho arm")
-    ap.add_argument("--alpha", type=float, default=0.3, help="Steering alpha (see alpha note)")
+    ap.add_argument(
+        "--alphas", default=None,
+        help="Comma-separated alpha values for steering arms, e.g. 1.0,1.5,2.0,2.62. "
+             "Default: 1.0,1.5,2.0,2.62 for L17; 0.3,0.5,0.8,1.0 otherwise."
+    )
+    # Legacy single-alpha flag for backward compat (overridden by --alphas if both given)
+    ap.add_argument("--alpha", type=float, default=None, help=argparse.SUPPRESS)
     ap.add_argument("--k", type=int, default=8, help="Outputs per brief per arm")
     ap.add_argument(
         "--briefs", default=None,
-        help="JSON array of brief strings, or path to JSON file. Default: builtin 12 briefs"
+        help="JSON array of brief strings, or path to JSON file. Default: builtin 40 briefs"
     )
     ap.add_argument("--n-briefs", type=int, default=None, help="Use first N builtin briefs")
     ap.add_argument("--arms", nargs="+", default=_DEFAULT_ARMS, help="Arms to run")
@@ -811,6 +1151,15 @@ def main() -> int:
     ap.add_argument("--temperature", type=float, default=0.8, help="Temperature for sampled arms")
     ap.add_argument("--quiet", action="store_true", help="Suppress progress output")
     args = ap.parse_args()
+
+    # -- Resolve alphas
+    if args.alphas is not None:
+        alphas = [float(x.strip()) for x in args.alphas.split(",") if x.strip()]
+    elif args.alpha is not None:
+        alphas = [args.alpha]
+    else:
+        # Default: L17 range
+        alphas = _DEFAULT_ALPHAS_L17
 
     # -- Resolve briefs
     if args.briefs is not None:
@@ -835,12 +1184,14 @@ def main() -> int:
     print(f"  k      : {args.k}")
     print(f"  briefs : {len(briefs)}")
     print(f"  arms   : {args.arms}")
+    print(f"  alphas : {alphas}  (steering arms only; alpha-independent arms run once)")
     print(f"  resamples: {args.n_resamples}")
     if not args.mock:
         print(f"  config : {args.config}")
-        print(f"  layer  : {args.layer}  alpha={args.alpha}")
+        print(f"  layer  : {args.layer}")
     print("  HONESTY: ortho arm is greedy; Vendi = mean per-prompt (not arXiv:2411.02817)")
-    print("  ALPHA NOTE: 14B cliff unmeasured; start alpha=0.3, sweep 0.3/0.5/0.8/1.0")
+    print("  QUALITY: LLM judge (gpt-4o-mini) scores coherence+on_topic; cached by request")
+    print("  L17 NOTE: ortho_L17 requires 14B model (5120-dim); skipped on 0.5B (dim guard)")
     print("=" * 70 + "\n")
 
     results = run_study(
@@ -850,7 +1201,7 @@ def main() -> int:
         mock=args.mock,
         config_path=args.config,
         layer=args.layer,
-        alpha=args.alpha,
+        alphas=alphas,
         n_resamples=args.n_resamples,
         temperature=args.temperature,
         verbose=not args.quiet,
@@ -863,10 +1214,10 @@ def main() -> int:
         for arm, ci in results["cis"].items()
     }
 
-    print_table(args.arms, metrics_map, cis_map)
+    print_table(results["arms"], metrics_map, cis_map)
 
-    if "antimode" in args.arms:
-        print_verdict_block(args.arms, metrics_map, cis_map, baseline_arm="antimode", k=args.k)
+    if "antimode" in results["arms"]:
+        print_verdict_block(results["arms"], metrics_map, cis_map, baseline_arm="antimode", k=args.k)
     else:
         print("\n(antimode arm not in run — skipping PASS/FAIL verdict block)")
 
@@ -874,17 +1225,8 @@ def main() -> int:
     print(
         "  uv run python scripts/validate_diversity.py \\\n"
         "      --config creativity_steering/configs/runpod_qwen14b_v2.json \\\n"
-        "      --layer 17 --alpha 0.3 --k 8 \\\n"
-        "      --out results/validate_14b_alpha0.3.json"
-    )
-    print(
-        "\n  Alpha sweep (recommended before committing):\n"
-        "  for ALPHA in 0.3 0.5 0.8 1.0; do\n"
-        "    uv run python scripts/validate_diversity.py \\\n"
-        "      --config creativity_steering/configs/runpod_qwen14b_v2.json \\\n"
-        "      --layer 17 --alpha $ALPHA --k 8 \\\n"
-        "      --out results/validate_14b_alpha${ALPHA}.json --quiet\n"
-        "  done"
+        "      --layer 17 --alphas 1.0,1.5,2.0,2.62 --k 8 \\\n"
+        "      --out results/validate_14b_L17_sweep.json"
     )
 
     if args.out:
