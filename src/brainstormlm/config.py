@@ -23,11 +23,13 @@ class Settings(BaseSettings):
     prompter_model: str = "gpt-4o-mini"
     evaluator_model: str = "gpt-4o-mini"
 
-    # Refine step (brief-refine + planner-angles + verbalized-sampling). Cheapest
-    # capable chat model is Gemini 2.5 Flash-Lite ($0.10/$0.40 per 1M in/out);
-    # called via Google's OpenAI-compatible endpoint. Embeddings stay on OpenAI.
-    refine_provider: str = "gemini"
-    refine_model: str = "gemini-2.5-flash-lite"
+    # Refine step (brief-refine + planner-angles + verbalized-sampling). Default to
+    # gpt-4o-mini: reuses OPENAI_API_KEY (no extra key) and is well-rounded for the
+    # structured + creative calls. Gemini 2.5 Flash-Lite is cheaper ($0.10/$0.40 vs
+    # $0.15/$0.60) and a drop-in swap via clients/gemini.py if cost outweighs quality.
+    # Embeddings stay on OpenAI text-embedding-3-small.
+    refine_provider: str = "openai"
+    refine_model: str = "gpt-4o-mini"
     trajectories_path: Path = Field(
         default=Path("./data/trajectories.jsonl"),
         alias="BRAINSTORMLM_TRAJECTORIES_PATH",
