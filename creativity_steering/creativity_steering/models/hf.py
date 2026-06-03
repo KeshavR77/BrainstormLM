@@ -240,6 +240,71 @@ class HFBackend(ModelBackend):
                 except Exception:
                     pass
 
+    # ------------------------------------------------------------------ steering (batch)
+    def generate_steered_batch(
+        self,
+        prompt: str,
+        *,
+        dirs: np.ndarray,
+        layer: int,
+        alpha: float,
+        rescale: bool = True,
+        system: str | None = None,
+        max_new_tokens: int = 256,
+        seed: int = 0,
+        sampling: SamplingPreset | None = None,
+    ) -> list[str]:
+        """Generate one steered continuation per row of ``dirs`` for a single prompt.
+
+        The prompt is replicated ``B = dirs.shape[0]`` times into a batch; batch row ``i`` is
+        steered by ``dirs[i]`` via a per-sample forward hook on decoder block ``layer`` (the
+        STARS-style "a batch fans across directions" path). ``dirs`` rows are typically an
+        orthonormal frame (``stiefel_basis``) or an orthogonalized archetype set. Returns ``B``
+        decoded continuations (prompt stripped). Defaults to greedy decoding so the only source of
+        variation across rows is the per-sample direction.
+        """
+        import torch
+
+        self._ensure_loaded()
+        dirs_np = np.asarray(dirs, dtype=np.float32)
+        if dirs_np.ndim != 2:
+            raise ValueError(f"dirs must be 2-D (batch, hidden_dim); got shape {dirs_np.shape}")
+        batch_size, hidden = dirs_np.shape
+        if hidden != self.hidden_dim:
+            raise ValueError(
+                f"dirs hidden_dim {hidden} does not match model hidden_dim {self.hidden_dim}"
+            )
+        blocks = self._decoder_layers()
+        if not 0 <= layer < len(blocks):
+            raise ValueError(f"injection layer {layer} out of range [0, {len(blocks)})")
+
+        torch.manual_seed(seed)
+        if sampling is None:
+            sampling = SamplingPreset(temperature=0.0)  # greedy isolates the steering effect
+        gen_kwargs = build_generate_kwargs(
+            sampling, max_new_tokens=max_new_tokens, pad_token_id=self._tokenizer.eos_token_id
+        )
+
+        enc = self._tokenizer(self._prompt_text(prompt, system), return_tensors="pt").to(self._device)
+        prompt_len = int(enc["input_ids"].shape[1])
+        gen_inputs = {"input_ids": enc["input_ids"].repeat(batch_size, 1)}
+        if "attention_mask" in enc:
+            gen_inputs["attention_mask"] = enc["attention_mask"].repeat(batch_size, 1)
+
+        handle = blocks[layer].register_forward_hook(
+            _make_batch_hook(dirs_np, alpha=alpha, rescale=rescale)
+        )
+        try:
+            with torch.no_grad():
+                out = self._model.generate(**gen_inputs, **gen_kwargs)
+        finally:
+            try:
+                handle.remove()
+            except Exception:
+                pass
+        new = out[:, prompt_len:]
+        return [self._tokenizer.decode(row, skip_special_tokens=True) for row in new]
+
 
 def _make_hook(vector, *, alpha: float, rescale: bool):
     """Forward hook adding ``alpha * vector`` to a decoder block's residual output.
@@ -261,6 +326,26 @@ def _make_hook(vector, *, alpha: float, rescale: bool):
         else:
             scaled = v * alpha
         new_hidden = hidden + scaled
+        return (new_hidden, *tail) if tail else new_hidden
+
+    return hook
+
+
+def _make_batch_hook(dirs, *, alpha: float, rescale: bool):
+    """Forward hook adding a *per-sample* steering direction to a decoder block's output.
+
+    Batch row ``i`` receives ``dirs[i]`` scaled with the same ``(v/‖v‖)·‖h‖·α`` rescale
+    convention as ``_make_hook``. The per-sample math is delegated to ``inject_orthogonal_batch``,
+    which broadcasts over the sequence axis — so the hook is correct at both the prefill step
+    ``(B,T,H)`` and every incremental decode step ``(B,1,H)``. A zero direction row leaves that
+    sample unchanged (no NaN), matching ``_make_hook``'s zero-vector tolerance.
+    """
+    from creativity_steering.patching.orthogonal import inject_orthogonal_batch
+
+    def hook(_module, _inp, output):  # noqa: ANN001 — torch hook signature
+        hidden = output[0] if isinstance(output, tuple) else output
+        tail = output[1:] if isinstance(output, tuple) else ()
+        new_hidden = inject_orthogonal_batch(hidden, dirs, alpha, rescale=rescale)
         return (new_hidden, *tail) if tail else new_hidden
 
     return hook
