@@ -2,9 +2,9 @@
 
 Public surface the other worktrees import:
 
-    from brainstormlm.pipeline import select_diverse, SelectionResult
+    from brainstormlm.pipeline import select_by_repulsion, SelectionResult
 """
 
-from brainstormlm.pipeline.select import SelectionResult, select_diverse
+from brainstormlm.pipeline.select import SelectionResult, select_by_repulsion
 
-__all__ = ["SelectionResult", "select_diverse"]
+__all__ = ["SelectionResult", "select_by_repulsion"]

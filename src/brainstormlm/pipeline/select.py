@@ -44,7 +44,7 @@ def _normalize(matrix: np.ndarray) -> np.ndarray:
     return v / (np.linalg.norm(v, axis=1, keepdims=True) + 1e-12)
 
 
-def select_diverse(
+def select_by_repulsion(
     candidates: Sequence[str],
     *,
     n: int,
