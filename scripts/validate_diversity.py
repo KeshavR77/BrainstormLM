@@ -226,7 +226,7 @@ class MockGenerator(GeneratorBase):
         self._rng = random.Random(seed)
 
     def generate_k(self, brief: str, k: int) -> list[str]:
-        suffix = brief[:30].replace(" ", "_")
+        brief[:30].replace(" ", "_")
         if self.arm == "greedy":
             # K copies of one idea — sanity-check floor
             base = f"Standard solution for: {brief[:60]}"
@@ -405,7 +405,6 @@ def quality_pass_rate(scores_per_brief: list[list[dict[str, int]]]) -> float:
 
 def run_arm_greedy(backend, brief: str, k: int) -> list[str]:
     """K greedy generations from the backend. Floor; expect ~1 distinct class."""
-    from creativity_steering.config import SamplingPreset
 
     return [
         backend.generate(brief, temperature=0.0, seed=i, max_new_tokens=256)
@@ -415,7 +414,6 @@ def run_arm_greedy(backend, brief: str, k: int) -> list[str]:
 
 def run_arm_temp(backend, brief: str, k: int, temperature: float = 0.8) -> list[str]:
     """K temperature-sampled generations (temp=0.8). Cheap diversity baseline."""
-    from creativity_steering.config import SamplingPreset
 
     return [
         backend.generate(brief, temperature=temperature, seed=i, max_new_tokens=256)
