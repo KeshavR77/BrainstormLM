@@ -1189,9 +1189,14 @@ _DEFAULT_ARMS = [
     "vs", "repulsion", "full",
 ]
 
-# Default alphas for on-the-fly bank arms (ortho/ortho_temp) when not specified.
-# L17 validated alpha is 1.5; the full sweep is [1.0, 1.5, 2.0, 2.62].
-_DEFAULT_ALPHAS_L17 = [1.0, 1.5, 2.0, 2.62]
+# Default alphas for the L17 steering arms when not specified.
+# The injection hook (hf.py _make_batch_hook / _make_hook) uses rescale=True, so the added
+# perturbation has magnitude alpha * ||h|| — a *fraction of the full activation norm*, not a
+# fixed nudge. Empirically on 14B @ L17: quality holds at alpha<=0.4, alpha>=0.8 collapses into
+# repetition/salad, and alpha>=1.0 is pure degeneration. The old [1.0,1.5,2.0,2.62] default was
+# therefore ENTIRELY past the quality cliff (it produced gibberish whose "diversity" is an
+# artifact). Usable sweep is [0.1, 0.2, 0.3, 0.4]; raise the ceiling only with a quality gate.
+_DEFAULT_ALPHAS_L17 = [0.1, 0.2, 0.3, 0.4]
 
 
 def _preflight(*, config_path: str | None, out: str | None, layer: int | None, steer_vector: str | None = None) -> None:
@@ -1308,8 +1313,9 @@ def main() -> int:
     )
     ap.add_argument(
         "--alphas", default=None,
-        help="Comma-separated alpha values for steering arms, e.g. 1.0,1.5,2.0,2.62. "
-             "Default: 1.0,1.5,2.0,2.62 for L17; 0.3,0.5,0.8,1.0 otherwise."
+        help="Comma-separated alpha values for steering arms, e.g. 0.1,0.2,0.3,0.4. "
+             "Default: 0.1,0.2,0.3,0.4 for L17 (rescale=True => perturbation is alpha*||h||; "
+             "alpha>=0.8 degenerates into salad); 0.3,0.5,0.8,1.0 otherwise."
     )
     # Legacy single-alpha flag for backward compat (overridden by --alphas if both given)
     ap.add_argument("--alpha", type=float, default=None, help=argparse.SUPPRESS)
