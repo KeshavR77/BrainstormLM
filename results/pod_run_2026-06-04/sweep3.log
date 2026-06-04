@@ -1,0 +1,110 @@
+
+======================================================================
+Conceptial A/B Diversity Validation Harness
+======================================================================
+  mode   : REAL MODEL
+  k      : 8
+  briefs : 30
+  arms   : ['ortho_temp']
+  alphas : [0.3, 0.4]  (steering arms only; alpha-independent arms run once)
+  resamples: 300
+  config : creativity_steering/configs/runpod_qwen14b_v2.json
+  layer  : 17
+  HONESTY: ortho arm is greedy; Vendi = mean per-prompt (not arXiv:2411.02817)
+  QUALITY: LLM judge (gpt-4o-mini) scores coherence+on_topic; cached by request
+  L17 NOTE: ortho_L17 requires 14B model (5120-dim); skipped on 0.5B (dim guard)
+======================================================================
+
+-- PREFLIGHT (fail-fast before any generation) --
+   [ok] OpenAI live (embed dim=1536, judge={'coherence': 3, 'on_topic': 2})
+   [ok] config loads: model=Qwen/Qwen2.5-14B-Instruct, dtype=bf16
+   [..] model precision: FP16/bf16 → vector steering_14b/hyper_creative_purified_vector_L17.pt
+   [ok] L17 vector: dim=5120, norm=1.000, layer_index=17
+   [ok] output dir writable: results
+-- PREFLIGHT OK --
+
+Loading backend from creativity_steering/configs/runpod_qwen14b_v2.json ...
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Skipping import of cpp extensions due to incompatible torch version. Please upgrade to torch >= 2.11.0 (found 2.10.0+cu128).
+Loading weights:   0%|          | 0/579 [00:00<?, ?it/s]Loading weights:   0%|          | 1/579 [00:05<56:08,  5.83s/it]Loading weights:   1%|          | 4/579 [00:06<11:32,  1.21s/it]Loading weights:   1%|          | 5/579 [00:06<09:09,  1.04it/s]Loading weights:   1%|          | 6/579 [00:06<07:33,  1.26it/s]Loading weights:   2%|▏         | 10/579 [00:07<03:20,  2.84it/s]Loading weights:   3%|▎         | 16/579 [00:07<01:42,  5.50it/s]Loading weights:   3%|▎         | 18/579 [00:08<02:12,  4.23it/s]Loading weights:   4%|▍         | 22/579 [00:08<01:36,  5.77it/s]Loading weights:   4%|▍         | 26/579 [00:08<01:07,  8.19it/s]Loading weights:   5%|▍         | 28/579 [00:09<01:10,  7.87it/s]Loading weights:   5%|▌         | 30/579 [00:09<01:34,  5.82it/s]Loading weights:   6%|▌         | 34/579 [00:09<01:07,  8.03it/s]Loading weights:   6%|▌         | 36/579 [00:10<00:59,  9.09it/s]Loading weights:   7%|▋         | 39/579 [00:10<00:58,  9.17it/s]Loading weights:   7%|▋         | 41/579 [00:10<01:03,  8.51it/s]Loading weights:   7%|▋         | 43/579 [00:11<01:08,  7.86it/s]Loading weights:   8%|▊         | 46/579 [00:11<00:55,  9.67it/s]Loading weights:   9%|▉         | 52/579 [00:12<01:05,  8.00it/s]Loading weights:   9%|▉         | 54/579 [00:12<01:11,  7.32it/s]Loading weights:  10%|█         | 58/579 [00:12<00:51, 10.17it/s]Loading weights:  11%|█         | 62/579 [00:12<00:38, 13.41it/s]Loading weights:  11%|█         | 65/579 [00:13<00:57,  8.89it/s]Loading weights:  12%|█▏        | 67/579 [00:13<01:01,  8.32it/s]Loading weights:  12%|█▏        | 70/579 [00:13<00:55,  9.16it/s]Loading weights:  12%|█▏        | 72/579 [00:13<00:50,  9.97it/s]Loading weights:  13%|█▎        | 76/579 [00:14<00:45, 10.94it/s]Loading weights:  13%|█▎        | 78/579 [00:15<01:22,  6.07it/s]Loading weights:  14%|█▍        | 82/579 [00:15<01:00,  8.23it/s]Loading weights:  15%|█▍        | 84/579 [00:15<00:53,  9.33it/s]Loading weights:  15%|█▌        | 88/579 [00:16<01:21,  6.05it/s]Loading weights:  16%|█▌        | 94/579 [00:16<00:52,  9.26it/s]Loading weights:  17%|█▋        | 96/579 [00:16<00:49,  9.79it/s]Loading weights:  17%|█▋        | 100/579 [00:17<01:05,  7.28it/s]Loading weights:  18%|█▊        | 102/579 [00:18<01:07,  7.04it/s]Loading weights:  18%|█▊        | 106/579 [00:18<00:50,  9.37it/s]Loading weights:  19%|█▊        | 108/579 [00:18<00:45, 10.30it/s]Loading weights:  19%|█▉        | 112/579 [00:18<00:45, 10.19it/s]Loading weights:  20%|█▉        | 114/579 [00:19<00:59,  7.81it/s]Loading weights:  20%|██        | 118/579 [00:19<00:43, 10.68it/s]Loading weights:  21%|██        | 120/579 [00:19<00:38, 11.83it/s]Loading weights:  21%|██▏       | 124/579 [00:19<00:40, 11.27it/s]Loading weights:  22%|██▏       | 126/579 [00:20<00:57,  7.88it/s]Loading weights:  22%|██▏       | 130/579 [00:20<00:41, 10.86it/s]Loading weights:  23%|██▎       | 132/579 [00:20<00:38, 11.73it/s]Loading weights:  23%|██▎       | 136/579 [00:20<00:37, 11.91it/s]Loading weights:  24%|██▍       | 138/579 [00:21<00:56,  7.81it/s]Loading weights:  25%|██▍       | 142/579 [00:21<00:42, 10.21it/s]Loading weights:  25%|██▌       | 146/579 [00:21<00:32, 13.46it/s]Loading weights:  26%|██▌       | 149/579 [00:22<00:58,  7.30it/s]Loading weights:  27%|██▋       | 154/579 [00:22<00:40, 10.43it/s]Loading weights:  27%|██▋       | 156/579 [00:23<00:37, 11.26it/s]Loading weights:  28%|██▊       | 160/579 [00:23<00:50,  8.33it/s]Loading weights:  28%|██▊       | 162/579 [00:24<00:52,  8.01it/s]Loading weights:  28%|██▊       | 165/579 [00:24<00:45,  9.19it/s]Loading weights:  29%|██▉       | 168/579 [00:24<00:37, 10.96it/s]Loading weights:  30%|██▉       | 172/579 [00:25<00:49,  8.26it/s]Loading weights:  30%|███       | 174/579 [00:25<00:55,  7.28it/s]Loading weights:  31%|███       | 178/579 [00:25<00:40,  9.84it/s]Loading weights:  31%|███▏      | 181/579 [00:25<00:32, 12.16it/s]Loading weights:  32%|███▏      | 184/579 [00:26<00:37, 10.53it/s]Loading weights:  32%|███▏      | 186/579 [00:26<00:51,  7.67it/s]Loading weights:  33%|███▎      | 190/579 [00:26<00:36, 10.73it/s]Loading weights:  33%|███▎      | 192/579 [00:26<00:32, 11.88it/s]Loading weights:  34%|███▍      | 196/579 [00:27<00:39,  9.74it/s]Loading weights:  34%|███▍      | 198/579 [00:28<00:55,  6.84it/s]Loading weights:  35%|███▍      | 202/579 [00:28<00:40,  9.42it/s]Loading weights:  35%|███▌      | 204/579 [00:28<00:36, 10.26it/s]Loading weights:  36%|███▌      | 208/579 [00:28<00:35, 10.48it/s]Loading weights:  36%|███▋      | 210/579 [00:29<00:49,  7.50it/s]Loading weights:  37%|███▋      | 214/579 [00:29<00:36, 10.05it/s]Loading weights:  37%|███▋      | 216/579 [00:29<00:32, 11.08it/s]Loading weights:  38%|███▊      | 220/579 [00:29<00:34, 10.27it/s]Loading weights:  38%|███▊      | 222/579 [00:30<00:52,  6.85it/s]Loading weights:  39%|███▉      | 226/579 [00:30<00:37,  9.48it/s]Loading weights:  39%|███▉      | 228/579 [00:30<00:33, 10.47it/s]Loading weights:  40%|████      | 232/579 [00:31<00:52,  6.59it/s]Loading weights:  40%|████      | 234/579 [00:32<00:53,  6.41it/s]Loading weights:  41%|████      | 237/579 [00:32<00:45,  7.46it/s]Loading weights:  41%|████▏     | 240/579 [00:32<00:36,  9.28it/s]Loading weights:  42%|████▏     | 244/579 [00:33<00:37,  9.03it/s]Loading weights:  42%|████▏     | 246/579 [00:33<00:48,  6.89it/s]Loading weights:  43%|████▎     | 250/579 [00:33<00:34,  9.62it/s]Loading weights:  44%|████▎     | 252/579 [00:33<00:31, 10.29it/s]Loading weights:  44%|████▍     | 256/579 [00:34<00:39,  8.28it/s]Loading weights:  45%|████▍     | 258/579 [00:34<00:43,  7.42it/s]Loading weights:  45%|████▌     | 262/579 [00:35<00:38,  8.29it/s]Loading weights:  46%|████▋     | 268/579 [00:35<00:31,  9.97it/s]Loading weights:  47%|████▋     | 270/579 [00:36<00:40,  7.54it/s]Loading weights:  47%|████▋     | 274/579 [00:36<00:35,  8.54it/s]Loading weights:  48%|████▊     | 280/579 [00:37<00:28, 10.67it/s]Loading weights:  49%|████▊     | 282/579 [00:37<00:36,  8.16it/s]Loading weights:  49%|████▉     | 286/579 [00:37<00:28, 10.29it/s]Loading weights:  50%|████▉     | 288/579 [00:37<00:26, 10.90it/s]Loading weights:  50%|█████     | 292/579 [00:38<00:36,  7.82it/s]Loading weights:  51%|█████     | 294/579 [00:39<00:38,  7.36it/s]Loading weights:  51%|█████▏    | 297/579 [00:39<00:32,  8.75it/s]Loading weights:  52%|█████▏    | 300/579 [00:39<00:27, 10.07it/s]Loading weights:  53%|█████▎    | 304/579 [00:39<00:28,  9.77it/s]Loading weights:  53%|█████▎    | 306/579 [00:40<00:38,  7.06it/s]Loading weights:  54%|█████▎    | 310/579 [00:40<00:27,  9.80it/s]Loading weights:  54%|█████▍    | 312/579 [00:40<00:25, 10.63it/s]Loading weights:  55%|█████▍    | 316/579 [00:41<00:25, 10.15it/s]Loading weights:  55%|█████▍    | 318/579 [00:41<00:42,  6.11it/s]Loading weights:  56%|█████▌    | 322/579 [00:42<00:30,  8.44it/s]Loading weights:  56%|█████▌    | 324/579 [00:42<00:31,  8.21it/s]Loading weights:  57%|█████▋    | 328/579 [00:42<00:28,  8.85it/s]Loading weights:  57%|█████▋    | 330/579 [00:43<00:42,  5.82it/s]Loading weights:  58%|█████▊    | 334/579 [00:43<00:29,  8.19it/s]Loading weights:  58%|█████▊    | 336/579 [00:43<00:28,  8.67it/s]Loading weights:  59%|█████▊    | 340/579 [00:44<00:37,  6.31it/s]Loading weights:  59%|█████▉    | 342/579 [00:45<00:38,  6.16it/s]Loading weights:  60%|█████▉    | 346/579 [00:45<00:33,  7.05it/s]Loading weights:  61%|██████    | 352/579 [00:46<00:32,  6.95it/s]Loading weights:  61%|██████    | 354/579 [00:46<00:34,  6.46it/s]Loading weights:  62%|██████▏   | 358/579 [00:47<00:29,  7.43it/s]Loading weights:  63%|██████▎   | 364/579 [00:47<00:22,  9.59it/s]Loading weights:  63%|██████▎   | 366/579 [00:48<00:33,  6.35it/s]Loading weights:  64%|██████▍   | 370/579 [00:48<00:25,  8.30it/s]Loading weights:  64%|██████▍   | 372/579 [00:48<00:23,  8.99it/s]Loading weights:  65%|██████▍   | 376/579 [00:49<00:23,  8.78it/s]Loading weights:  65%|██████▌   | 378/579 [00:50<00:37,  5.36it/s]Loading weights:  66%|██████▌   | 382/579 [00:50<00:27,  7.25it/s]Loading weights:  66%|██████▋   | 384/579 [00:50<00:27,  6.97it/s]Loading weights:  67%|██████▋   | 386/579 [00:50<00:25,  7.50it/s]Loading weights:  67%|██████▋   | 388/579 [00:51<00:33,  5.65it/s]Loading weights:  67%|██████▋   | 389/579 [00:52<00:40,  4.65it/s]Loading weights:  67%|██████▋   | 390/579 [00:52<00:48,  3.86it/s]Loading weights:  68%|██████▊   | 393/579 [00:52<00:34,  5.47it/s]Loading weights:  68%|██████▊   | 396/579 [00:52<00:25,  7.29it/s]Loading weights:  69%|██████▉   | 400/579 [00:53<00:20,  8.65it/s]Loading weights:  69%|██████▉   | 402/579 [00:53<00:30,  5.85it/s]Loading weights:  70%|███████   | 406/579 [00:54<00:21,  8.23it/s]Loading weights:  70%|███████   | 408/579 [00:54<00:18,  9.22it/s]Loading weights:  71%|███████   | 412/579 [00:54<00:18,  8.80it/s]Loading weights:  72%|███████▏  | 414/579 [00:55<00:30,  5.33it/s]Loading weights:  72%|███████▏  | 417/579 [00:55<00:25,  6.41it/s]Loading weights:  72%|███████▏  | 419/579 [00:56<00:21,  7.29it/s]Loading weights:  73%|███████▎  | 423/579 [00:56<00:18,  8.47it/s]Loading weights:  73%|███████▎  | 425/579 [00:56<00:20,  7.65it/s]Loading weights:  74%|███████▎  | 426/579 [00:57<00:25,  5.96it/s]Loading weights:  74%|███████▍  | 430/579 [00:57<00:21,  7.04it/s]Loading weights:  75%|███████▌  | 436/579 [00:58<00:20,  6.81it/s]Loading weights:  76%|███████▌  | 438/579 [00:58<00:21,  6.44it/s]Loading weights:  76%|███████▋  | 442/579 [00:59<00:17,  7.69it/s]Loading weights:  77%|███████▋  | 448/579 [00:59<00:13,  9.78it/s]Loading weights:  78%|███████▊  | 450/579 [01:00<00:19,  6.77it/s]Loading weights:  78%|███████▊  | 454/579 [01:00<00:14,  8.42it/s]Loading weights:  79%|███████▉  | 456/579 [01:00<00:14,  8.54it/s]Loading weights:  79%|███████▉  | 459/579 [01:01<00:15,  7.63it/s]Loading weights:  79%|███████▉  | 460/579 [01:01<00:20,  5.75it/s]Loading weights:  80%|███████▉  | 462/579 [01:02<00:22,  5.31it/s]Loading weights:  80%|████████  | 466/579 [01:02<00:14,  7.57it/s]Loading weights:  81%|████████  | 468/579 [01:02<00:13,  8.19it/s]Loading weights:  82%|████████▏ | 472/579 [01:03<00:12,  8.36it/s]Loading weights:  82%|████████▏ | 473/579 [01:03<00:16,  6.46it/s]Loading weights:  82%|████████▏ | 474/579 [01:03<00:19,  5.29it/s]Loading weights:  83%|████████▎ | 478/579 [01:04<00:12,  7.87it/s]Loading weights:  83%|████████▎ | 480/579 [01:04<00:11,  8.27it/s]Loading weights:  84%|████████▎ | 484/579 [01:05<00:15,  6.24it/s]Loading weights:  84%|████████▍ | 486/579 [01:05<00:16,  5.51it/s]Loading weights:  84%|████████▍ | 489/579 [01:05<00:11,  7.50it/s]Loading weights:  85%|████████▍ | 491/579 [01:06<00:11,  7.69it/s]Loading weights:  85%|████████▌ | 493/579 [01:06<00:10,  8.16it/s]Loading weights:  86%|████████▌ | 496/579 [01:06<00:09,  8.41it/s]Loading weights:  86%|████████▌ | 498/579 [01:07<00:16,  4.92it/s]Loading weights:  87%|████████▋ | 502/579 [01:07<00:10,  7.07it/s]Loading weights:  87%|████████▋ | 504/579 [01:07<00:09,  7.82it/s]Loading weights:  88%|████████▊ | 508/579 [01:08<00:08,  7.90it/s]Loading weights:  88%|████████▊ | 510/579 [01:09<00:12,  5.32it/s]Loading weights:  89%|████████▉ | 514/579 [01:09<00:09,  6.52it/s]Loading weights:  90%|████████▉ | 520/579 [01:10<00:07,  7.87it/s]Loading weights:  90%|████████▉ | 521/579 [01:10<00:08,  6.69it/s]Loading weights:  90%|█████████ | 522/579 [01:11<00:10,  5.42it/s]Loading weights:  91%|█████████ | 526/579 [01:11<00:06,  7.82it/s]Loading weights:  91%|█████████ | 528/579 [01:11<00:06,  8.44it/s]Loading weights:  92%|█████████▏| 532/579 [01:11<00:05,  8.85it/s]Loading weights:  92%|█████████▏| 534/579 [01:12<00:08,  5.59it/s]Loading weights:  93%|█████████▎| 538/579 [01:13<00:06,  6.52it/s]Loading weights:  94%|█████████▍| 544/579 [01:13<00:04,  8.24it/s]Loading weights:  94%|█████████▍| 545/579 [01:13<00:04,  6.84it/s]Loading weights:  94%|█████████▍| 546/579 [01:14<00:05,  5.87it/s]Loading weights:  95%|█████████▍| 550/579 [01:14<00:03,  8.32it/s]Loading weights:  95%|█████████▌| 552/579 [01:14<00:03,  8.52it/s]Loading weights:  96%|█████████▌| 556/579 [01:15<00:02,  8.86it/s]Loading weights:  96%|█████████▌| 557/579 [01:15<00:03,  7.08it/s]Loading weights:  96%|█████████▋| 558/579 [01:15<00:03,  5.86it/s]Loading weights:  97%|█████████▋| 562/579 [01:16<00:01,  8.57it/s]Loading weights:  97%|█████████▋| 564/579 [01:16<00:01,  9.15it/s]Loading weights:  98%|█████████▊| 567/579 [01:16<00:01,  8.74it/s]Loading weights:  98%|█████████▊| 569/579 [01:16<00:01,  7.29it/s]Loading weights:  98%|█████████▊| 570/579 [01:17<00:01,  5.76it/s]Loading weights:  99%|█████████▉| 574/579 [01:17<00:00,  7.16it/s]Loading weights: 100%|██████████| 579/579 [01:17<00:00,  7.44it/s]
+  model=Qwen/Qwen2.5-14B-Instruct  n_layers=48
+  inject_layer=17  alphas=[0.3, 0.4]
+Building ArchetypeBank ...
+  bank.k=4
+
+-- Alpha-independent arms (generated once) --
+
+-- Steering arms over alphas=[0.3, 0.4] --
+
+-- ARM: ortho_temp@0.3 --
+  brief 1/30: Create a product name for a noise-canceling headphone b...  brief 1 done in 20.4s
+  brief 2/30: Name a new premium sparkling water brand that targets u...  brief 2 done in 18.5s
+  brief 3/30: Suggest a name for a DTC pet insurance company with a p...  brief 3 done in 18.3s
+  brief 4/30: Design a marketing campaign concept for a sustainable c...  brief 4 done in 17.4s
+  brief 5/30: Pitch a summer campaign for a sunscreen brand targeting...  brief 5 done in 17.1s
+  brief 6/30: Propose a guerrilla marketing activation for a new airp...  brief 6 done in 18.8s
+  brief 7/30: Pitch a logo concept for a fintech startup focused on m...  brief 7 done in 18.6s
+  brief 8/30: Describe a logo direction for a community-owned urban g...  brief 8 done in 19.1s
+  brief 9/30: Develop a GTM strategy concept for launching an AI-powe...  brief 9 done in 18.7s
+  brief 10/30: Outline a GTM approach for a B2B carbon-accounting SaaS...  brief 10 done in 18.7s
+  brief 11/30: Propose an app feature that helps fitness beginners sta...  brief 11 done in 17.8s
+  brief 12/30: Suggest a new feature for a recipe app to reduce househ...  brief 12 done in 18.7s
+  brief 13/30: Suggest an event theme for a tech company's annual all-...  brief 13 done in 18.5s
+  brief 14/30: Design a theme for a climate-tech investor summit that ...  brief 14 done in 18.2s
+  brief 15/30: Design packaging for a premium dark chocolate bar made ...  brief 15 done in 18.7s
+  brief 16/30: Propose packaging for a refillable luxury hand cream so...  brief 16 done in 18.7s
+  brief 17/30: Write a brand slogan for a children's coding education ...  brief 17 done in 18.8s
+  brief 18/30: Craft a slogan for a neobank that targets gig-economy w...  brief 18 done in 17.6s
+  brief 19/30: Propose a business model innovation for a traditional b...  brief 19 done in 18.7s
+  brief 20/30: Suggest a revenue model for a neighbourhood tool-lendin...  brief 20 done in 18.5s
+  brief 21/30: Design a UX flow concept for a sleep-tracking wearable ...  brief 21 done in 18.7s
+  brief 22/30: Sketch a UX flow for a carbon-offset marketplace where ...  brief 22 done in 16.8s
+  brief 23/30: Write a tagline for a mental-health app targeting burne...  brief 23 done in 15.6s
+  brief 24/30: Create a tagline for a peer-to-peer luggage-storage mar...  brief 24 done in 13.6s
+  brief 25/30: Design a mascot concept for a children's dental hygiene...  brief 25 done in 17.5s
+  brief 26/30: Propose a mascot for a cybersecurity firm that needs to...  brief 26 done in 17.3s
+  brief 27/30: Propose a brand partnership between a running-shoe comp...  brief 27 done in 18.4s
+  brief 28/30: Suggest a co-marketing idea between a cloud-kitchen bra...  brief 28 done in 18.1s
+  brief 29/30: Design a pricing model for a B2B SaaS HR tool targeting...  brief 29 done in 17.8s
+  brief 30/30: Propose a pricing strategy for a premium AI tutoring se...  brief 30 done in 18.5s
+  [done] ortho_temp@0.3: generated 30 x 8 texts
+
+-- ARM: ortho_temp@0.4 --
+  brief 1/30: Create a product name for a noise-canceling headphone b...  brief 1 done in 18.4s
+  brief 2/30: Name a new premium sparkling water brand that targets u...  brief 2 done in 18.6s
+  brief 3/30: Suggest a name for a DTC pet insurance company with a p...  brief 3 done in 16.3s
+  brief 4/30: Design a marketing campaign concept for a sustainable c...  brief 4 done in 18.8s
+  brief 5/30: Pitch a summer campaign for a sunscreen brand targeting...  brief 5 done in 17.2s
+  brief 6/30: Propose a guerrilla marketing activation for a new airp...  brief 6 done in 18.2s
+  brief 7/30: Pitch a logo concept for a fintech startup focused on m...  brief 7 done in 15.8s
+  brief 8/30: Describe a logo direction for a community-owned urban g...  brief 8 done in 16.7s
+  brief 9/30: Develop a GTM strategy concept for launching an AI-powe...  brief 9 done in 18.0s
+  brief 10/30: Outline a GTM approach for a B2B carbon-accounting SaaS...  brief 10 done in 18.3s
+  brief 11/30: Propose an app feature that helps fitness beginners sta...  brief 11 done in 18.5s
+  brief 12/30: Suggest a new feature for a recipe app to reduce househ...  brief 12 done in 19.0s
+  brief 13/30: Suggest an event theme for a tech company's annual all-...  brief 13 done in 17.7s
+  brief 14/30: Design a theme for a climate-tech investor summit that ...  brief 14 done in 16.8s
+  brief 15/30: Design packaging for a premium dark chocolate bar made ...  brief 15 done in 17.4s
+  brief 16/30: Propose packaging for a refillable luxury hand cream so...  brief 16 done in 18.5s
+  brief 17/30: Write a brand slogan for a children's coding education ...  brief 17 done in 18.6s
+  brief 18/30: Craft a slogan for a neobank that targets gig-economy w...  brief 18 done in 18.3s
+  brief 19/30: Propose a business model innovation for a traditional b...  brief 19 done in 18.1s
+  brief 20/30: Suggest a revenue model for a neighbourhood tool-lendin...  brief 20 done in 16.4s
+  brief 21/30: Design a UX flow concept for a sleep-tracking wearable ...  brief 21 done in 18.0s
+  brief 22/30: Sketch a UX flow for a carbon-offset marketplace where ...  brief 22 done in 18.5s
+  brief 23/30: Write a tagline for a mental-health app targeting burne...  brief 23 done in 18.1s
+  brief 24/30: Create a tagline for a peer-to-peer luggage-storage mar...  brief 24 done in 18.3s
+  brief 25/30: Design a mascot concept for a children's dental hygiene...  brief 25 done in 17.9s
+  brief 26/30: Propose a mascot for a cybersecurity firm that needs to...  brief 26 done in 16.3s
+  brief 27/30: Propose a brand partnership between a running-shoe comp...  brief 27 done in 17.9s
+  brief 28/30: Suggest a co-marketing idea between a cloud-kitchen bra...  brief 28 done in 18.7s
+  brief 29/30: Design a pricing model for a B2B SaaS HR tool targeting...  brief 29 done in 18.7s
+  brief 30/30: Propose a pricing strategy for a premium AI tutoring se...  brief 30 done in 18.5s
+  [done] ortho_temp@0.4: generated 30 x 8 texts
+
+Scoring outputs with LLM judge (gpt-4o-mini, cached) ...
+  ortho_temp@0.3: quality_pass_rate=0.821
+  ortho_temp@0.4: quality_pass_rate=0.458
+
+Computing metrics + bootstrap CIs ...
+  ortho_temp@0.3 ...

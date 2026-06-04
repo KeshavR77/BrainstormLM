@@ -1,0 +1,70 @@
+{
+  "arm": "frontier_baseline_gpt4o_besteffort_batch",
+  "brief": "You are an elite creative director. Design the bottle + packaging for \"Conceptial\", a new luxury fragrance. Give EIGHT radically different, ownable, manufacturable creative design directions \u2014 each a distinct world (form, material/finish, palette, the world it lives in). Make them as different from each other as possible. Avoid cliches: clear rectangular glass, gold cap, serif-on-white, crystal stopper, atomizer+tassel, minimalist flacon. Respond as JSON {\"directions\":[{\"name\",\"form\",\"material_finish\",\"palette\",\"world\",\"image_prompt\"}, ... x8]}.",
+  "territories": [
+    {
+      "name": "Neo-Gothic Reverie",
+      "form": "asymmetrical, twisted spire reminiscent of gothic architecture",
+      "material_finish": "blackened steel with a matte patina and polished silver inlays",
+      "palette": "ebony black, gunmetal grey, silver",
+      "world": "an ethereal realm where the dark elegance of gothic cathedrals meets avant-garde fashion",
+      "image_prompt": "a mysterious, twisted spire bottle made of dark steel with silver inlays, set against a backdrop of gothic arches in an ethereal mist"
+    },
+    {
+      "name": "Zen Alchemy",
+      "form": "spherical balance of stacked rounded stones, each smaller than the last",
+      "material_finish": "smooth river stones with a semi-polished finish, natural bamboo for the cap",
+      "palette": "soft earth tones, muted greens, driftwood browns",
+      "world": "a tranquil sanctuary merging timeless artisanal craftsmanship with a lush, meditative garden",
+      "image_prompt": "a bottle composed of smooth, organically-shaped stones in natural hues, sitting serenely among bamboo and water elements, evoking zen tranquility"
+    },
+    {
+      "name": "Digital Mirage",
+      "form": "holographic geometry with interlocking hexagons and digital motifs",
+      "material_finish": "iridescent, reflective polymers with shifting colors",
+      "palette": "holographic rainbow, with emphasis on purples, blues, and silvers",
+      "world": "a futuristic space where technology and synesthetic art create surreal landscapes",
+      "image_prompt": "a prismatic, iridescent bottle reflecting kaleidoscopic colors, placed in a high-tech environment pulsating with digital light patterns"
+    },
+    {
+      "name": "Forest Enclave",
+      "form": "organic, treelike structure with branches encasing a central core",
+      "material_finish": "textured, matte bioplastic with a wood-like appearance",
+      "palette": "deep forest greens, warm browns, subtle gold",
+      "world": "an enchanted forest where nature's raw beauty and environmental harmony coexist in perfect balance",
+      "image_prompt": "a bottle that resembles a miniature tree, its branches wrapping protectively around a central core, surrounded by lush, verdant forest scenery"
+    },
+    {
+      "name": "Celestial Odyssey",
+      "form": "crescent moon cradling a perfect sphere",
+      "material_finish": "pearlescent glass with a satin moonstone texture",
+      "palette": "starry night blues, moonlit silvers, deep celestial blacks",
+      "world": "a cosmic journey that celebrates the mysteries of space and the dreams woven into the fabric of the night sky",
+      "image_prompt": "a bottle shaped like a shimmering crescent moon holding a luminous pearl-like sphere, set against a vast starry cosmos"
+    },
+    {
+      "name": "Metropolitan Echo",
+      "form": "urban skyline with varying building heights and sleek silhouette",
+      "material_finish": "brushed metallic finish with reflective glass windows",
+      "palette": "charcoal greys, urban blues, concrete blacks",
+      "world": "the bustling vibrancy of a dynamic cityscape, where modern architectural marvels and boundless ambition intersect",
+      "image_prompt": "a striking skyline bottle reminiscent of skyscrapers, each with glistening glass accents, enveloped in an urban panorama at dusk"
+    },
+    {
+      "name": "Renaissance Garden",
+      "form": "ornate, sprawling floral vine looping and intertwining",
+      "material_finish": "hand-painted ceramic with a glossy glaze",
+      "palette": "vibrant floral hues, leafy greens, ivory",
+      "world": "an opulent sanctuary reminiscent of Renaissance artistry, where intricate floral motifs and lush tapestries come to life",
+      "image_prompt": "an intricately detailed, floral vine-themed bottle in vivid colors set within a lush Renaissance garden, full of blooming beauty and artistic detail"
+    },
+    {
+      "name": "Industrial Elegance",
+      "form": "sculptural, intertwining pistons with a strong mechanical aesthetic",
+      "material_finish": "polished bronze with brushed copper highlights",
+      "palette": "burnished bronzes, industrial blacks, aged coppers",
+      "world": "a refined industrial landscape where the raw allure of mechanical prowess meets the sophistication of timeless design",
+      "image_prompt": "a bottle resembling intricately crafted pistons with a luxe finish, positioned against a backdrop of steampunk-inspired machinery and elegant metalwork"
+    }
+  ]
+}

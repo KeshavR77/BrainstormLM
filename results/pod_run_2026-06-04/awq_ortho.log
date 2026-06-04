@@ -1,0 +1,106 @@
+
+======================================================================
+Conceptial A/B Diversity Validation Harness
+======================================================================
+  mode   : REAL MODEL
+  k      : 8
+  briefs : 4
+  arms   : ['ortho_L17']
+  alphas : [0.4]  (steering arms only; alpha-independent arms run once)
+  resamples: 200
+  config : creativity_steering/configs/runpod_qwen14b_awq.json
+  layer  : 17
+  HONESTY: ortho arm is greedy; Vendi = mean per-prompt (not arXiv:2411.02817)
+  QUALITY: LLM judge (gpt-4o-mini) scores coherence+on_topic; cached by request
+  L17 NOTE: ortho_L17 requires 14B model (5120-dim); skipped on 0.5B (dim guard)
+======================================================================
+
+-- PREFLIGHT (fail-fast before any generation) --
+   [ok] OpenAI live (embed dim=1536, judge={'coherence': 3, 'on_topic': 2})
+   [ok] config loads: model=Qwen/Qwen2.5-14B-Instruct-AWQ, dtype=fp16
+   [..] model precision: AWQ (quantized) → vector steering_14b_awq/hyper_creative_purified_vector_L17.pt
+   [ok] L17 vector: dim=5120, norm=1.000, layer_index=17
+   [ok] output dir writable: results
+-- PREFLIGHT OK --
+
+Loading backend from creativity_steering/configs/runpod_qwen14b_awq.json ...
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Skipping import of cpp extensions due to incompatible torch version. Please upgrade to torch >= 2.11.0 (found 2.10.0+cu128).
+
+WARN  Python GIL is enabled: Multi-gpu quant acceleration for MoE models is sub-optimal and multi-core accelerated cpu packing is also disabled. We recommend Python >= 3.13.3t with Pytorch > 2.8 for mult-gpu quantization and multi-cpu packing with env `PYTHON_GIL=0`.
+INFO  ENV: Auto setting PYTORCH_ALLOC_CONF='expandable_segments:True,max_split_size_mb:256,garbage_collection_threshold:0.7' for memory saving.
+INFO  ENV: Auto setting CUDA_DEVICE_ORDER=PCI_BUS_ID for correctness.          
+INFO  
+
+┌─────────────┐    ┌────────────────────────┐    ┌────────────┐    ┌─────────┐
+│ GPT-QModel  │ -> │ ▓▓▓▓▓▓▓▓▓▓▓▓ 16bit     │ -> │ ▒▒▒▒ 8bit  │ -> │ ░░ 4bit │
+└─────────────┘    └────────────────────────┘    └────────────┘    └─────────┘
+GPT-QModel   : 7.0.0+215c5f0
+Transformers : 5.6.2
+Torch        : 2.10.0+cu128
+Triton       : 3.6.0
+INFO  Kernel: Auto-selection: adding candidate `TorchAtenAwqLinear`            
+INFO  Kernel: selected -> `TorchAtenAwqLinear`.                                
+Loading weights:   0%|          | 0/1251 [00:00<?, ?it/s]Loading weights:  31%|███       | 385/1251 [00:00<00:00, 3838.46it/s]Loading weights:  61%|██████▏   | 769/1251 [00:00<00:00, 3316.67it/s]Loading weights:  88%|████████▊ | 1106/1251 [00:00<00:00, 2878.66it/s]Loading weights: 100%|██████████| 1251/1251 [00:00<00:00, 2969.00it/s]
+INFO:httpx:HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-14B-Instruct-AWQ/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+INFO:httpx:HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-14B-Instruct-AWQ/539535859b135b0244c91f3e59816150c8056698/generation_config.json "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-14B-Instruct-AWQ/resolve/main/custom_generate/generate.py "HTTP/1.1 404 Not Found"
+INFO  Optimize: `TorchAtenAwqLinear` compilation triggered.                    
+INFO  gc.collect() reclaimed 348 objects in 0.227s                             
+  model=Qwen/Qwen2.5-14B-Instruct-AWQ  n_layers=48
+  inject_layer=17  alphas=[0.4]
+  [ortho_L17] model=Qwen/Qwen2.5-14B-Instruct-AWQ → steering vector steering_14b_awq/hyper_creative_purified_vector_L17.pt
+  [ortho_L17] loaded vector dim=5120
+
+-- Alpha-independent arms (generated once) --
+
+-- Steering arms over alphas=[0.4] --
+
+-- ARM: ortho_L17@0.4 --
+  brief 1/4: Create a product name for a noise-canceling headphone b...[transformers] The following generation flags are not valid and may be ignored: ['temperature', 'top_p', 'top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+  brief 1 done in 77.5s
+  brief 2/4: Name a new premium sparkling water brand that targets u...  brief 2 done in 76.9s
+  brief 3/4: Suggest a name for a DTC pet insurance company with a p...  brief 3 done in 76.9s
+  brief 4/4: Design a marketing campaign concept for a sustainable c...  brief 4 done in 76.8s
+  [done] ortho_L17@0.4: generated 4 x 8 texts
+
+Scoring outputs with LLM judge (gpt-4o-mini, cached) ...
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+  ortho_L17@0.4: quality_pass_rate=0.938
+
+Computing metrics + bootstrap CIs ...
+  ortho_L17@0.4 ...INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.openai.com/v1/embeddings "HTTP/1.1 200 OK"

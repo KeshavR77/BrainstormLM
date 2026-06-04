@@ -1,0 +1,70 @@
+{
+  "arm": "frontier_baseline_gpt4o",
+  "brief": "Design the bottle + packaging for \"Conceptial\", a new luxury fragrance. Give ONE distinct, bold creative design direction \u2014 form, material, finish, palette, and the world it lives in. It must be an ownable, manufacturable object. Avoid cliches: clear rectangular glass, gold cap, serif-on-white, crystal stopper, atomizer + tassel, minimalist flacon. Respond as JSON: {\"name\": str, \"form\": str, \"material_finish\": str, \"palette\": str, \"world\": str, \"image_prompt\": \"<one vivid art-directed render prompt>\"}.",
+  "territories": [
+    {
+      "name": "Conceptial",
+      "form": "asymmetrical spiral, resembling a twisted helix with a hollow center",
+      "material_finish": "iridescent opal shell with a soft matte finish",
+      "palette": "deep midnight blue, iridescent pearl white, and vibrant violet accents",
+      "world": "a futuristic biosphere where technological innovation and organic harmony intertwine, blending advancements with nature's surreal beauty. This world is populated by bioluminescent flora and shimmering lakes under an aurora-lit sky, symbolizing the fusion of nature and technology in luxurious opulence.",
+      "image_prompt": "A luxury fragrance bottle shaped like an asymmetrical spiral helix, crafted from iridescent opal shell with a soft matte finish. The color palette features deep midnight blue, iridescent pearl white, and vibrant violet accents. The surrounding scene is a futuristic biosphere under a glowing aurora sky, with bioluminescent plants and shimmering lakes, highlighting the blend of nature and technology. Capture the opulent, otherworldly elegance with a slightly ethereal lighting."
+    },
+    {
+      "name": "Conceptial",
+      "form": "twisted helix",
+      "material_finish": "anodized aluminum with satin pearl finish",
+      "palette": "iridescent midnight blue with hints of metallic emerald and amethyst",
+      "world": "Conceptial exists in a futuristic utopia where scientific elegance and artistry converge, blending the serenity of nature with avant-garde architecture. It's a world where individual expression is celebrated through unique design, and luxury is defined by innovation and sustainability.",
+      "image_prompt": "A twisted helix bottle, crafted from anodized aluminum with a satin pearl finish, reflecting light in rich midnight blue with glimpses of metallic emerald and amethyst. It sits on a sleek, seamless platform in a utopian architectural space. Surrounding the perfume bottle are elements echoing nature\u2019s tranquility and modern artistic elegance, suggesting a futuristic paradise that merges organic shapes and high-tech forms in perfect harmony."
+    },
+    {
+      "name": "Conceptial",
+      "form": "Asymmetrical Faceted Orb",
+      "material_finish": "Brushed Titanium with Iridescent Gradient",
+      "palette": "Midnight Blue, Rose Gold, Opalescent Pearls",
+      "world": "Conceptial exists in a world where futuristic elegance meets elemental origins, inspired by the interplay of shifting light over celestial bodies. The fragrance is a portal to an ethereal dimension, where technology and nature harmonize, symbolized by an interplay of metallic sleekness and oyster shell-like shimmer.",
+      "image_prompt": "A hyper-realistic render of a bottle shaped as an asymmetrical orb, made from brushed titanium, featuring an iridescent gradient from midnight blue to opalescent pearls, with rose gold accents. It is set on a translucent, swirling platform reminiscent of a nebula floating within an enigmatic, cosmic environment. The packaging is a biomorphic shell that mirrors the bottle's finish, half-open, revealing the orb nestled within a cradle of sculpted dark velvet, surrounded by hints of abstract space motifs and soft ambient light highlighting the multifaceted surface."
+    },
+    {
+      "name": "Conceptial",
+      "form": "Asymmetrical Pebble",
+      "material_finish": "Matte Ceramic with Textured Iridescent Inlay",
+      "palette": "Midnight Blue, Iridescent Pearl, Deep Charcoal",
+      "world": "A tranquil, moonlit garden where ancient stones meet futuristic art installations \u2014 an oasis of serenity and innovation.",
+      "image_prompt": "In a serene moonlit garden surrounded by ancient stones and futuristic art installations, a luxury fragrance bottle in the shape of an asymmetrical pebble is placed on mossy ground. The bottle is crafted from matte ceramic in a rich midnight blue, with an iridescent pearl inlay that catches faint ethereal glows of ambient installation lights. Surrounding flora casts intricate shadows on the deep charcoal outer packaging, echoing its organic and avant-garde essence."
+    },
+    {
+      "name": "Conceptial",
+      "form": "asymmetrical geode shape with fragmented facets",
+      "material_finish": "smoky quartz glass with matte and glossy contrasts",
+      "palette": "deep amethyst, obsidian black, shimmering silver",
+      "world": "Conceptial exists in a neo-futuristic metropolis where architectural beauty merges with natural elegance, a world that celebrates the enigmatic and the avant-garde, populated by visionaries who traverse the boundaries of art and nature.",
+      "image_prompt": "A luxury fragrance bottle inspired by an asymmetrical geode shape, crafted from smoky quartz glass with a mix of matte and glossy surfaces. The fragmented facets reflect and refract light like deep amethyst and obsidian black jewels. The bottle is nestled within a packaging featuring deep indigo and silver brushed textures, evocative of a neo-futuristic metropolis skyline meeting natural rock formations. The background is a cityscape at dusk, where towering skyscrapers blend seamlessly with lush, cascading gardens."
+    },
+    {
+      "name": "Conceptial",
+      "form": "a twisted double-helix structure with an asymmetrical silhouette resembling a piece of modern sculpture",
+      "material_finish": "titanium base with a matte ceramic upper finish, accented with a polished black obsidian inlay spiraling through the helix design",
+      "palette": "oxidized silver with deep onyx and hints of cerulean blue veining throughout the inlay",
+      "world": "an ultra-modern, nocturnal cityscape where technology and nature have seamlessly merged, featuring towering bio-organic architectures illuminated by bioluminescent flora",
+      "image_prompt": "a surreal night city landscape featuring towering buildings blending organic and futuristic elements, bioluminescent plants casting a soft glow, and at the center, a sleek, sculptural perfume bottle with a double-helix shape of oxidized silver and black obsidian, reflecting the ambient cerulean lights"
+    },
+    {
+      "name": "Conceptial",
+      "form": "Asymmetric Fragmented Prism",
+      "material_finish": "Brushed Titanium with Matte Onyx Inlays",
+      "palette": "Ebony, Deep Teal, and Iridescent Violet",
+      "world": "A futuristic cityscape where art, technology, and elegance intertwine, blending the metallic sheen of a metropolis with the organic vibrancy of nature viewed through a digital lens. Imagine opulent skyscrapers adorned in living greenery, overseen by a shimmering aurora that dances across the skyline.",
+      "image_prompt": "Render an avant-garde perfume bottle in the shape of an asymmetric fragmented prism, constructed from brushed titanium with matte onyx inlays. The bottle should exude luxury with a futuristic twist. Highlight its rich, deep teal and iridescent violet reflections playing across its geometric surfaces, set against the backdrop of a thriving futuristic city bathed in neon glows, where nature and architecture merge seamlessly."
+    },
+    {
+      "name": "Conceptial",
+      "form": "Sculpted as a sleek, asymmetrical twist resembling a modern art sculpture, the bottle stands tall and curvaceous with elegant dynamic lines.",
+      "material_finish": "Brushed titanium alloy with a shimmering iridescent coating that changes color as it catches light, blending hues of dusk and dawn.",
+      "palette": "A gradient of deep midnight blue bleeding into an ethereal luminescent coral with hints of metallic silver accents.",
+      "world": "Existing in a futuristic urban utopia where avant-garde meets nature, this fragrance embodies the harmony between technological advancement and organic beauty. It sits at the intersection of innovation, creativity, and sustainability, reflecting a world that appreciates aesthetics and intellect.",
+      "image_prompt": "A high-resolution render of a perfume bottle designed as a sleek, asymmetrical twist sculpture, cast in brushed titanium alloy with an iridescent finish shifting from deep midnight blue to luminescent coral, set against a backdrop of a futuristic urban utopia with greenery interwoven among sleek skyscrapers under a twilight sky."
+    }
+  ]
+}
