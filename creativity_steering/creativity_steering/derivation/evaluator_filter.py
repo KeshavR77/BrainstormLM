@@ -75,6 +75,43 @@ def select_by_threshold(
     raise ValueError(f"keep must be 'high' or 'low', got {keep!r}")
 
 
+def _select_one_per_prompt(
+    pool: list[ResponseExample], *, quantile: float, keep: str, require_quality: bool
+) -> list[ResponseExample]:
+    """Take the ``quantile`` tail by **novelty**, then at most one response per prompt.
+
+    ``keep="high"`` keeps the top ``1 - quantile`` tail (e.g. ``quantile=0.9`` → top 10%) and,
+    per prompt, the single most-novel survivor; ``keep="low"`` keeps the bottom ``quantile``
+    tail and the single least-novel survivor. Selection is on ``ex.novelty`` (the batch-relative
+    Stage-1 novelty), not the gated composite, so the dull pole is ordered by how un-novel it is
+    rather than being collapsed by the quality gate. When ``require_quality`` is set, candidates
+    must have ``ex.quality_ok`` (used for the creative/positive pole so incoherent high-temp
+    responses never enter the contrast). The per-prompt cap stops one topic from dominating.
+    """
+    novs = [ex.novelty for ex in pool if ex.novelty is not None]
+    if not novs:
+        return []
+    threshold = float(np.quantile(np.array(novs, dtype=float), quantile))
+    if keep == "high":
+        cand = [ex for ex in pool if ex.novelty is not None and ex.novelty >= threshold]
+    elif keep == "low":
+        cand = [ex for ex in pool if ex.novelty is not None and ex.novelty <= threshold]
+    else:
+        raise ValueError(f"keep must be 'high' or 'low', got {keep!r}")
+    if require_quality:
+        cand = [ex for ex in cand if ex.quality_ok]
+    best: dict[str, ResponseExample] = {}
+    for ex in cand:
+        cur = best.get(ex.prompt)
+        if cur is None:
+            best[ex.prompt] = ex
+        elif keep == "high" and ex.novelty > cur.novelty:
+            best[ex.prompt] = ex
+        elif keep == "low" and ex.novelty < cur.novelty:
+            best[ex.prompt] = ex
+    return list(best.values())
+
+
 def _length_match(
     positives: list[ResponseExample],
     negatives: list[ResponseExample],
@@ -124,12 +161,18 @@ def evaluate_and_filter(
     use_reward_fallback: bool = False,
     stage1_device: str | None = None,
     min_per_class: int = 0,
+    one_per_prompt: bool = False,
+    quality_floor: float | None = None,
 ) -> VerifiedSubset:
     """Score every example with the two-stage stack, then keep top-creative / bottom-neutral.
 
-    Mutates each example's ``.score`` in place with its composite creativity score (useful
-    provenance to persist). Raises ``ValueError`` if ``min_per_class`` is set and a kept pool
-    falls short.
+    Mutates each example's ``.score`` (gated composite), ``.novelty`` (batch-relative Stage-1
+    novelty), and ``.quality_ok`` (raw judge pragmaticality cleared ``quality_floor``) in place
+    as provenance. Raises ``ValueError`` if ``min_per_class`` is set and a kept pool falls short.
+
+    When ``one_per_prompt`` is set (the v3 framed path), each pool is the top/bottom novelty tail
+    (``creative_quantile`` / ``neutral_quantile``) capped at one response per prompt, with the
+    positive pole additionally gated on ``quality_floor`` — see ``_select_one_per_prompt``.
     """
     _ensure_creativity_evaluators_importable()
     from creativity_evaluators import EvalConfig, PromptCategory
@@ -147,6 +190,7 @@ def evaluate_and_filter(
             run_reward=enable_reward,
             use_reward_fallback=use_reward_fallback,
             stage1_device=stage1_device,
+            composite_quality_floor=quality_floor,
         )
 
     records = [
@@ -162,6 +206,13 @@ def evaluate_and_filter(
     results = evaluate_batch(records, eval_config, scorers=scorers)
     for ex, result in zip(examples, results):
         ex.score = float(result.creativity_score)
+        ex.novelty = float(result.components.get("stage1_composite", result.creativity_score))
+        prag = result.ensemble.per_dimension_mean.get("Pragmaticality") if result.ensemble else None
+        ex.quality_ok = (
+            (prag is not None and float(prag) >= quality_floor)
+            if quality_floor is not None
+            else None
+        )
     import numpy as _np
     all_scores = _np.array([ex.score for ex in examples], dtype=float)
 
@@ -173,7 +224,29 @@ def evaluate_and_filter(
           f"p50={_pct(50):.3f} p75={_pct(75):.3f} p90={_pct(90):.3f} max={all_scores.max():.3f}",
           flush=True)
 
-    if split_by == "score":
+    if one_per_prompt and split_by != "score":
+        # v3 framed path: top/bottom novelty tail, capped at one response per prompt; the positive
+        # pole is additionally quality-gated. Selecting on novelty (not the gated composite) keeps
+        # the dull pole ordered by un-novelty rather than collapsed onto the quality penalty.
+        creatives = [ex for ex in examples if ex.framing == "creative"]
+        neutrals = [ex for ex in examples if ex.framing == "neutral"]
+        nov = _np.array([ex.novelty for ex in examples if ex.novelty is not None], dtype=float)
+        if nov.size:
+            print(f"[evaluator_filter] novelty distribution (n={nov.size}): "
+                  f"p10={float(_np.percentile(nov,10)):.3f} p50={float(_np.percentile(nov,50)):.3f} "
+                  f"p90={float(_np.percentile(nov,90)):.3f}", flush=True)
+        n_quality_ok = sum(1 for ex in creatives if ex.quality_ok)
+        positives = _select_one_per_prompt(
+            creatives, quantile=creative_quantile, keep="high",
+            require_quality=quality_floor is not None,
+        )
+        negatives = _select_one_per_prompt(
+            neutrals, quantile=neutral_quantile, keep="low", require_quality=False,
+        )
+        print(f"[evaluator_filter] one_per_prompt: {len(positives)} positives "
+              f"(of {len(creatives)} creative, {n_quality_ok} quality-ok) / {len(negatives)} "
+              f"negatives (of {len(neutrals)} neutral); quality_floor={quality_floor}", flush=True)
+    elif split_by == "score":
         # Single-context: ignore framing entirely; split the whole pool.
         # Absolute-score thresholds when both are set; else quantile cuts on the unified pool
         # (creative_quantile = lower edge of "creative" tail, neutral_quantile = upper edge of

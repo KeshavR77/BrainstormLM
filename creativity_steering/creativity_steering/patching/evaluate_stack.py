@@ -155,6 +155,7 @@ def two_stage_cell_sweep(
     enable_reward: bool = False,
     use_reward_fallback: bool = False,
     stage1_device: str | None = None,
+    quality_floor: float | None = None,
     baseline_injections: Sequence[Injection] = (),
 ) -> TwoStageSweepResult:
     """Generate all cells, score with the two-stage stack, gate judges to the top-k cells.
@@ -183,6 +184,7 @@ def two_stage_cell_sweep(
             run_reward=enable_reward,
             use_reward_fallback=use_reward_fallback,
             stage1_device=stage1_device,
+            composite_quality_floor=quality_floor,
         )
     judge_cfg = eval_config
     stage1_cfg = eval_config.model_copy(update={"enable_stage2": False})

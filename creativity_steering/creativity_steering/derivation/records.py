@@ -16,7 +16,11 @@ class ResponseExample:
     prompt: str
     response: str
     activations: dict[str, np.ndarray] = field(default_factory=dict)  # position -> (L, H)
-    score: float | None = None
+    score: float | None = None  # final composite (quality-gated novelty in v3); provenance
+    # Selection signals set by the evaluator filter (separate from ``score`` so the contrast
+    # poles can be picked by novelty while ``score`` carries the gated composite):
+    novelty: float | None = None  # batch-relative Stage-1 novelty (model-free; defined for all)
+    quality_ok: bool | None = None  # raw judge pragmaticality cleared the quality floor
 
 
 @dataclass

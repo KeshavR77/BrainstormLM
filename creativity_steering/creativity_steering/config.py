@@ -130,6 +130,17 @@ class FilterConfig:
     enable_reward: bool = False  # run the Skywork reward model as a model-free Stage-1 quality pole
     use_reward_fallback: bool = False  # use Skywork 8B reward instead of the 27B (tighter pods)
 
+    # --- v3: one-per-prompt cap + quality-gated-novelty selection ---
+    # Cap each verified pool at AT MOST one response per prompt (keep the best-scoring creative
+    # per prompt for positives, the worst-scoring neutral per prompt for negatives), so no single
+    # topic dominates the DiffMeans contrast. Combine with creative_quantile/neutral_quantile set
+    # to the top/bottom tail (e.g. 0.9 / 0.1) to select "top 10% creative" vs "bottom 10% neutral".
+    one_per_prompt: bool = False
+    # Absolute judge-pragmaticality floor (1-5) for the quality-gated-novelty composite. When set,
+    # it is threaded into the evaluator's composite (composite_quality_floor) so a response is
+    # scored on novelty only if it clears this bar; positives must additionally pass the gate.
+    quality_floor: float | None = None
+
     # --- score_split method (single-context, behavior-only contrast) ---
     # Generate every response under NO system prompt at one decode (generation.unframed_sampling),
     # then split the whole pool by evaluator score (no framing): positives are responses with

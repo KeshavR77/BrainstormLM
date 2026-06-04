@@ -114,6 +114,8 @@ def derive_vectors(
             use_reward_fallback=fc.use_reward_fallback,
             stage1_device=config.device,
             min_per_class=fc.min_per_class,
+            one_per_prompt=fc.one_per_prompt,
+            quality_floor=fc.quality_floor,
         )
     else:
         subset = label_and_filter(

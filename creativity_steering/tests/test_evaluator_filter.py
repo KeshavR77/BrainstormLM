@@ -205,6 +205,40 @@ def test_both_phases_run_with_judge():
     assert subset.n_positive >= 1 and subset.n_negative >= 1
 
 
+def _exp(framing, response, prompt, layers=3, dim=4):
+    ex = _ex(framing, response, layers, dim)
+    ex.prompt = prompt
+    return ex
+
+
+def test_one_per_prompt_caps_each_pole_at_one_response_per_prompt():
+    # Two creative-framed samples for prompt "p1" (both diverse, both top-tail). With
+    # one_per_prompt the positive pool keeps at most ONE of them (the higher-scoring), so a
+    # single prompt cannot dominate the DiffMeans contrast.
+    examples = [
+        _exp("creative", DIVERSE, "p1"),
+        _exp("creative", DIVERSE2, "p1"),
+        _exp("creative", DIVERSE, "p2"),
+        _exp("neutral", REPET, "p1"),
+        _exp("neutral", REPET2, "p2"),
+        _exp("neutral", REPET3, "p3"),
+    ]
+    subset = evaluate_and_filter(
+        examples, scorers=_scorers(), enable_judge=False,
+        creative_quantile=0.0, neutral_quantile=1.0,  # thresholds keep everything; cap does the work
+        one_per_prompt=True,
+    )
+    # at most one positive per prompt
+    pos_prompts = [p.prompt for p in subset.positives]
+    assert len(pos_prompts) == len(set(pos_prompts))
+    # p1 contributes exactly its single best-scoring creative response
+    p1_pos = [p for p in subset.positives if p.prompt == "p1"]
+    assert len(p1_pos) == 1
+    # likewise the negative pool is capped at one per prompt
+    neg_prompts = [n.prompt for n in subset.negatives]
+    assert len(neg_prompts) == len(set(neg_prompts))
+
+
 def test_min_per_class_guardrail_raises():
     examples = [_ex("creative", DIVERSE), _ex("neutral", REPET)]
     with pytest.raises(ValueError, match="too small"):
@@ -237,4 +271,36 @@ def test_derive_vectors_uses_evaluator_stack():
     prompts = PromptSet(CREATIVE_SYSTEM, NEUTRAL_SYSTEM, TOPICS[:12])
     out = derive_vectors(backend, cfg, HeuristicScorer(), prompt_set=prompts, eval_scorers=_scorers())
     assert out.subset.n_positive > 0 and out.subset.n_negative > 0
+    assert out.vector_set.n_layers == 12
+
+
+def test_derive_vectors_v3_one_per_prompt_quality_gated():
+    # The v3 framed path end to end: 3 samples/prompt, top/bottom-10% novelty with a
+    # one-per-prompt cap and a judge quality gate. Asserts each pole keeps at most one response
+    # per prompt and every example carries the novelty + quality_ok selection signals.
+    ensemble = Ensemble([_FakeJudge("a", "openai"), _FakeJudge("b", "anthropic")])
+    cfg = ExperimentConfig(
+        backend="mock",
+        num_layers=12,
+        hidden_dim=32,
+        mock_creative_layer=6,
+        generation=GenerationConfig(samples_per_prompt=3, max_new_tokens=240),
+        filtering=FilterConfig(
+            method="evaluator_stack", min_per_class=0, enable_judge=True,
+            one_per_prompt=True, quality_floor=3.0, generator_family="qwen",
+            stage1_floor_percentile=0.0, creative_quantile=0.5, neutral_quantile=0.5,
+        ),
+    )
+    backend = MockBackend(num_layers=12, hidden_dim=32, creative_layer=6, seed=0)
+    prompts = PromptSet(CREATIVE_SYSTEM, NEUTRAL_SYSTEM, TOPICS[:12])
+    out = derive_vectors(
+        backend, cfg, HeuristicScorer(), prompt_set=prompts,
+        eval_scorers=_scorers(ensemble=ensemble),
+    )
+    # one-per-prompt: no (framing, prompt) duplicated inside a pole
+    assert len({p.prompt for p in out.subset.positives}) == out.subset.n_positive
+    assert len({n.prompt for n in out.subset.negatives}) == out.subset.n_negative
+    # selection signals populated; positives cleared the quality gate
+    assert all(p.novelty is not None for p in out.subset.positives)
+    assert all(p.quality_ok for p in out.subset.positives)
     assert out.vector_set.n_layers == 12

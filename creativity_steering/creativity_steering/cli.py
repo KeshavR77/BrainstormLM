@@ -133,6 +133,7 @@ def sweep(
             enable_reward=fc.enable_reward,
             use_reward_fallback=fc.use_reward_fallback,
             stage1_device=cfg.device,
+            quality_floor=fc.quality_floor,
         )
         (out_dir / "sweep_results.json").write_text(json.dumps(result.to_dict(), indent=2))
         best = result.best_cell()
@@ -268,6 +269,7 @@ def experiments(
         enable_reward=fc.enable_reward,
         use_reward_fallback=fc.use_reward_fallback,
         stage1_device=cfg.device,
+        quality_floor=fc.quality_floor,
     )
     out_dir = run / "patching" / chosen
     out_dir.mkdir(parents=True, exist_ok=True)
