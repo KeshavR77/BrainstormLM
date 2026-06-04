@@ -79,6 +79,50 @@ def test_raw_components_exposed():
         assert key in comps[0]
 
 
+# ---------------------------------------------------------------------------
+# Quality-gated novelty (v3): score == novelty when raw pragmaticality >= floor,
+# else a fixed disqualifying penalty. Quality is a *gate*, not a multiplicative factor.
+# ---------------------------------------------------------------------------
+
+
+def test_quality_gate_ranks_by_novelty_above_floor():
+    # Both pass the floor (prag 4 and 5 >= 3) -> ranked purely by novelty: A (high) > B (low),
+    # and NOT multiplied down by quality (the old sqrt(novelty*quality) would suppress this).
+    a = _rec(1, 1, 0, 0, 5, 4, 3)  # high novelty, acceptable quality
+    b = _rec(0, 0, 1, 0, 1, 5, 3)  # low novelty, top quality
+    scores, comps = compute_composite_batch([a, b], quality_floor=3.0)
+    assert scores[0] > scores[1]  # novelty wins over quality, both being above the floor
+    assert comps[0]["quality_ok"] == 1.0 and comps[1]["quality_ok"] == 1.0
+    assert abs(scores[0] - comps[0]["novelty_combined"]) < 1e-9  # score IS novelty above floor
+
+
+def test_quality_gate_disqualifies_below_floor():
+    # A is the most novel but incoherent (prag 1 < floor 3) -> disqualified below everything.
+    a = _rec(1, 1, 0, 0, 5, 1, 3)  # high novelty, horrible quality
+    b = _rec(0, 0, 1, 0, 1, 4, 3)  # low novelty, acceptable quality
+    scores, comps = compute_composite_batch([a, b], quality_floor=3.0, quality_fail_penalty=10.0)
+    assert comps[0]["quality_ok"] == 0.0 and comps[1]["quality_ok"] == 1.0
+    assert scores[0] == -10.0  # disqualified
+    assert scores[1] > scores[0]  # the coherent-but-dull response outranks the incoherent novel one
+
+
+def test_quality_gate_unjudged_is_disqualified():
+    # No Stage-2 pragmaticality (None) -> cannot clear the floor -> disqualified.
+    a = _rec(1, 1, 0, 0, None, None, None)
+    b = _rec(0, 0, 1, 0, 5, 4, 3)
+    scores, comps = compute_composite_batch([a, b], quality_floor=3.0)
+    assert comps[0]["quality_ok"] == 0.0
+
+
+def test_no_quality_floor_keeps_legacy_formula():
+    # quality_floor=None must reproduce the multiplicative composite exactly (backward compat).
+    a = _rec(1, 1, 0, 1, 5, 5, 5)
+    b = _rec(0, 0, 1, 0, 1, 1, 1)
+    legacy, _ = compute_composite_batch([a, b])
+    same, _ = compute_composite_batch([a, b], quality_floor=None)
+    assert legacy == same
+
+
 def test_missing_dsi_does_not_crash():
     a = _rec(None, 1, 0, 1, 5, 5, 5)
     b = _rec(None, 0, 1, 0, 1, 1, 1)

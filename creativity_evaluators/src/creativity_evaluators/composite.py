@@ -12,6 +12,14 @@ Every ``z(.)`` is standardized against the **current batch**, so this is a batch
 and thresholds are relative within a run. All raw and intermediate components are returned so
 the formula can be re-tuned offline without re-running the judges.
 
+Quality-gated novelty (``quality_floor`` set) is an alternative ``final``:
+
+    final = novelty_combined          if raw pragmaticality >= quality_floor
+          = -quality_fail_penalty      otherwise (disqualified / unjudged)
+
+Here quality is a *floor* rather than a multiplicative factor — used when the goal is to push
+novelty as far as possible without letting the text degrade below an absolute quality bar.
+
 Missing inputs are imputed to the batch mean (z = 0), so a too-short DSI or a Stage-1-only
 record (no Stage-2 dimensions) contributes neutrally instead of crashing.
 """
@@ -69,8 +77,26 @@ def compute_composite_batch(
     *,
     creativity_weight: float = 0.85,
     elaboration_weight: float = 0.15,
+    quality_floor: float | None = None,
+    quality_fail_penalty: float = 10.0,
 ) -> tuple[list[float], list[dict]]:
-    """Return ``(final_scores, per_record_components)`` for the batch."""
+    """Return ``(final_scores, per_record_components)`` for the batch.
+
+    Two scoring modes:
+
+    * ``quality_floor=None`` (default) — the multiplicative novelty x quality composite
+      (``sqrt(max(0,novelty) * max(0,quality)) + elaboration``). Quality and novelty trade off
+      against each other, so a novelty gain bought at a quality cost is suppressed.
+
+    * ``quality_floor`` set — **quality-gated novelty**: a response is scored purely on its
+      novelty (``novelty_combined``) as long as its *raw* Stage-2 Pragmaticality clears the
+      absolute ``quality_floor`` (a 1-5 judge score, e.g. 3.0 = "not horrible"); otherwise it is
+      disqualified to ``-quality_fail_penalty``. Quality is a floor, not a factor — so steering
+      that raises novelty is rewarded as long as the text stays coherent, and steering that wins
+      novelty by breaking the model is rejected. Unjudged responses (no Pragmaticality) cannot
+      clear the floor and are disqualified. The raw floor is an *absolute* cut, deliberately not
+      z-scored, so "minimum acceptable quality" does not drift batch to batch.
+    """
     dsi_z = zscores(_column(records, "dsi"))
     ppl_z = zscores(_column(records, "ppl"))
     lex_z = zscores(_column(records, "lexical_redundancy"))
@@ -85,7 +111,20 @@ def compute_composite_batch(
     novelty_combined = (novelty_z + orig_z) / 2.0
     quality_combined = (reward_z + prag_z) / 2.0
     creativity = np.sqrt(np.maximum(0.0, novelty_combined) * np.maximum(0.0, quality_combined))
-    final = creativity_weight * creativity + elaboration_weight * elab_z
+
+    prag_raw = _column(records, "pragmaticality_s2")
+    if quality_floor is None:
+        final = creativity_weight * creativity + elaboration_weight * elab_z
+        quality_ok = [None] * len(records)
+    else:
+        quality_ok = [(p is not None and float(p) >= quality_floor) for p in prag_raw]
+        final = np.array(
+            [
+                float(novelty_combined[i]) if quality_ok[i] else -float(quality_fail_penalty)
+                for i in range(len(records))
+            ],
+            dtype=float,
+        )
 
     components = [
         {
@@ -101,6 +140,14 @@ def compute_composite_batch(
             "novelty_combined": float(novelty_combined[i]),
             "quality_combined": float(quality_combined[i]),
             "creativity": float(creativity[i]),
+            **(
+                {
+                    "quality_ok": 1.0 if quality_ok[i] else 0.0,
+                    "quality_raw": float(prag_raw[i]) if prag_raw[i] is not None else float("nan"),
+                }
+                if quality_floor is not None
+                else {}
+            ),
         }
         for i in range(len(records))
     ]
