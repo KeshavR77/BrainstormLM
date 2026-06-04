@@ -381,25 +381,44 @@ def score_all_texts(
     briefs: list[str],
     *,
     mock: bool = False,
+    max_workers: int = 12,
 ) -> list[list[dict[str, int]]]:
     """Return per-text judge scores, shape [n_briefs, k].
 
-    Compute ONCE (outside bootstrap loop) and reuse.
-    In mock mode returns deterministic plausible scores.
+    Computed ONCE (outside the bootstrap loop) and reused. The real gpt-4o-mini calls are
+    independent and I/O-bound, so they run CONCURRENTLY (ThreadPoolExecutor) — at full scale
+    this was ~1.5 hr of serial wall-clock. Mock mode returns deterministic scores (no calls).
     """
-    scores: list[list[dict[str, int]]] = []
-    for bi, (brief, texts) in enumerate(zip(briefs, texts_per_brief)):
-        brief_scores: list[dict[str, int]] = []
-        for text in texts:
-            if mock:
-                # Deterministic mock scores: greedy/empty text gets low scores, others high
+    # Pre-size the grid so out-of-order completions can be slotted by (brief, idx).
+    scores: list[list[dict[str, int]]] = [
+        [{"coherence": 1, "on_topic": 1} for _ in texts] for texts in texts_per_brief
+    ]
+    if mock:
+        for bi, texts in enumerate(texts_per_brief):
+            for ti, text in enumerate(texts):
                 if not text.strip() or text.startswith("Standard solution"):
-                    brief_scores.append({"coherence": 2, "on_topic": 2})
+                    scores[bi][ti] = {"coherence": 2, "on_topic": 2}
                 else:
-                    brief_scores.append({"coherence": 4, "on_topic": 4})
-            else:
-                brief_scores.append(_judge_one(brief, text))
-        scores.append(brief_scores)
+                    scores[bi][ti] = {"coherence": 4, "on_topic": 4}
+        return scores
+
+    from concurrent.futures import ThreadPoolExecutor
+
+    tasks = [
+        (bi, ti, briefs[bi], text)
+        for bi, texts in enumerate(texts_per_brief)
+        for ti, text in enumerate(texts)
+    ]
+    if not tasks:
+        return scores
+
+    def _run(t: tuple[int, int, str, str]) -> tuple[int, int, dict[str, int]]:
+        bi, ti, brief, text = t
+        return bi, ti, _judge_one(brief, text)
+
+    with ThreadPoolExecutor(max_workers=max_workers) as ex:
+        for bi, ti, s in ex.map(_run, tasks):
+            scores[bi][ti] = s
     return scores
 
 
@@ -416,12 +435,17 @@ def quality_pass_rate(scores_per_brief: list[list[dict[str, int]]]) -> float:
 # ARM implementations
 # ---------------------------------------------------------------------------
 
+# Per-generation token budget for the 14B arms. Set once at startup from --max-new-tokens
+# (default 256). Lowering it (e.g. 180) bounds the long-output tail — the #1 driver of
+# run-time variability — with negligible content loss for brainstorm ideas.
+_MAX_NEW_TOKENS = 256
+
 
 def run_arm_greedy(backend, brief: str, k: int) -> list[str]:
     """K greedy generations from the backend. Floor; expect ~1 distinct class."""
 
     return [
-        backend.generate(brief, temperature=0.0, seed=i, max_new_tokens=256)
+        backend.generate(brief, temperature=0.0, seed=i, max_new_tokens=_MAX_NEW_TOKENS)
         for i in range(k)
     ]
 
@@ -430,7 +454,7 @@ def run_arm_temp(backend, brief: str, k: int, temperature: float = 0.8) -> list[
     """K temperature-sampled generations (temp=0.8). Cheap diversity baseline."""
 
     return [
-        backend.generate(brief, temperature=temperature, seed=i, max_new_tokens=256)
+        backend.generate(brief, temperature=temperature, seed=i, max_new_tokens=_MAX_NEW_TOKENS)
         for i in range(k)
     ]
 
@@ -451,7 +475,7 @@ def run_arm_antimode(backend, brief: str, k: int, temperature: float = 0.8) -> l
             output_mode="generic",
         )
         text = backend.generate(
-            prompt, temperature=temperature, seed=i, max_new_tokens=256
+            prompt, temperature=temperature, seed=i, max_new_tokens=_MAX_NEW_TOKENS
         )
         results.append(text)
         name = extract_summary(text)
@@ -487,7 +511,7 @@ def run_arm_ortho(
         layer=layer,
         alpha=alpha,
         sampling=SamplingPreset(temperature=temperature),
-        max_new_tokens=256,
+        max_new_tokens=_MAX_NEW_TOKENS,
     )
 
 
@@ -514,7 +538,7 @@ def run_arm_ortho_L17(
         layer=17,
         alpha=alpha,
         sampling=SamplingPreset(temperature=temperature),
-        max_new_tokens=256,
+        max_new_tokens=_MAX_NEW_TOKENS,
     )
 
 
@@ -574,7 +598,7 @@ def run_arm_full(backend, brief: str, k: int, temperature: float = 0.8) -> list[
             output_mode="generic",
         )
         text = backend.generate(
-            prompt, temperature=temperature, seed=i, max_new_tokens=256
+            prompt, temperature=temperature, seed=i, max_new_tokens=_MAX_NEW_TOKENS
         )
         candidates.append(text)
         name = extract_summary(text)
@@ -1268,6 +1292,7 @@ def _preflight(*, config_path: str | None, out: str | None, layer: int | None, s
 
 
 def main() -> int:
+    global _MAX_NEW_TOKENS  # set from --max-new-tokens; read by the arm functions
     ap = argparse.ArgumentParser(
         description="A/B diversity validation harness for Conceptial.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -1290,6 +1315,11 @@ def main() -> int:
     ap.add_argument("--alpha", type=float, default=None, help=argparse.SUPPRESS)
     ap.add_argument("--k", type=int, default=8, help="Outputs per brief per arm")
     ap.add_argument(
+        "--max-new-tokens", type=int, default=256,
+        help="Per-generation token cap for the 14B arms. Lower (e.g. 180) to bound the "
+             "long-output tail and tighten run-time/variability; default 256.",
+    )
+    ap.add_argument(
         "--briefs", default=None,
         help="JSON array of brief strings, or path to JSON file. Default: builtin 40 briefs"
     )
@@ -1300,6 +1330,7 @@ def main() -> int:
     ap.add_argument("--temperature", type=float, default=0.8, help="Temperature for sampled arms")
     ap.add_argument("--quiet", action="store_true", help="Suppress progress output")
     args = ap.parse_args()
+    _MAX_NEW_TOKENS = args.max_new_tokens
 
     # -- Resolve alphas
     if args.alphas is not None:
