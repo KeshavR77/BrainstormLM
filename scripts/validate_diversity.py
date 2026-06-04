@@ -902,6 +902,7 @@ def run_study(
     n_resamples: int = 1000,
     temperature: float = 0.8,
     verbose: bool = True,
+    checkpoint_path: str | None = None,
 ) -> dict:
     """Run all arms over all briefs, compute metrics and CIs, return full results dict.
 
@@ -954,10 +955,21 @@ def run_study(
                 _raw = torch.load(str(_vec_path), map_location="cpu")
                 if isinstance(_raw, torch.Tensor):
                     l17_vec = _raw.float().numpy().reshape(-1)
-                else:
-                    # Some checkpoints store a dict
-                    _t = next(iter(_raw.values())) if isinstance(_raw, dict) else _raw
+                elif isinstance(_raw, dict):
+                    # Stored as {"vector": tensor, "layer_index": int}. Extract by the
+                    # "vector" key, falling back to the first TENSOR value — NEVER a
+                    # non-tensor (positional next(iter(values())) would silently grab the
+                    # layer_index int if key order ever changed).
+                    _t = _raw.get("vector")
+                    if not isinstance(_t, torch.Tensor):
+                        _t = next((x for x in _raw.values() if isinstance(x, torch.Tensor)), None)
+                    if _t is None:
+                        raise ValueError(
+                            f"L17 .pt dict has no tensor value (keys={list(_raw.keys())})"
+                        )
                     l17_vec = _t.float().numpy().reshape(-1)
+                else:
+                    l17_vec = np.asarray(_raw, dtype=np.float32).reshape(-1)
 
                 # Dim guard: only 14B-compatible (5120-dim)
                 if l17_vec.shape[-1] != backend.hidden_dim:
@@ -1032,6 +1044,21 @@ def run_study(
 
         return ArmResult(arm=arm_key, texts_per_brief=texts_per_brief)
 
+    # Incremental checkpoint of raw generations after EACH arm — a crash (or a missing
+    # OPENAI_API_KEY hit at the judge/metrics step) then never loses hours of GPU;
+    # re-scoring from this file is free.
+    _gen_ckpt = (
+        Path(checkpoint_path).with_suffix(".generations.json") if checkpoint_path else None
+    )
+
+    def _save_generations() -> None:
+        if _gen_ckpt is None:
+            return
+        _gen_ckpt.parent.mkdir(parents=True, exist_ok=True)
+        _gen_ckpt.write_text(
+            json.dumps({a: r.texts_per_brief for a, r in arm_results.items()}, indent=2)
+        )
+
     # Run alpha-independent arms once
     if verbose:
         print("\n-- Alpha-independent arms (generated once) --", flush=True)
@@ -1040,6 +1067,7 @@ def run_study(
             print(f"\n-- ARM: {arm} --", flush=True)
         ar = _generate_arm_briefs(arm, arm, alpha=alphas[0])
         arm_results[arm] = ar
+        _save_generations()
         if verbose:
             print(f"  [done] {arm}: generated {len(briefs)} x {k} texts", flush=True)
 
@@ -1056,6 +1084,7 @@ def run_study(
                     print(f"\n-- ARM: {arm_key} --", flush=True)
                 ar = _generate_arm_briefs(arm_key, base_arm, alpha)
                 arm_results[arm_key] = ar
+                _save_generations()
                 if verbose:
                     print(f"  [done] {arm_key}: generated {len(briefs)} x {k} texts", flush=True)
 
@@ -1121,6 +1150,90 @@ _DEFAULT_ARMS = [
 # Default alphas for on-the-fly bank arms (ortho/ortho_temp) when not specified.
 # L17 validated alpha is 1.5; the full sweep is [1.0, 1.5, 2.0, 2.62].
 _DEFAULT_ALPHAS_L17 = [1.0, 1.5, 2.0, 2.62]
+
+
+def _preflight(*, config_path: str | None, out: str | None, layer: int | None) -> None:
+    """Fail-fast checks BEFORE the multi-hour generation (real-run only).
+
+    Catches the catastrophic 'generate for hours, THEN crash at the judge/metrics step'
+    failure: a missing/invalid OPENAI_API_KEY, an unparseable config, a missing/garbled L17
+    vector, or an unwritable --out path — all in well under a minute, before any GPU work.
+    """
+    print("-- PREFLIGHT (fail-fast before any generation) --", flush=True)
+
+    # 1) OpenAI connectivity — judge + embeddings both depend on it. A LIVE call is the ground
+    #    truth (the key may resolve from env, a .env, or settings); don't hard-check os.environ,
+    #    which false-fails when the client sources the key elsewhere.
+    try:
+        from brainstormlm.clients.openai import embed
+
+        _m, _ = embed(["preflight connectivity test"])
+        _s = _judge_one("Preflight brief.", "A concrete, coherent test idea.", use_cache=False)
+        assert isinstance(_s.get("coherence"), int) and isinstance(_s.get("on_topic"), int)
+        print(f"   [ok] OpenAI live (embed dim={_m.shape[-1]}, judge={_s})", flush=True)
+    except SystemExit:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        raise SystemExit(
+            "PREFLIGHT FAIL: OpenAI live check failed — the judge + embeddings need a working "
+            "OPENAI_API_KEY (set via `export OPENAI_API_KEY=...` or a .env). "
+            f"({type(exc).__name__}: {exc})"
+        )
+
+    # 2) Config parses (build_backend will load the model after this — that's the slow part).
+    try:
+        from creativity_steering.config import load_config
+
+        _cfg = load_config(config_path)
+        print(f"   [ok] config loads: model={_cfg.model_id}, dtype={getattr(_cfg, 'dtype', None)}", flush=True)
+    except Exception as exc:  # noqa: BLE001
+        raise SystemExit(f"PREFLIGHT FAIL: cannot load config {config_path!r} ({type(exc).__name__}: {exc})")
+
+    # 3) L17 vector exists + extracts to a finite, non-zero tensor (else the arm just skips).
+    import torch
+
+    _vp = _REPO / "data" / "steering_14b" / "hyper_creative_purified_vector_L17.pt"
+    if not _vp.exists():
+        print(f"   [warn] L17 vector missing at {_vp} — ortho_L17 arm will be SKIPPED.", flush=True)
+    else:
+        _raw = torch.load(str(_vp), map_location="cpu")
+        if isinstance(_raw, dict):
+            _t = _raw.get("vector")
+            if not isinstance(_t, torch.Tensor):
+                _t = next((x for x in _raw.values() if isinstance(x, torch.Tensor)), None)
+            _li = _raw.get("layer_index")
+        else:
+            _t, _li = (_raw if isinstance(_raw, torch.Tensor) else None), None
+        if _t is None:
+            raise SystemExit("PREFLIGHT FAIL: L17 .pt contains no tensor value.")
+        _v = _t.float().numpy().reshape(-1)
+        if not np.isfinite(_v).all() or np.allclose(_v, 0):
+            raise SystemExit("PREFLIGHT FAIL: L17 vector is non-finite or all-zero.")
+        print(
+            f"   [ok] L17 vector: dim={_v.shape[0]}, norm={float(np.linalg.norm(_v)):.3f}, "
+            f"layer_index={_li}",
+            flush=True,
+        )
+        if layer is not None and _li is not None and layer != _li:
+            print(
+                f"   [warn] --layer {layer} != vector layer_index {_li}; "
+                f"run_arm_ortho_L17 injects at 17 regardless. Use --layer 17.",
+                flush=True,
+            )
+
+    # 4) Output path writable.
+    if out:
+        _op = Path(out)
+        try:
+            _op.parent.mkdir(parents=True, exist_ok=True)
+            _tf = _op.parent / ".preflight_write_test"
+            _tf.write_text("ok")
+            _tf.unlink()
+            print(f"   [ok] output dir writable: {_op.parent}", flush=True)
+        except Exception as exc:  # noqa: BLE001
+            raise SystemExit(f"PREFLIGHT FAIL: cannot write to {_op.parent} ({exc})")
+
+    print("-- PREFLIGHT OK --\n", flush=True)
 
 
 def main() -> int:
@@ -1194,6 +1307,10 @@ def main() -> int:
     print("  L17 NOTE: ortho_L17 requires 14B model (5120-dim); skipped on 0.5B (dim guard)")
     print("=" * 70 + "\n")
 
+    # Fail-fast BEFORE any GPU generation (real runs only).
+    if not args.mock:
+        _preflight(config_path=args.config, out=args.out, layer=args.layer)
+
     results = run_study(
         briefs=briefs,
         k=args.k,
@@ -1204,6 +1321,7 @@ def main() -> int:
         alphas=alphas,
         n_resamples=args.n_resamples,
         temperature=args.temperature,
+        checkpoint_path=args.out,
         verbose=not args.quiet,
     )
 
