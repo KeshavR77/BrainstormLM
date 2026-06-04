@@ -95,9 +95,13 @@ class HFBackend(ModelBackend):
         self._device = self._resolve_device()
         torch_dtype = getattr(torch, _DTYPES[self._dtype])
         self._tokenizer = AutoTokenizer.from_pretrained(self._model_id, trust_remote_code=True)
+        # device_map streams shards straight to the target device (peak CPU RAM ~= one shard),
+        # which a 28GB bf16 14B needs under a constrained container memory cgroup; the old
+        # load-to-CPU-then-.to() pattern OOMs there. `dtype=` (not the deprecated `torch_dtype=`)
+        # so the compute dtype is honored on transformers 5.x.
         self._model = AutoModelForCausalLM.from_pretrained(
-            self._model_id, torch_dtype=torch_dtype, trust_remote_code=True
-        ).to(self._device)
+            self._model_id, dtype=torch_dtype, trust_remote_code=True, device_map=self._device
+        )
         self._model.eval()
 
     def _decoder_layers(self):
