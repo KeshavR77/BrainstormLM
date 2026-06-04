@@ -83,6 +83,20 @@ for _p in (_SRC, _STEERING):
     if str(_p) not in sys.path:
         sys.path.insert(0, str(_p))
 
+
+def _resolve_l17_vector_path(model_id: str | None, override: str | None = None) -> Path:
+    """Pick the L17 steering vector that MATCHES THE MODEL PRECISION.
+
+    AWQ-quantized models need vectors re-derived on quantized activations; using the FP16
+    vector on an AWQ model produces degraded steering — i.e. a false-NEGATIVE verdict, the
+    exact silent failure we must avoid. Auto-selected from model_id; --steer-vector overrides.
+    """
+    if override:
+        return Path(override)
+    if model_id and "awq" in model_id.lower():
+        return _REPO / "data" / "steering_14b_awq" / "hyper_creative_purified_vector_L17.pt"
+    return _REPO / "data" / "steering_14b" / "hyper_creative_purified_vector_L17.pt"
+
 # ---------------------------------------------------------------------------
 # FIX (a): Built-in briefs expanded to ~40 genuinely diverse domains
 # ---------------------------------------------------------------------------
@@ -901,6 +915,7 @@ def run_study(
     temperature: float = 0.8,
     verbose: bool = True,
     checkpoint_path: str | None = None,
+    steer_vector: str | None = None,
 ) -> dict:
     """Run all arms over all briefs, compute metrics and CIs, return full results dict.
 
@@ -947,7 +962,12 @@ def run_study(
 
         # FIX (c): Load the L17 production vector
         if "ortho_L17" in alpha_dependent:
-            _vec_path = _REPO / "data" / "steering_14b" / "hyper_creative_purified_vector_L17.pt"
+            _vec_path = _resolve_l17_vector_path(backend.model_id, steer_vector)
+            print(
+                f"  [ortho_L17] model={backend.model_id} → steering vector "
+                f"{_vec_path.parent.name}/{_vec_path.name}",
+                flush=True,
+            )
             if _vec_path.exists():
                 import torch
                 _raw = torch.load(str(_vec_path), map_location="cpu")
@@ -1150,7 +1170,7 @@ _DEFAULT_ARMS = [
 _DEFAULT_ALPHAS_L17 = [1.0, 1.5, 2.0, 2.62]
 
 
-def _preflight(*, config_path: str | None, out: str | None, layer: int | None) -> None:
+def _preflight(*, config_path: str | None, out: str | None, layer: int | None, steer_vector: str | None = None) -> None:
     """Fail-fast checks BEFORE the multi-hour generation (real-run only).
 
     Catches the catastrophic 'generate for hours, THEN crash at the judge/metrics step'
@@ -1187,10 +1207,23 @@ def _preflight(*, config_path: str | None, out: str | None, layer: int | None) -
     except Exception as exc:  # noqa: BLE001
         raise SystemExit(f"PREFLIGHT FAIL: cannot load config {config_path!r} ({type(exc).__name__}: {exc})")
 
-    # 3) L17 vector exists + extracts to a finite, non-zero tensor (else the arm just skips).
+    # 3) L17 vector — pick the one MATCHING THE MODEL PRECISION (AWQ model ↔ AWQ-derived vector).
+    #    Using the FP16 vector on an AWQ model = degraded steering = false-negative verdict.
     import torch
 
-    _vp = _REPO / "data" / "steering_14b" / "hyper_creative_purified_vector_L17.pt"
+    _is_awq = "awq" in (getattr(_cfg, "model_id", "") or "").lower()
+    _vp = _resolve_l17_vector_path(getattr(_cfg, "model_id", None), steer_vector)
+    print(
+        f"   [..] model precision: {'AWQ (quantized)' if _is_awq else 'FP16/bf16'} "
+        f"→ vector {_vp.parent.name}/{_vp.name}",
+        flush=True,
+    )
+    if _is_awq and "awq" not in str(_vp).lower():
+        raise SystemExit(
+            f"PREFLIGHT FAIL: model is AWQ but the steering vector ({_vp}) is the FP16 one — "
+            "that silently degrades steering (false-negative verdict). Use the AWQ vector "
+            "(data/steering_14b_awq/) or pass --steer-vector."
+        )
     if not _vp.exists():
         print(f"   [warn] L17 vector missing at {_vp} — ortho_L17 arm will be SKIPPED.", flush=True)
     else:
@@ -1243,6 +1276,11 @@ def main() -> int:
     ap.add_argument("--mock", action="store_true", help="Use mock generator (no model needed)")
     ap.add_argument("--config", default=None, help="ExperimentConfig JSON for real 14B run")
     ap.add_argument("--layer", type=int, default=None, help="Injection layer for ortho arm")
+    ap.add_argument(
+        "--steer-vector", default=None,
+        help="Override the L17 steering-vector path. Default: auto-selected by model precision "
+             "(AWQ model_id → data/steering_14b_awq/, else data/steering_14b/).",
+    )
     ap.add_argument(
         "--alphas", default=None,
         help="Comma-separated alpha values for steering arms, e.g. 1.0,1.5,2.0,2.62. "
@@ -1307,7 +1345,7 @@ def main() -> int:
 
     # Fail-fast BEFORE any GPU generation (real runs only).
     if not args.mock:
-        _preflight(config_path=args.config, out=args.out, layer=args.layer)
+        _preflight(config_path=args.config, out=args.out, layer=args.layer, steer_vector=args.steer_vector)
 
     results = run_study(
         briefs=briefs,
@@ -1320,6 +1358,7 @@ def main() -> int:
         n_resamples=args.n_resamples,
         temperature=args.temperature,
         checkpoint_path=args.out,
+        steer_vector=args.steer_vector,
         verbose=not args.quiet,
     )
 
