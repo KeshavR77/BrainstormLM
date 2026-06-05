@@ -66,65 +66,87 @@ def derive_vectors(
     positions = config.all_capture_positions
 
     fc = config.filtering
+    gen = config.generation
+    is_evaluator = fc.method in ("evaluator_stack", "score_split")
 
-    if fc.method == "score_split":
-        # Single-context: one decode, no system prompt; the contrast comes from the evaluator
-        # score split, not a creative/neutral instruction (matches the unframed sweep context).
-        examples = gather_responses_unframed(
-            backend,
-            prompt_set.topics,
-            positions=positions,
-            samples_per_prompt=config.generation.samples_per_prompt,
-            max_new_tokens=config.generation.max_new_tokens,
-            temperature=config.generation.temperature,
-            seed=config.generation.seed,
-            sampling=config.generation.unframed_sampling,
+    def _gather(topics_chunk, *, seed: int) -> list[ResponseExample]:
+        """Generate the (framed or unframed) responses for one chunk of topics."""
+        if fc.method == "score_split":
+            return gather_responses_unframed(
+                backend, list(topics_chunk), positions=positions,
+                samples_per_prompt=gen.samples_per_prompt, max_new_tokens=gen.max_new_tokens,
+                temperature=gen.temperature, seed=seed, sampling=gen.unframed_sampling,
+            )
+        chunk_set = PromptSet(
+            prompt_set.creative_system, prompt_set.neutral_system, tuple(topics_chunk)
         )
+        return gather_responses(
+            backend, chunk_set, positions=positions,
+            samples_per_prompt=gen.samples_per_prompt, max_new_tokens=gen.max_new_tokens,
+            temperature=gen.temperature, seed=seed, sampling=gen.sampling_by_framing(),
+        )
+
+    def _filter(examples, *, min_per_class: int):
+        if is_evaluator:
+            # ``evaluator_stack`` splits by framing; ``score_split`` splits the unified pool by
+            # score. Sibling-package import stays lazy.
+            from creativity_steering.derivation.evaluator_filter import evaluate_and_filter
+
+            return evaluate_and_filter(
+                examples, scorers=eval_scorers,
+                creative_quantile=fc.creative_quantile, neutral_quantile=fc.neutral_quantile,
+                creative_score_min=fc.creative_score_min, neutral_score_max=fc.neutral_score_max,
+                split_by="score" if fc.method == "score_split" else "framing",
+                enable_judge=fc.enable_judge, generator_family=fc.generator_family,
+                stage1_floor_percentile=fc.stage1_floor_percentile,
+                length_match=fc.length_match, length_match_tolerance=fc.length_match_tolerance,
+                enable_reward=fc.enable_reward, use_reward_fallback=fc.use_reward_fallback,
+                stage1_device=config.device, min_per_class=min_per_class,
+                one_per_prompt=fc.one_per_prompt, quality_floor=fc.quality_floor,
+            )
+        return label_and_filter(
+            examples, scorer, creative_min=fc.creative_min, neutral_max=fc.neutral_max,
+            min_per_class=min_per_class,
+        )
+
+    target = fc.target_per_class if is_evaluator else 0
+    if target and target > 0:
+        # Top-up loop: generate topics in chunks and re-filter the GROWING pool each round
+        # (judges are cached, so the re-score is cheap) until both pools reach ``target`` or the
+        # bank is exhausted. Never raises mid-loop (min_per_class=0), so the expensive generation
+        # is always available to save — the fix for v3 run #1's pre-save abort.
+        topics = list(prompt_set.topics)
+        chunk = max(1, fc.topup_chunk_size)
+        examples: list[ResponseExample] = []
+        subset = None
+        rnd = 0
+        i = 0
+        while i < len(topics):
+            batch = topics[i : i + chunk]
+            i += chunk
+            examples.extend(_gather(batch, seed=gen.seed + rnd))
+            subset = _filter(examples, min_per_class=0)
+            rnd += 1
+            print(
+                f"[derive] top-up round {rnd}: {min(i, len(topics))}/{len(topics)} topics, "
+                f"{len(examples)} examples -> {subset.n_positive} pos / {subset.n_negative} neg "
+                f"(target {target})",
+                flush=True,
+            )
+            if subset.n_positive >= target and subset.n_negative >= target:
+                break
+        if subset is None:
+            subset = _filter(examples, min_per_class=0)
+        if subset.n_positive < target or subset.n_negative < target:
+            print(
+                f"[derive] WARNING: topic bank exhausted ({len(topics)} topics) before reaching "
+                f"target_per_class={target}: got {subset.n_positive} pos / {subset.n_negative} "
+                f"neg. Building vectors from what we have; expand the topic bank to hit the target.",
+                flush=True,
+            )
     else:
-        examples = gather_responses(
-            backend,
-            prompt_set,
-            positions=positions,
-            samples_per_prompt=config.generation.samples_per_prompt,
-            max_new_tokens=config.generation.max_new_tokens,
-            temperature=config.generation.temperature,
-            seed=config.generation.seed,
-            sampling=config.generation.sampling_by_framing(),
-        )
-
-    if fc.method in ("evaluator_stack", "score_split"):
-        # Two-stage evaluator filtering. ``evaluator_stack`` splits by framing; ``score_split``
-        # splits the single-context pool by score. The sibling-package import stays lazy here.
-        from creativity_steering.derivation.evaluator_filter import evaluate_and_filter
-
-        subset = evaluate_and_filter(
-            examples,
-            scorers=eval_scorers,
-            creative_quantile=fc.creative_quantile,
-            neutral_quantile=fc.neutral_quantile,
-            creative_score_min=fc.creative_score_min,
-            neutral_score_max=fc.neutral_score_max,
-            split_by="score" if fc.method == "score_split" else "framing",
-            enable_judge=fc.enable_judge,
-            generator_family=fc.generator_family,
-            stage1_floor_percentile=fc.stage1_floor_percentile,
-            length_match=fc.length_match,
-            length_match_tolerance=fc.length_match_tolerance,
-            enable_reward=fc.enable_reward,
-            use_reward_fallback=fc.use_reward_fallback,
-            stage1_device=config.device,
-            min_per_class=fc.min_per_class,
-            one_per_prompt=fc.one_per_prompt,
-            quality_floor=fc.quality_floor,
-        )
-    else:
-        subset = label_and_filter(
-            examples,
-            scorer,
-            creative_min=fc.creative_min,
-            neutral_max=fc.neutral_max,
-            min_per_class=fc.min_per_class,
-        )
+        examples = _gather(prompt_set.topics, seed=gen.seed)
+        subset = _filter(examples, min_per_class=fc.min_per_class)
 
     per_position: dict[str, SteeringVectorSet] = {}
     for position in positions:
@@ -215,6 +237,10 @@ def save_derivation(
                     "prompt": ex.prompt,
                     "response": ex.response,
                     "score": ex.score,
+                    # Persisted so the framed novelty/quality selection can be re-cut offline
+                    # (different quantile / length tolerance) without re-running generation.
+                    "novelty": ex.novelty,
+                    "quality_ok": ex.quality_ok,
                 }
             )
             for i, ex in enumerate(examples)

@@ -304,3 +304,49 @@ def test_derive_vectors_v3_one_per_prompt_quality_gated():
     assert all(p.novelty is not None for p in out.subset.positives)
     assert all(p.quality_ok for p in out.subset.positives)
     assert out.vector_set.n_layers == 12
+
+
+def test_topup_loop_generates_until_target_reached():
+    # target_per_class drives a generate→filter loop: it should stop as soon as BOTH pools hit
+    # the target, without consuming the whole topic bank.
+    ensemble = Ensemble([_FakeJudge("a", "openai"), _FakeJudge("b", "anthropic")])
+    cfg = ExperimentConfig(
+        backend="mock", num_layers=8, hidden_dim=16, mock_creative_layer=4,
+        generation=GenerationConfig(samples_per_prompt=1, max_new_tokens=240),
+        filtering=FilterConfig(
+            method="evaluator_stack", enable_judge=True, one_per_prompt=True,
+            quality_floor=3.0, generator_family="qwen", stage1_floor_percentile=0.0,
+            creative_quantile=0.9, neutral_quantile=0.1, length_match=False,
+            target_per_class=3, topup_chunk_size=60, min_per_class=0,
+        ),
+    )
+    backend = MockBackend(num_layers=8, hidden_dim=16, creative_layer=4, seed=0)
+    prompts = PromptSet(CREATIVE_SYSTEM, NEUTRAL_SYSTEM, TOPICS[:120])
+    out = derive_vectors(
+        backend, cfg, HeuristicScorer(), prompt_set=prompts,
+        eval_scorers=_scorers(ensemble=ensemble),
+    )
+    assert out.subset.n_positive >= 3 and out.subset.n_negative >= 3
+    # stopped early — did NOT generate the whole bank (120 topics x 2 framings = 240)
+    assert out.n_examples < 240
+    assert out.examples is not None  # full scored pool retained for saving
+
+
+def test_topup_loop_exhausts_bank_without_raising():
+    # The hardening fix: when the bank can't reach the target, derive must NOT raise (that's what
+    # lost 6 hr of generation in v3 run #1) — it returns what it has so the pool can still be saved.
+    cfg = ExperimentConfig(
+        backend="mock", num_layers=8, hidden_dim=16, mock_creative_layer=4,
+        generation=GenerationConfig(samples_per_prompt=1, max_new_tokens=240),
+        filtering=FilterConfig(
+            method="evaluator_stack", enable_judge=False, one_per_prompt=True,
+            generator_family="qwen", stage1_floor_percentile=0.0,
+            creative_quantile=0.9, neutral_quantile=0.1, length_match=False,
+            target_per_class=9999, topup_chunk_size=10, min_per_class=0,
+        ),
+    )
+    backend = MockBackend(num_layers=8, hidden_dim=16, creative_layer=4, seed=0)
+    prompts = PromptSet(CREATIVE_SYSTEM, NEUTRAL_SYSTEM, TOPICS[:20])
+    out = derive_vectors(backend, cfg, HeuristicScorer(), prompt_set=prompts, eval_scorers=_scorers())
+    assert out.subset.n_positive >= 1 and out.subset.n_negative >= 1  # whatever the bank yielded
+    assert out.examples is not None and out.n_examples == 40  # consumed all 20 topics x 2 framings

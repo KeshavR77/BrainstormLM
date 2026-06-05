@@ -16,7 +16,9 @@
   },
   "filtering": {
     "method": "evaluator_stack",
-    "min_per_class": 80,
+    "target_per_class": 100,
+    "topup_chunk_size": 300,
+    "min_per_class": 0,
     "creative_quantile": 0.9,
     "neutral_quantile": 0.1,
     "one_per_prompt": true,
@@ -27,7 +29,7 @@
     "generator_family": "qwen",
     "stage1_floor_percentile": 90.0,
     "length_match": true,
-    "length_match_tolerance": 0.3,
+    "length_match_tolerance": 0.5,
     "scorer": "real"
   },
   "patching": {"alphas": [-4.0, -2.0, -1.0, 1.0, 2.0, 4.0], "all_layers_alpha": 0.1, "rescale": true, "eval_samples": 5,
