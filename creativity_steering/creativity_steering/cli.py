@@ -54,7 +54,8 @@ def derive(
     cfg = load_config(config)
     backend = build_backend(cfg)
     typer.echo(f"Deriving vectors with backend={cfg.backend} model={backend.model_id} ...")
-    output = derive_vectors(backend, cfg, _scorer(cfg))
+    # Pass out_dir so the top-up loop checkpoints/resumes there (crash-safe + restartable).
+    output = derive_vectors(backend, cfg, _scorer(cfg), out_dir=out)
     save_derivation(output, out, save_scored_pool=cfg.save_scored_pool)
     cfg.save(out / "config.json")
     typer.echo(json.dumps(output.summary(), indent=2))

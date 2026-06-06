@@ -5,12 +5,23 @@ This is the spec's "Vector derivation" phase end to end:
   1. generate responses to the creative and neutral framings, caching per-layer activations;
   2. filter to an evaluator-verified subset (confidently-creative vs confidently-not);
   3. DiffMeans at every layer, for the primary capture position and any extra positions.
+
+Crash-safety: in the top-up loop (``target_per_class > 0``) the full state — datapoints +
+evaluated metrics (``scored_pool.jsonl``) + per-position activations + the current vectors — is
+checkpointed to ``out_dir`` **after every round**, with atomic writes. So a crash, OOM, or a
+stopped pod loses at most the in-flight round, and whatever was generated is on disk and
+transferable. On relaunch with the same ``out_dir`` the derive resumes from the checkpoint
+(deterministic seeds → judge-cache hits), instead of starting over.
 """
 
 from __future__ import annotations
 
+import json
+import os
 from dataclasses import dataclass
 from pathlib import Path
+
+import numpy as np
 
 from creativity_steering.artifacts import SteeringVectorSet
 from creativity_steering.config import ExperimentConfig
@@ -51,6 +62,89 @@ class DerivationOutput:
         }
 
 
+def _atomic_write_text(path: Path, text: str) -> None:
+    """Write text via a temp file + rename, so a crash mid-write can't corrupt the target."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_name(path.name + ".tmp")
+    tmp.write_text(text)
+    os.replace(tmp, path)
+
+
+def _atomic_savez(path: Path, **arrays) -> None:
+    """``np.savez_compressed`` via a temp file + rename (crash-safe)."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_name(path.name + ".tmp")
+    with open(tmp, "wb") as f:  # file object → numpy won't re-append .npz
+        np.savez_compressed(f, **arrays)
+    os.replace(tmp, path)
+
+
+def write_scored_pool(base: Path, examples: list[ResponseExample], positions) -> None:
+    """Persist the full scored pool: datapoints + evaluated metrics + per-position activations.
+
+    * ``scored_pool.jsonl`` — one row per example: example_id, framing, prompt, response, and the
+      evaluated metrics (composite ``score``, ``novelty``, ``quality_ok``).
+    * ``activations/<position>.npz`` — an ``acts`` array ``(n_examples, n_layers, hidden_dim)``
+      per capture position, row-aligned to ``scored_pool.jsonl``.
+
+    Atomic writes throughout so an interrupted save never leaves a corrupt checkpoint.
+    """
+    base = Path(base)
+    base.mkdir(parents=True, exist_ok=True)
+    lines = [
+        json.dumps(
+            {
+                "example_id": i,
+                "framing": ex.framing,
+                "prompt": ex.prompt,
+                "response": ex.response,
+                "score": ex.score,
+                "novelty": ex.novelty,
+                "quality_ok": ex.quality_ok,
+            }
+        )
+        for i, ex in enumerate(examples)
+    ]
+    _atomic_write_text(base / "scored_pool.jsonl", "\n".join(lines) + ("\n" if lines else ""))
+    acts_dir = base / "activations"
+    acts_dir.mkdir(parents=True, exist_ok=True)
+    for position in positions:
+        stack = np.stack([ex.activations[position] for ex in examples])
+        _atomic_savez(acts_dir / f"{position}.npz", acts=stack)
+
+
+def load_checkpoint_pool(out_dir, positions) -> list[ResponseExample]:
+    """Reload a checkpointed scored pool into ``ResponseExample``s for resume. ``[]`` if absent
+    or incomplete (any requested position missing / row-count mismatch → start fresh)."""
+    if out_dir is None:
+        return []
+    base = Path(out_dir)
+    pool_path = base / "scored_pool.jsonl"
+    if not pool_path.exists():
+        return []
+    rows = [json.loads(line) for line in pool_path.read_text().splitlines() if line]
+    if not rows:
+        return []
+    acts: dict[str, np.ndarray] = {}
+    for p in positions:
+        npz = base / "activations" / f"{p}.npz"
+        if not npz.exists():
+            return []
+        acts[p] = np.load(npz)["acts"]
+        if acts[p].shape[0] != len(rows):
+            return []
+    examples: list[ResponseExample] = []
+    for i, row in enumerate(rows):
+        ex = ResponseExample(
+            framing=row["framing"], system="", prompt=row["prompt"], response=row["response"],
+            activations={p: acts[p][i] for p in positions}, score=row.get("score"),
+        )
+        ex.novelty = row.get("novelty")
+        ex.quality_ok = row.get("quality_ok")
+        examples.append(ex)
+    return examples
+
+
 def derive_vectors(
     backend: ModelBackend,
     config: ExperimentConfig,
@@ -58,6 +152,7 @@ def derive_vectors(
     prompt_set: PromptSet | None = None,
     *,
     eval_scorers=None,  # creativity_evaluators.Scorers for the evaluator_stack method (testing)
+    out_dir: str | Path | None = None,  # when set, the top-up loop checkpoints/resumes here
 ) -> DerivationOutput:
     if prompt_set is None:
         prompt_set = (
@@ -109,32 +204,66 @@ def derive_vectors(
             min_per_class=min_per_class,
         )
 
+    def _build_per_position(subset) -> dict[str, SteeringVectorSet]:
+        per: dict[str, SteeringVectorSet] = {}
+        for position in positions:
+            pos, neg = subset.stacks(position)
+            per[position] = SteeringVectorSet.from_diffmeans(
+                DiffMeansResult.from_stacks(pos, neg),
+                model_id=backend.model_id, capture_position=position,
+                creative_system=prompt_set.creative_system,
+                neutral_system=prompt_set.neutral_system,
+            )
+        return per
+
+    def _checkpoint(examples, subset) -> None:
+        """Persist the round's full state to out_dir (datapoints+metrics+activations always;
+        vectors+summary+contrast when both pools are non-empty). Atomic, so always transferable."""
+        if out_dir is None:
+            return
+        base = Path(out_dir)
+        write_scored_pool(base, examples, positions)
+        if subset.n_positive > 0 and subset.n_negative > 0:
+            per = _build_per_position(subset)
+            ckpt = DerivationOutput(
+                vector_set=per[positions[0]], per_position=per, subset=subset,
+                n_examples=len(examples), examples=None,
+            )
+            save_derivation(ckpt, base, save_scored_pool=False)  # vectors+summary+contrast only
+
     target = fc.target_per_class if is_evaluator else 0
     if target and target > 0:
-        # Top-up loop: generate topics in chunks and re-filter the GROWING pool each round
-        # (judges are cached, so the re-score is cheap) until both pools reach ``target`` or the
-        # bank is exhausted. Never raises mid-loop (min_per_class=0), so the expensive generation
-        # is always available to save — the fix for v3 run #1's pre-save abort.
+        # Top-up loop with per-round checkpointing + resume.
         topics = list(prompt_set.topics)
         chunk = max(1, fc.topup_chunk_size)
-        examples: list[ResponseExample] = []
-        subset = None
-        rnd = 0
-        i = 0
-        while i < len(topics):
+        examples = load_checkpoint_pool(out_dir, positions)
+        topics_done = len({ex.prompt for ex in examples})
+        i = topics_done
+        rnd = topics_done // chunk
+        subset = _filter(examples, min_per_class=0) if examples else None
+        if examples:
+            print(
+                f"[derive] resumed from checkpoint: {len(examples)} examples / {topics_done} "
+                f"topics done -> {subset.n_positive} pos / {subset.n_negative} neg "
+                f"(target {target})",
+                flush=True,
+            )
+        while (
+            (subset is None or subset.n_positive < target or subset.n_negative < target)
+            and i < len(topics)
+        ):
             batch = topics[i : i + chunk]
             i += chunk
             examples.extend(_gather(batch, seed=gen.seed + rnd))
-            subset = _filter(examples, min_per_class=0)
             rnd += 1
+            subset = _filter(examples, min_per_class=0)
             print(
                 f"[derive] top-up round {rnd}: {min(i, len(topics))}/{len(topics)} topics, "
                 f"{len(examples)} examples -> {subset.n_positive} pos / {subset.n_negative} neg "
                 f"(target {target})",
                 flush=True,
             )
-            if subset.n_positive >= target and subset.n_negative >= target:
-                break
+            _checkpoint(examples, subset)
         if subset is None:
             subset = _filter(examples, min_per_class=0)
         if subset.n_positive < target or subset.n_negative < target:
@@ -148,20 +277,8 @@ def derive_vectors(
         examples = _gather(prompt_set.topics, seed=gen.seed)
         subset = _filter(examples, min_per_class=fc.min_per_class)
 
-    per_position: dict[str, SteeringVectorSet] = {}
-    for position in positions:
-        pos, neg = subset.stacks(position)
-        result = DiffMeansResult.from_stacks(pos, neg)
-        per_position[position] = SteeringVectorSet.from_diffmeans(
-            result,
-            model_id=backend.model_id,
-            capture_position=position,
-            creative_system=prompt_set.creative_system,
-            neutral_system=prompt_set.neutral_system,
-        )
-
-    # Whether to retain the full scored pool on the output (caller decides what to do with it).
-    examples_out = examples if fc.method in ("evaluator_stack", "score_split") else None
+    per_position = _build_per_position(subset)
+    examples_out = examples if is_evaluator else None
 
     return DerivationOutput(
         vector_set=per_position[config.capture_position],
@@ -185,27 +302,18 @@ def save_derivation(
     can be inspected and re-filtered without re-generating.
 
     When ``save_scored_pool=True`` and ``output.examples`` is populated, also writes the FULL
-    scored pool (every gathered example, not just the verified subset) so the contrast set
-    can be re-filtered at different cutoffs / capture positions without re-running generation
-    or scoring:
-
-    * ``scored_pool.jsonl`` — one line per example: ``{example_id, framing, prompt, response, score}``
-      (the same row index used for the activations arrays below)
-    * ``activations/<position>.npz`` — a single ``acts`` array of shape
-      ``(n_examples, n_layers, hidden_dim)`` per capture position; the first axis is the
-      example_id from ``scored_pool.jsonl``.
+    scored pool (datapoints + metrics + per-position activations) via ``write_scored_pool`` so
+    the contrast can be re-cut at different cutoffs / positions without re-running generation.
     """
-    import json
-
-    import numpy as np
-
     base = Path(out_dir)
     root = base / "vectors"
     for position, vs in output.per_position.items():
         vs.save(root / position)
 
-    (base / "derivation_summary.json").write_text(
-        json.dumps(output.summary(), indent=2, sort_keys=True)
+    base.mkdir(parents=True, exist_ok=True)
+    _atomic_write_text(
+        base / "derivation_summary.json",
+        json.dumps(output.summary(), indent=2, sort_keys=True),
     )
 
     lines = [
@@ -224,38 +332,9 @@ def save_derivation(
         )
         for ex in examples
     ]
-    base.mkdir(parents=True, exist_ok=True)
-    (base / "contrast_set.jsonl").write_text("\n".join(lines) + ("\n" if lines else ""))
+    _atomic_write_text(base / "contrast_set.jsonl", "\n".join(lines) + ("\n" if lines else ""))
 
     if save_scored_pool and output.examples is not None:
-        examples = output.examples
-        scored_lines = [
-            json.dumps(
-                {
-                    "example_id": i,
-                    "framing": ex.framing,
-                    "prompt": ex.prompt,
-                    "response": ex.response,
-                    "score": ex.score,
-                    # Persisted so the framed novelty/quality selection can be re-cut offline
-                    # (different quantile / length tolerance) without re-running generation.
-                    "novelty": ex.novelty,
-                    "quality_ok": ex.quality_ok,
-                }
-            )
-            for i, ex in enumerate(examples)
-        ]
-        (base / "scored_pool.jsonl").write_text(
-            "\n".join(scored_lines) + ("\n" if scored_lines else "")
-        )
-
-        acts_dir = base / "activations"
-        acts_dir.mkdir(parents=True, exist_ok=True)
-        positions = sorted(output.per_position)
-        for position in positions:
-            # Stack (n_examples, n_layers, hidden_dim). Examples that lack the position raise
-            # — that's a programming error, every cached example should carry every position.
-            stack = np.stack([ex.activations[position] for ex in examples])
-            np.savez_compressed(acts_dir / f"{position}.npz", acts=stack)
+        write_scored_pool(base, output.examples, sorted(output.per_position))
 
     return root

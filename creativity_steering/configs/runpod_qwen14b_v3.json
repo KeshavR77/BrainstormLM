@@ -28,7 +28,7 @@
     "use_reward_fallback": false,
     "generator_family": "qwen",
     "stage1_floor_percentile": 90.0,
-    "length_match": true,
+    "length_match": false,
     "length_match_tolerance": 0.5,
     "scorer": "real"
   },
