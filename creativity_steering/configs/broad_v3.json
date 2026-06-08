@@ -13,7 +13,7 @@
   "filtering": {
     "method": "evaluator_stack",
     "one_per_prompt": true,
-    "quality_floor": 3.0,
+    "quality_floor": 2.0,
     "enable_judge": true,
     "enable_reward": false,
     "use_reward_fallback": false,
@@ -21,5 +21,5 @@
     "stage1_floor_percentile": 0.0,
     "scorer": "real"
   },
-  "patching": {"alphas": [1.0], "all_layers_alpha": 0.1, "rescale": true, "eval_samples": 2, "sweep_evaluator": "two_stage", "judge_top_k": 10}
+  "patching": {"alphas": [1.0], "all_layers_alpha": 0.1, "rescale": true, "eval_samples": 3, "sweep_evaluator": "two_stage", "judge_top_k": 20}
 }
