@@ -523,7 +523,13 @@ def run_arm_ortho_L17(
     vec: np.ndarray,
     temperature: float = 0.0,
 ) -> list[str]:
-    """FIX (c): Production L17 steering vector arm (14B-only, 5120-dim).
+    """Single-layer L17 steering (the production creative *vector*, but NOT the production *mechanism*).
+
+    WARNING — strawman for v17 steering. Production steering (``conceptial/engine``) is DUAL-layer with
+    SCHEDULED alpha: creative L17 ``exp_decay`` + technical L24 ``sigmoid_ramp``, spherical math. This
+    arm injects ONLY L17 at a CONSTANT alpha (additive rescale), so a loss here is NOT evidence against
+    the product's steering. For the production-faithful 14B test see ``scripts/run_v17_14b_arm.py``
+    (CloudCorpius dual-layer v17).
 
     Builds per-sample directions via stiefel_basis(vec, k), injects at layer 17.
     Only called when backend.hidden_dim == vec.shape[-1].
