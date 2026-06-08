@@ -47,7 +47,7 @@ for POS in $POSITIONS; do
 
   # --- Novelty gate: a usable vector must raise Stage-1 novelty for >=1 layer ---
   echo "== NOVELTY GATE ($POS) =="
-  if python3 -m creativity_steering.scripts.novelty_gate "$PD/broad_sweep_results.json"; then
+  if python3 creativity_steering/scripts/novelty_gate.py "$PD/broad_sweep_results.json"; then
     echo "NOVELTY_GATE_PASS $POS $(date)"
   else
     echo "NOVELTY_GATE_FAIL $POS $(date) — skipping fine/Exp-2 for $POS (saves judge budget)"
