@@ -76,6 +76,9 @@ class TwoStageSweepResult:
     cells: list[StackCellScore]
     judged_labels: list[str]
     enable_judge: bool
+    # One dict per generated response ({cell, layer?, alpha?, prompt, response}), so a Phase-1
+    # (judge-off) sweep can persist its outputs and be judged later off-pod without a GPU.
+    generations: list[dict] = field(default_factory=list)
 
     def best_cell(self) -> dict:
         """Best non-baseline cell. When judging is on, restrict to judged cells (only those
@@ -202,6 +205,19 @@ def two_stage_cell_sweep(
         max_new_tokens=max_new_tokens, temperature=temperature, seed=seed,
     )
 
+    # Keep the raw text alongside its cell label + grid coords so a judge-off (Phase 1) sweep can
+    # be persisted and re-judged off-pod. ``category`` is an enum; drop it (not JSON-friendly,
+    # and re-derivable). ``baseline`` flag is dropped from meta — baseline carries no layer/alpha.
+    generations = [
+        {
+            "cell": full_cells[ci].label,
+            **{k: v for k, v in full_cells[ci].meta.items() if k != "baseline"},
+            "prompt": rec["prompt"],
+            "response": rec["response"],
+        }
+        for rec, ci in zip(records, cell_idx)
+    ]
+
     # --- Pass A: Stage 1 over every generation (cheap) ---
     # Rank/gate by the Stage-1 *composite component* (novelty-based: DSI/PPL/lexical), not the
     # final creativity_score. The final score is a novelty×quality geometric mean, so with no
@@ -273,6 +289,7 @@ def two_stage_cell_sweep(
         cells=cell_scores,
         judged_labels=judged_labels,
         enable_judge=enable_judge,
+        generations=generations,
     )
 
 

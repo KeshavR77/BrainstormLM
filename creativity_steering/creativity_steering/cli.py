@@ -137,6 +137,16 @@ def sweep(
             quality_floor=fc.quality_floor,
         )
         (out_dir / "sweep_results.json").write_text(json.dumps(result.to_dict(), indent=2))
+        # Persist the raw generations so a judge-off (Phase 1) sweep can be judged off-pod later
+        # without a GPU. One JSON record per line: {cell, layer?, alpha?, prompt, response}.
+        if result.generations:
+            with (out_dir / "sweep_generations.jsonl").open("w") as gf:
+                for g in result.generations:
+                    gf.write(json.dumps(g) + "\n")
+            typer.echo(
+                f"Wrote {len(result.generations)} generations to "
+                f"{out_dir}/sweep_generations.jsonl"
+            )
         best = result.best_cell()
         typer.echo(f"baseline composite={result.baseline.composite:.3f}  judged={result.judged_labels}")
         typer.echo(f"best cell: layer={best['layer']} alpha={best['alpha']} "

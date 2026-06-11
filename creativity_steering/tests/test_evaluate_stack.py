@@ -156,6 +156,27 @@ def test_ranks_by_novelty_when_no_quality_pole():
     assert res.best_cell()["label"] == "L6_pos"
 
 
+def test_exposes_generations_for_offpod_judging():
+    """Phase 1 sweeps run on-pod with judging off; the generated text must be persisted so
+    the LLM-judge can run later off-pod without regenerating on a GPU. The result exposes
+    one record per generation, each tagged with its cell label + the (prompt, response)."""
+    backend = MockBackend(num_layers=12, hidden_dim=32, creative_layer=6, seed=0)
+    pos, neg = _pos_neg_cells(backend)
+    res = two_stage_cell_sweep(
+        backend, [pos, neg], scorers=_scorers(), enable_judge=False,
+        briefs=BRIEFS, n_samples=4, seed=0,
+    )
+    gens = res.generations
+    # baseline + pos + neg, each over briefs x n_samples
+    assert len(gens) == 3 * len(BRIEFS) * 4
+    assert {g["cell"] for g in gens} == {"baseline", "L6_pos", "L6_neg"}
+    for g in gens:
+        assert g["prompt"] and isinstance(g["response"], str)
+    # steered cells carry the layer/alpha needed to align scores back to the sweep grid
+    steered = [g for g in gens if g["cell"] != "baseline"]
+    assert all(g["layer"] == 6 and "alpha" in g for g in steered)
+
+
 def test_enable_judge_without_ensemble_is_graceful():
     backend = MockBackend(num_layers=12, hidden_dim=32, creative_layer=6, seed=0)
     pos, neg = _pos_neg_cells(backend)
