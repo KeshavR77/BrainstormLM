@@ -1,21 +1,24 @@
 #!/usr/bin/env python
-"""Corrected v17 steering test on 14B — uses the REAL ``conceptial`` engine, not a strawman.
+"""Corrected v17 steering test on 14B — uses the REAL production config, not a strawman.
 
-The validation harness (``validate_diversity.py``) tested an arm labelled ``ortho_L17`` that
-applied a SINGLE layer (L17) at a CONSTANT alpha with additive rescale. That is NOT how the
-product steers. Production steering (``conceptial/engine``) is **dual-layer with scheduled alpha**:
-a creative vector on an exp-decay ramp + a technical vector on a sigmoid ramp, spherical math.
+The validation harness (``validate_diversity.py``) tested an arm labelled ``ortho_L17`` that applied
+a SINGLE layer (L17) at a CONSTANT alpha. That is NOT how the product steers, and its verdict does
+not stand. Production 14B steering is **dual-layer with scheduled alpha**, defined authoritatively by
+``config/conceptial_14b.json`` ("Corpius 2 14B"):
 
-This script runs that real mechanism on the 14B via :class:`CloudCorpius` (the engine's own
-14B-on-RunPod path), using the v17 schedule and the 14B vectors that actually exist
-(creative L17 + technical L24). It generates **steered vs unsteered on the same model and briefs**
-so the comparison isolates the steering effect, and writes generations in the harness format so
-they score with ``results/pod_run_2026-06-04/recompute.py`` + the judge.
+    creative L17  exp_decay   (start_alpha, exp_zero_by_step)
+    technical L24 sigmoid_ramp (start_alpha, sigmoid_mid_step, sigmoid_steepness)
+    steering_math = additive
+
+This script reads that config file directly (so it can never drift from what ships), applies it via
+:class:`CloudCorpius` (the engine's own 14B path), and generates **steered vs unsteered on the same
+model + briefs** so the comparison isolates the steering effect. Generations are written in the
+harness format for scoring with ``results/pod_run_2026-06-04/recompute.py`` + the judge.
 
 Modes
 -----
-``--verify-only``  CPU only. Proves the real v17 dual-layer config is built from the 14B vectors
-                   (loads the checkpoints + runs the real preset's config-build; no model load).
+``--verify-only``  CPU only. Proves the built dual-layer config matches ``config/conceptial_14b.json``
+                   (loads checkpoints + runs the real preset's config-build; no model load).
 (default)          Loads 14B via CloudCorpius and generates. Needs a CUDA GPU (~28GB).
 """
 
@@ -25,57 +28,65 @@ import argparse
 import json
 import sys
 from pathlib import Path
+from typing import Any
 
 _REPO = Path(__file__).resolve().parents[1]
-_STEERING_DIR = _REPO / "data" / "steering_14b"
-_CREATIVE = _STEERING_DIR / "hyper_creative_purified_vector_L17.pt"
-_TECHNICAL = _STEERING_DIR / "hyper_technical_purified_vector_L24.pt"
-_CREATIVE_LAYER = 17
-_TECHNICAL_LAYER = 24
+_CONFIG = _REPO / "config" / "conceptial_14b.json"
 
-# v17 schedule, verbatim from steering_presets.V10_PARAMETRIC_SCHEDULES["v17"]
-# = (creative_start_alpha, exp_zero_by_step, technical_start_alpha, sigmoid_mid_step, sigmoid_steepness)
-_V17 = {
-    "creative_start_alpha": 2.05,
-    "exp_zero_by_step": 132,
-    "technical_start_alpha": 0.75,
-    "sigmoid_mid_step": 58.0,
-    "sigmoid_steepness": 0.11,
-    "steering_math": "spherical",
-}
+
+def _load_prod_config() -> dict[str, Any]:
+    """Authoritative 14B steering config (``config/conceptial_14b.json``). No hardcoded schedule."""
+    cfg = json.loads(_CONFIG.read_text())
+    sched = cfg["schedule"]
+    return {
+        "creative_vector": _REPO / cfg["steering_vectors"]["creative"],
+        "technical_vector": _REPO / cfg["steering_vectors"]["technical"],
+        "creative_layer": int(cfg["layers"]["creative_layer"]),
+        "technical_layer": int(cfg["layers"]["technical_layer"]),
+        "schedule": {
+            "creative_start_alpha": float(sched["creative_start_alpha"]),
+            "exp_zero_by_step": int(sched["exp_zero_by_step"]),
+            "technical_start_alpha": float(sched["technical_start_alpha"]),
+            "sigmoid_mid_step": float(sched["sigmoid_mid_step"]),
+            "sigmoid_steepness": float(sched["sigmoid_steepness"]),
+            "steering_math": str(sched["steering_math"]),
+        },
+    }
 
 
 def verify_config() -> int:
-    """Prove (on CPU, no model) that the real v17 dual-layer config is built from the 14B vectors."""
+    """Prove (CPU, no model) the built dual-layer config matches config/conceptial_14b.json."""
     import brainstormlm.conceptial.engine.steering_presets as sp
     from brainstormlm.conceptial.engine.config import SteeringConfig
     from brainstormlm.conceptial.engine.pipeline import load_steering_checkpoint
 
-    print("== verifying the REAL v17 dual-layer steering wiring (CPU; no model load) ==")
-    c = load_steering_checkpoint(_CREATIVE)
-    t = load_steering_checkpoint(_TECHNICAL)
-    print(f"creative  : layer_index={int(c['layer_index'])} dim={tuple(c['vector'].shape)}  ({_CREATIVE.name})")
-    print(f"technical : layer_index={int(t['layer_index'])} dim={tuple(t['vector'].shape)}  ({_TECHNICAL.name})")
-    assert int(c["layer_index"]) == _CREATIVE_LAYER, f"creative layer {c['layer_index']} != {_CREATIVE_LAYER}"
-    assert int(t["layer_index"]) == _TECHNICAL_LAYER, f"technical layer {t['layer_index']} != {_TECHNICAL_LAYER}"
+    pc = _load_prod_config()
+    s = pc["schedule"]
+    print("== verifying against config/conceptial_14b.json (authoritative production config) ==")
+    print("schedule:", json.dumps(s))
+    c = load_steering_checkpoint(pc["creative_vector"])
+    t = load_steering_checkpoint(pc["technical_vector"])
+    print(f"creative  : layer_index={int(c['layer_index'])} dim={tuple(c['vector'].shape)}  ({pc['creative_vector'].name})")
+    print(f"technical : layer_index={int(t['layer_index'])} dim={tuple(t['vector'].shape)}  ({pc['technical_vector'].name})")
+    assert int(c["layer_index"]) == pc["creative_layer"], f"creative layer {c['layer_index']} != {pc['creative_layer']}"
+    assert int(t["layer_index"]) == pc["technical_layer"], f"technical layer {t['layer_index']} != {pc['technical_layer']}"
 
     class _StubEngine:
         def __init__(self) -> None:
             self.config = SteeringConfig(model_id="Qwen/Qwen2.5-14B-Instruct")
 
     stub = _StubEngine()
-    # Run the REAL preset's config-build; neutralise only the model-dependent apply step.
     orig_apply = sp.apply_layer_injections
-    sp.apply_layer_injections = lambda *a, **k: None
+    sp.apply_layer_injections = lambda *a, **k: None  # neutralise only the model-dependent apply step
     try:
         sp.apply_v8_idea_forward_phase_shift(
             stub,
-            _STEERING_DIR,
-            creative_vector_path=_CREATIVE,
-            technical_vector_path=_TECHNICAL,
-            creative_layer=_CREATIVE_LAYER,
-            technical_layer=_TECHNICAL_LAYER,
-            **_V17,
+            pc["creative_vector"].parent,
+            creative_vector_path=pc["creative_vector"],
+            technical_vector_path=pc["technical_vector"],
+            creative_layer=pc["creative_layer"],
+            technical_layer=pc["technical_layer"],
+            **s,
         )
     finally:
         sp.apply_layer_injections = orig_apply
@@ -86,32 +97,34 @@ def verify_config() -> int:
         print("  ", json.dumps(entry))
 
     assert len(inj) == 2, f"expected 2 layers (dual-injection), got {len(inj)}"
-    creative = next(e for e in inj if int(e["layer"]) == _CREATIVE_LAYER)
-    technical = next(e for e in inj if int(e["layer"]) == _TECHNICAL_LAYER)
+    creative = next(e for e in inj if int(e["layer"]) == pc["creative_layer"])
+    technical = next(e for e in inj if int(e["layer"]) == pc["technical_layer"])
     assert creative["alpha_schedule"] == "exp_decay", creative["alpha_schedule"]
     assert technical["alpha_schedule"] == "sigmoid_ramp", technical["alpha_schedule"]
-    assert abs(float(creative["start_alpha"]) - 2.05) < 1e-9
-    assert int(creative["exp_zero_by_step"]) == 132
-    assert abs(float(technical["start_alpha"]) - 0.75) < 1e-9
-    assert abs(float(technical["sigmoid_mid_step"]) - 58.0) < 1e-9
-    assert abs(float(technical["sigmoid_steepness"]) - 0.11) < 1e-9
-    assert creative["steering_math"] == "spherical"
-    assert technical["steering_math"] == "spherical"
+    assert abs(float(creative["start_alpha"]) - s["creative_start_alpha"]) < 1e-9
+    assert int(creative["exp_zero_by_step"]) == s["exp_zero_by_step"]
+    assert abs(float(technical["start_alpha"]) - s["technical_start_alpha"]) < 1e-9
+    assert abs(float(technical["sigmoid_mid_step"]) - s["sigmoid_mid_step"]) < 1e-9
+    assert abs(float(technical["sigmoid_steepness"]) - s["sigmoid_steepness"]) < 1e-9
+    assert creative["steering_math"] == s["steering_math"], creative["steering_math"]
+    assert technical["steering_math"] == s["steering_math"], technical["steering_math"]
     print(
-        "\nVERIFIED: real v17 dual-layer steering — L17 creative exp_decay(alpha=2.05 -> 0 by step 132) "
-        "+ L24 technical sigmoid_ramp(alpha=0.75, mid=58, steep=0.11), spherical math.\n"
-        "This is the production mechanism, NOT the single-layer constant-alpha strawman that "
-        "validate_diversity.py's ortho_L17 arm used."
+        f"\nVERIFIED: matches config/conceptial_14b.json — "
+        f"L{pc['creative_layer']} creative exp_decay(alpha={s['creative_start_alpha']} -> 0 by step "
+        f"{s['exp_zero_by_step']}) + L{pc['technical_layer']} technical sigmoid_ramp"
+        f"(alpha={s['technical_start_alpha']}, mid={s['sigmoid_mid_step']}, steep={s['sigmoid_steepness']}), "
+        f"{s['steering_math']} math.\nThis is the production 14B mechanism, NOT the single-layer "
+        f"constant-alpha strawman that validate_diversity.py's ortho_L17 arm used."
     )
     return 0
 
 
 def run_generation(*, n_briefs: int, k: int, max_new_tokens: int, temperature: float, out: str) -> int:
-    """Load 14B via CloudCorpius (v17, L17+L24) and generate steered vs unsteered. Needs a CUDA GPU."""
+    """Load 14B via CloudCorpius (config/conceptial_14b.json) and generate steered vs unsteered."""
     import torch
 
     sys.path.insert(0, str(_REPO / "scripts"))
-    from validate_diversity import BUILTIN_BRIEFS  # the same builtin briefs as the FP16 sweep
+    from validate_diversity import BUILTIN_BRIEFS  # same builtin briefs as the FP16 sweep
 
     from brainstormlm.conceptial.engine.cloud.cloud_corpius import CloudCorpius
 
@@ -119,18 +132,19 @@ def run_generation(*, n_briefs: int, k: int, max_new_tokens: int, temperature: f
         print("ERROR: generation needs a CUDA GPU (~28GB for 14B). Use --verify-only on CPU.", file=sys.stderr)
         return 2
 
+    pc = _load_prod_config()
     briefs = BUILTIN_BRIEFS[:n_briefs]
     cc = CloudCorpius(
-        _STEERING_DIR,
-        _CREATIVE,
-        _TECHNICAL,
+        pc["creative_vector"].parent,
+        pc["creative_vector"],
+        pc["technical_vector"],
         model_id="Qwen/Qwen2.5-14B-Instruct",
-        creative_layer=_CREATIVE_LAYER,
-        technical_layer=_TECHNICAL_LAYER,
+        creative_layer=pc["creative_layer"],
+        technical_layer=pc["technical_layer"],
         device_map=None,
-        **_V17,
+        **pc["schedule"],
     )
-    engine = cc.engine  # forces model load + applies the v17 dual-layer steering
+    engine = cc.engine  # forces model load + applies the dual-layer steering
     inj = engine.config.layer_injections
     print("APPLIED layer_injections:", json.dumps(inj), flush=True)
     if len(inj) != 2:
@@ -167,9 +181,9 @@ def run_generation(*, n_briefs: int, k: int, max_new_tokens: int, temperature: f
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(
-        description="Corrected v17 steering test on 14B (real conceptial engine, dual-layer L17+L24)."
+        description="Corrected v17 steering test on 14B (real config/conceptial_14b.json, dual-layer L17+L24)."
     )
-    ap.add_argument("--verify-only", action="store_true", help="CPU: prove the real v17 config is built; no model load.")
+    ap.add_argument("--verify-only", action="store_true", help="CPU: prove the config matches conceptial_14b.json; no model load.")
     ap.add_argument("--n-briefs", type=int, default=12, help="First N builtin briefs (default 12).")
     ap.add_argument("--k", type=int, default=8, help="Outputs per brief per arm (default 8).")
     ap.add_argument("--max-new-tokens", type=int, default=160)
