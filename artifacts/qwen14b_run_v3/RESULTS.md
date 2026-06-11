@@ -1,6 +1,6 @@
 # Creativity-Steering v3 — Results (Qwen2.5-14B-Instruct)
 
-_Run: `artifacts/qwen14b_run_v3` · compiled 2026-06-09_
+_Run: `artifacts/qwen14b_run_v3` · compiled 2026-06-09 · updated 2026-06-11 (overnight replication)_
 
 ## TL;DR — steering beats the unsteered baseline (a first across v1/v2/v3)
 
@@ -13,6 +13,57 @@ a small-alpha activation-steering sweep found a genuine **beat-baseline** result
 **10 of 15 judged cells beat baseline _and_ clear the coherence bar.** The key was the
 injection strength: α=1 destroys coherence everywhere (Pragmaticality 1.0); **α=0.25 is the
 sweet spot** where novelty rises while the text stays coherent.
+
+> **Replicated (2026-06-11):** a clean overnight re-run with a full 3-judge ensemble reproduced
+> the headline — **L6 @ α=0.25 Pragmaticality 3.93** (vs 3.92 prior), Δ composite **+1.44**. See
+> the overnight section below.
+
+---
+
+## Update — overnight full-map + clean replication (2026-06-11)
+
+A 7.0-hour A100 run (`night_v3.sh`) did two things the earlier sweeps couldn't: a **complete
+48-layer × α{0.2,0.3,0.4} novelty map** (144 cells, judge-free) and a **judged frontier with a
+full, un-degraded 3-judge ensemble** on the top-novelty layers.
+
+### 1. The headline result replicates cleanly
+The prior beat-baseline cell carried a caveat — 34 Claude-judge calls failed mid-run, so some
+cells were scored by 2 judges, not 3. This run re-judged with all three judges intact:
+
+| | Prior (2026-06-09) | This run (2026-06-11) |
+|---|---|---|
+| L6 @ α=0.25 Pragmaticality | 3.92 | **3.93** |
+| Δ composite over baseline | +1.52 SD | **+1.44 SD** |
+
+The near-identical Pragmaticality turns the result from a caveated pilot into a **replicated**
+finding. Interpretable framing: novelty percentile **35 → 64**, **~90 % of baseline coherence
+retained**, common-language win-rate **~85 %**.
+
+### 2. Full 48-layer novelty landscape (144 cells)
+- **118 / 144 (82 %) of steered cells beat baseline novelty.**
+- Mean novelty by α: **0.2 → +0.06, 0.3 → +0.08, 0.4 → −0.08.** α∈{0.2,0.3} is net-positive
+  across the *whole* network; α=0.4 is already net-negative. The small-alpha sweet spot,
+  previously seen on ~9 hand-picked layers, now holds network-wide.
+- **New high-novelty layers the targeted sweeps never tested:** L22, L27, L28, L32, L44, L45
+  (mid-to-late band). Top raw novelty is **L32 @ α=0.4 (+0.771)**.
+
+### 3. Judged frontier (top-6 novelty layers × fine α grid) — 7/10 beat baseline
+| layer | α | Δ (SD) | novelty pct | Pragmaticality | note |
+|---|---|---|---|---|---|
+| L22 | 0.20 | **+1.54** | 35→67 | 2.90 | new layer; top composite but coherence cost |
+| **L6** | **0.25** | **+1.44** | 35→64 | **3.93** | **cleanest coherent win — replicated** |
+| L7 | 0.25 | +1.36 | 35→**72** | 3.77 | **most novelty while staying coherent** |
+| L6 | 0.30 | +1.23 | — | 3.21 | |
+| L7 | 0.20 | +1.07 | — | 4.28 | very coherent, modest novelty |
+| L5 | 0.25 | +0.88 | — | 4.12 | |
+
+Beyond α≈0.3 on these layers coherence collapses (L22@0.25 → Pragmaticality 1.77, L5@0.35 → 2.92),
+re-confirming the α curve. **For a steer→refine pipeline, L7 @ α=0.25 is the pick** (highest
+novelty among coherent cells); **for a single coherent win, L6 @ α=0.25.**
+
+Artifacts (local, not committed): `patching/mean_response/S1_mean_novelty_results.json` (full map),
+`S2_mean_judged_results.json` (frontier), and `S1_chunk*_/S2_*_generations.jsonl` (2 870 raw
+generations, ready for further off-pod judging).
 
 ---
 
@@ -100,9 +151,10 @@ Sweeping the high-novelty layers at **α ∈ {0.1, 0.25, 0.5}**
 ---
 
 ## Caveats
-- **Judge degradation:** 34 Claude-judge calls failed during an API-credit outage mid-run, so a
-  subset of cells were scored with 2 judges (gpt4o+gemini) not 3. The win is large (Δ +1.4, prag
-  ~3.9) so it's robust directionally; a cache-assisted re-run would give pristine numbers.
+- **Judge degradation:** _(resolved 2026-06-11)_ the original run lost 34 Claude-judge calls to an
+  API outage, so some cells were scored by 2 judges not 3. The overnight re-run re-judged with a
+  full 3-judge ensemble and reproduced the headline (Pragmaticality 3.92 → 3.93), so the win is no
+  longer caveated on this point.
 - **Batch-relative scores:** the composite is z-scored within each sweep; compare Δ-vs-baseline
   within a run, not absolute composites across runs.
 - `last_response_token` sweep not yet run (A/B pending).
@@ -114,7 +166,10 @@ Sweeping the high-novelty layers at **α ∈ {0.1, 0.25, 0.5}**
 - **v3 (this run):** quality-gated framed contrast + **small alpha** → **first beat-baseline.**
 
 ## Next steps
-1. Clean re-run (cache-assisted) to lock exact numbers.
-2. Refine α ∈ {0.2, 0.3} on L6/L7/L8 for the precise frontier.
-3. `last_response_token` A/B.
-4. Validate the steer→Opus-refine pipeline on the L7/L8 @ α=0.25 outputs.
+1. ~~Clean re-run (cache-assisted) to lock exact numbers.~~ **Done (2026-06-11)** — headline replicated.
+2. ~~Refine α ∈ {0.2, 0.3} on L6/L7/L8 for the precise frontier.~~ **Done** — full 48L × {0.2,0.3,0.4}
+   map + fine-α judged frontier; α∈{0.2,0.3} confirmed net-positive network-wide.
+3. **Probe the newly-surfaced layers** — L22/L27/L32/L44 were never in the targeted sweeps; judge
+   them at α∈{0.15,0.2} to see if any beats L6/L7 on the novelty↔coherence frontier.
+4. `last_response_token` A/B (deferred from the overnight run for time; generations are persisted).
+5. Validate the steer→Opus-refine pipeline on the L7 @ α=0.25 outputs (highest coherent novelty).
