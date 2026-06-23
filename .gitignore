@@ -31,3 +31,6 @@ artifacts/conceptial/V17_*.scores.*
 artifacts/conceptial/ANTIMODE_SMOKE*.md
 .claude/scheduled_tasks.lock
 .claude/worktrees/
+
+# v3 derive activations (multi-GB per-example dumps; live on the laptop, not git)
+artifacts/*/activations/

@@ -52,6 +52,10 @@ class StackCellScore:
     judged: bool
     n_samples: int
     delta: float = 0.0
+    # Mean RAW judge Pragmaticality (1-5 coherence/appropriateness) over the cell's judged
+    # responses — the continuous quality signal behind the gate, stored so the quality barrier
+    # can be inspected/tuned post-hoc (None for unjudged cells).
+    pragmaticality: float | None = None
 
     def to_dict(self) -> dict:
         return {
@@ -59,6 +63,7 @@ class StackCellScore:
             **self.meta,
             "composite": self.composite,
             "stage1": self.stage1,
+            "pragmaticality": self.pragmaticality,
             "judged": self.judged,
             "n_samples": self.n_samples,
             "delta": self.delta,
@@ -71,6 +76,9 @@ class TwoStageSweepResult:
     cells: list[StackCellScore]
     judged_labels: list[str]
     enable_judge: bool
+    # One dict per generated response ({cell, layer?, alpha?, prompt, response}), so a Phase-1
+    # (judge-off) sweep can persist its outputs and be judged later off-pod without a GPU.
+    generations: list[dict] = field(default_factory=list)
 
     def best_cell(self) -> dict:
         """Best non-baseline cell. When judging is on, restrict to judged cells (only those
@@ -155,6 +163,7 @@ def two_stage_cell_sweep(
     enable_reward: bool = False,
     use_reward_fallback: bool = False,
     stage1_device: str | None = None,
+    quality_floor: float | None = None,
     baseline_injections: Sequence[Injection] = (),
 ) -> TwoStageSweepResult:
     """Generate all cells, score with the two-stage stack, gate judges to the top-k cells.
@@ -183,6 +192,7 @@ def two_stage_cell_sweep(
             run_reward=enable_reward,
             use_reward_fallback=use_reward_fallback,
             stage1_device=stage1_device,
+            composite_quality_floor=quality_floor,
         )
     judge_cfg = eval_config
     stage1_cfg = eval_config.model_copy(update={"enable_stage2": False})
@@ -194,6 +204,19 @@ def two_stage_cell_sweep(
         backend, full_cells, briefs=briefs, n_samples=n_samples,
         max_new_tokens=max_new_tokens, temperature=temperature, seed=seed,
     )
+
+    # Keep the raw text alongside its cell label + grid coords so a judge-off (Phase 1) sweep can
+    # be persisted and re-judged off-pod. ``category`` is an enum; drop it (not JSON-friendly,
+    # and re-derivable). ``baseline`` flag is dropped from meta — baseline carries no layer/alpha.
+    generations = [
+        {
+            "cell": full_cells[ci].label,
+            **{k: v for k, v in full_cells[ci].meta.items() if k != "baseline"},
+            "prompt": rec["prompt"],
+            "response": rec["response"],
+        }
+        for rec, ci in zip(records, cell_idx)
+    ]
 
     # --- Pass A: Stage 1 over every generation (cheap) ---
     # Rank/gate by the Stage-1 *composite component* (novelty-based: DSI/PPL/lexical), not the
@@ -217,6 +240,7 @@ def two_stage_cell_sweep(
     # --- Pass B: Stage 2 on the judged cells' generations only ---
     composite_by_cell = list(stage1_by_cell)
     judged_flags = [False] * n_cells
+    prag_by_cell: list[float | None] = [None] * n_cells
     if judged_idx:
         keep = [j for j, ci in enumerate(cell_idx) if ci in judged_idx]
         judged_records = [records[j] for j in keep]
@@ -224,9 +248,22 @@ def two_stage_cell_sweep(
         s2_results = evaluate_batch(judged_records, judge_cfg, scorers=scorers)
         s2_scores = [float(r.creativity_score) for r in s2_results]
         s2_by_cell = _mean_by_cell(s2_scores, judged_cellidx, n_cells)
+        # Raw judge Pragmaticality per judged response → per-cell mean (skip judge-failed Nones).
+        prag = [
+            (r.ensemble.per_dimension_mean.get("Pragmaticality")
+             if (r.ensemble is not None and r.ensemble.per_dimension_mean) else None)
+            for r in s2_results
+        ]
+        prag_sums = [0.0] * n_cells
+        prag_counts = [0] * n_cells
+        for p, ci in zip(prag, judged_cellidx):
+            if p is not None:
+                prag_sums[ci] += float(p)
+                prag_counts[ci] += 1
         for ci in judged_idx:
             composite_by_cell[ci] = s2_by_cell[ci]
             judged_flags[ci] = True
+            prag_by_cell[ci] = (prag_sums[ci] / prag_counts[ci]) if prag_counts[ci] else None
 
     n_per_cell = [cell_idx.count(ci) for ci in range(n_cells)]
     baseline_composite = composite_by_cell[0]
@@ -240,6 +277,7 @@ def two_stage_cell_sweep(
             judged=judged_flags[ci],
             n_samples=n_per_cell[ci],
             delta=composite_by_cell[ci] - baseline_composite,
+            pragmaticality=prag_by_cell[ci],
         )
 
     baseline_score = _score(0)
@@ -251,6 +289,7 @@ def two_stage_cell_sweep(
         cells=cell_scores,
         judged_labels=judged_labels,
         enable_judge=enable_judge,
+        generations=generations,
     )
 
 

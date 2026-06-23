@@ -204,6 +204,8 @@ def evaluate_batch(
         full_records,
         creativity_weight=config.composite_creativity_weight,
         elaboration_weight=config.composite_elaboration_weight,
+        quality_floor=config.composite_quality_floor,
+        quality_fail_penalty=config.composite_quality_fail_penalty,
     )
 
     timestamp = datetime.datetime.now(datetime.timezone.utc).isoformat()

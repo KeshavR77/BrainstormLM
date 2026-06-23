@@ -130,6 +130,28 @@ class FilterConfig:
     enable_reward: bool = False  # run the Skywork reward model as a model-free Stage-1 quality pole
     use_reward_fallback: bool = False  # use Skywork 8B reward instead of the 27B (tighter pods)
 
+    # --- v3: one-per-prompt cap + quality-gated-novelty selection ---
+    # Cap each verified pool at AT MOST one response per prompt (keep the best-scoring creative
+    # per prompt for positives, the worst-scoring neutral per prompt for negatives), so no single
+    # topic dominates the DiffMeans contrast. Combine with creative_quantile/neutral_quantile set
+    # to the top/bottom tail (e.g. 0.9 / 0.1) to select "top 10% creative" vs "bottom 10% neutral".
+    one_per_prompt: bool = False
+    # Absolute judge-pragmaticality floor (1-5) for the quality-gated-novelty composite. When set,
+    # it is threaded into the evaluator's composite (composite_quality_floor) so a response is
+    # scored on novelty only if it clears this bar; positives must additionally pass the gate.
+    quality_floor: float | None = None
+
+    # --- v3 top-up loop: generate topic batches until BOTH pools reach this many ---
+    # 0 disables the loop (single-pass derive, using min_per_class as the floor that may raise).
+    # When > 0, derive_vectors generates topics in chunks of ``topup_chunk_size`` and re-filters
+    # the growing pool each round (judges are cached, so re-scoring is cheap) until n_positive and
+    # n_negative both reach ``target_per_class`` OR the topic bank is exhausted (then it warns and
+    # returns what it has — it never raises, so the expensive generation is always saved). Only
+    # used by the evaluator_stack / score_split methods. Keep ``topup_chunk_size`` < 500 (the
+    # per-chunk seed offset assumes the within-chunk seed span stays below 100k).
+    target_per_class: int = 0
+    topup_chunk_size: int = 300
+
     # --- score_split method (single-context, behavior-only contrast) ---
     # Generate every response under NO system prompt at one decode (generation.unframed_sampling),
     # then split the whole pool by evaluator score (no framing): positives are responses with

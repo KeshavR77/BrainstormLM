@@ -113,6 +113,18 @@ def main(target: int = 1100, batch: int = 50, out_path: Path | None = None) -> N
     def normalize(t: str) -> str:
         return re.sub(r"\s+", " ", t.lower().strip().rstrip("."))
 
+    # Grow an existing bank in place: keep prior topics AND their order, so previously generated
+    # responses + cached judgments stay valid (seeds are positional) and only NEW unique topics
+    # are appended up to ``target``.
+    if out_path.exists():
+        prior = json.loads(out_path.read_text()).get("topics", [])
+        for t in prior:
+            k = normalize(t)
+            if k not in seen:
+                seen.add(k)
+                topics.append(t)
+        print(f"[gen] loaded {len(topics)} existing topics from {out_path} (append mode)")
+
     attempts = 0
     while len(topics) < target and attempts < 60:
         attempts += 1

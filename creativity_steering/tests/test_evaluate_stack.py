@@ -116,6 +116,27 @@ def test_judge_gating_runs_stage2_only_on_top_k_cells():
     assert neg_cell.judged is False  # gated out
 
 
+def test_judged_cells_store_raw_pragmaticality():
+    # Each judged cell records the mean RAW judge Pragmaticality (1-5); unjudged cells stay None.
+    backend = MockBackend(num_layers=12, hidden_dim=32, creative_layer=6, seed=0)
+    pos, neg = _pos_neg_cells(backend)
+    ensemble = Ensemble([_FakeJudge("a", "openai"), _FakeJudge("b", "anthropic")])
+    res = two_stage_cell_sweep(
+        backend, [pos, neg], scorers=_scorers(ensemble=ensemble),
+        enable_judge=True, judge_top_k=1, stage1_floor_percentile=0.0,
+        briefs=BRIEFS, n_samples=4, seed=0,
+    )
+    pos_cell = next(c for c in res.cells if c.label == "L6_pos")
+    neg_cell = next(c for c in res.cells if c.label == "L6_neg")
+    assert pos_cell.judged and pos_cell.pragmaticality is not None  # diverse text -> high prag
+    assert pos_cell.pragmaticality == 5.0
+    assert neg_cell.pragmaticality is None  # not judged -> no raw score
+    # and it survives serialization
+    import json
+    d = json.loads(json.dumps(res.to_dict()))
+    assert any(c.get("pragmaticality") == 5.0 for c in d["cells"])
+
+
 def test_ranks_by_novelty_when_no_quality_pole():
     # No reward model and no judges -> the final composite (novelty x quality) collapses to 0
     # for every cell. The sweep must still rank cells by the Stage-1 novelty composite, so the
@@ -133,6 +154,27 @@ def test_ranks_by_novelty_when_no_quality_pole():
     neg_s = next(c.composite for c in res.cells if c.label == "L6_neg")
     assert pos_s > neg_s
     assert res.best_cell()["label"] == "L6_pos"
+
+
+def test_exposes_generations_for_offpod_judging():
+    """Phase 1 sweeps run on-pod with judging off; the generated text must be persisted so
+    the LLM-judge can run later off-pod without regenerating on a GPU. The result exposes
+    one record per generation, each tagged with its cell label + the (prompt, response)."""
+    backend = MockBackend(num_layers=12, hidden_dim=32, creative_layer=6, seed=0)
+    pos, neg = _pos_neg_cells(backend)
+    res = two_stage_cell_sweep(
+        backend, [pos, neg], scorers=_scorers(), enable_judge=False,
+        briefs=BRIEFS, n_samples=4, seed=0,
+    )
+    gens = res.generations
+    # baseline + pos + neg, each over briefs x n_samples
+    assert len(gens) == 3 * len(BRIEFS) * 4
+    assert {g["cell"] for g in gens} == {"baseline", "L6_pos", "L6_neg"}
+    for g in gens:
+        assert g["prompt"] and isinstance(g["response"], str)
+    # steered cells carry the layer/alpha needed to align scores back to the sweep grid
+    steered = [g for g in gens if g["cell"] != "baseline"]
+    assert all(g["layer"] == 6 and "alpha" in g for g in steered)
 
 
 def test_enable_judge_without_ensemble_is_graceful():

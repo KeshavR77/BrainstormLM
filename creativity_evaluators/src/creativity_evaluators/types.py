@@ -224,6 +224,12 @@ class EvalConfig(BaseModel):
     # --- Composite weights (exposed for tuning) ---
     composite_creativity_weight: float = 0.85
     composite_elaboration_weight: float = 0.15
+    # Quality-gated novelty (off by default). When set, the composite scores a response on its
+    # novelty alone as long as its raw Stage-2 Pragmaticality (1-5) clears this absolute floor;
+    # otherwise the response is disqualified to ``-composite_quality_fail_penalty``. Prioritises
+    # novelty while refusing responses below a bare-minimum quality bar (see composite.py).
+    composite_quality_floor: float | None = None
+    composite_quality_fail_penalty: float = 10.0
 
     # --- Bookkeeping ---
     cache_dir: str = ".cache/creativity_evaluators"

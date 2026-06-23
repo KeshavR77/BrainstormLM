@@ -108,6 +108,13 @@ def test_cli_sweep_two_stage(tmp_path, monkeypatch):
     # 3 layers x 2 alphas = 6 cells
     assert len(data["cells"]) == 6
 
+    # The raw generations are persisted for off-pod judging (one JSON record per line).
+    gens_path = run_dir / "patching" / "last_response_token" / "sweep_generations.jsonl"
+    assert gens_path.exists()
+    recs = [json.loads(line) for line in gens_path.read_text().splitlines()]
+    assert recs and all({"cell", "prompt", "response"} <= rec.keys() for rec in recs)
+    assert any(rec["cell"] == "baseline" for rec in recs)
+
 
 def test_cli_experiments_two_stage(tmp_path, monkeypatch):
     """The `experiments` command (Exp-2: all-layers + multi-vector on promising layers)."""
