@@ -108,7 +108,8 @@ class TestBuildOrthogonalArchetypeDirs:
     def test_near_collinear_mode_falls_back_to_raw(self):
         rng = np.random.default_rng(3)
         d = 8
-        m0 = np.zeros(d, dtype=np.float32); m0[0] = 1.0     # distinct
+        m0 = np.zeros(d, dtype=np.float32)
+        m0[0] = 1.0     # distinct
         m1 = rng.normal(size=d).astype(np.float32)
         m2 = (m1 + 1e-3 * rng.normal(size=d).astype(np.float32)).astype(np.float32)  # ~parallel to m1
         bank = ArchetypeBank(vectors=np.stack([m0, m1, m2]), archetype_names=None)

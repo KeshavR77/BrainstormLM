@@ -23,7 +23,7 @@ _SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
 if str(_SCRIPTS) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS))
 
-from validate_diversity import (
+from validate_diversity import (  # noqa: E402  (import follows a sys.path insert)
     ArmResult,
     MockGenerator,
     bootstrap_ci,

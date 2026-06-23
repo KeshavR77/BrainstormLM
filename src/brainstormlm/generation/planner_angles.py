@@ -33,7 +33,7 @@ Inject ``llm`` and ``embedder`` for tests (no API calls):
 from __future__ import annotations
 
 import re
-from typing import Callable, Protocol
+from typing import Protocol
 
 import numpy as np
 

@@ -228,8 +228,10 @@ class TestDistinctnessOrder:
     def test_distinct_first_redundant_last(self):
         """A vector orthogonal to the rest ranks first; a near-duplicate ranks last."""
         d = 8
-        v0 = np.zeros(d, dtype=np.float32); v0[0] = 1.0
-        v2 = np.zeros(d, dtype=np.float32); v2[1] = 1.0  # orthogonal to v0 -> most distinct
+        v0 = np.zeros(d, dtype=np.float32)
+        v0[0] = 1.0
+        v2 = np.zeros(d, dtype=np.float32)
+        v2[1] = 1.0  # orthogonal to v0 -> most distinct
         v1 = v0 + 1e-3 * np.random.default_rng(1).normal(size=d).astype(np.float32)  # ~v0
         V = np.stack([v0, v1, v2])
         order = distinctness_order(V)

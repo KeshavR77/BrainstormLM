@@ -61,6 +61,8 @@ extend-exclude = [
     # Parked legacy evaluator (formerly vendored in creativity_steering); kept for reference
     # only, carries its own lint regime — superseded by the top-level creativity_evaluators.
     "old_creativity_evaluators",
+    # Per-run output dumps (throwaway analysis scripts), not maintained source.
+    "results",
 ]
 
 [tool.pytest.ini_options]

@@ -125,7 +125,7 @@ def main() -> int:
     steered_spread = scorer.score_collection(steered)
     baseline_spread = scorer.score_collection(baseline)
 
-    print(f"\n== baseline batch (zero-direction, greedy) — sample [0] for coherence reference ==")
+    print("\n== baseline batch (zero-direction, greedy) — sample [0] for coherence reference ==")
     print(f"  [0] {baseline[0].strip()[:160]}")
     print(f"\n== steered batch ({len(steered)} samples, greedy) ==")
     for i, t in enumerate(steered):
