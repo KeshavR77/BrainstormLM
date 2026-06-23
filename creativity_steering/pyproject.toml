@@ -21,6 +21,7 @@ hf = ["torch>=2.2", "transformers>=4.44"]
 embedding = ["sentence-transformers>=2.2"]
 evaluator = ["numpy>=1.24", "scipy>=1.10", "pydantic>=2.0"]
 serve = ["fastapi>=0.110", "uvicorn>=0.30"]
+refine = ["openai>=1.40"]   # optional concept-frozen OpenAI refiner for the steer -> refine API
 dev = ["pytest>=7.0", "ruff>=0.5"]
 
 [project.scripts]

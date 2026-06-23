@@ -10,7 +10,14 @@ from creativity_steering.serving.package import SteeringPackage
 
 
 class SteeringService:
-    def __init__(self, backend, vectorset: SteeringVectorSet, package: SteeringPackage):
+    def __init__(
+        self,
+        backend,
+        vectorset: SteeringVectorSet,
+        package: SteeringPackage,
+        *,
+        refiner=None,
+    ):
         bad = sorted(L for L in package.all_layers() if not (0 <= L < vectorset.n_layers))
         if bad:
             raise ValueError(
@@ -19,11 +26,15 @@ class SteeringService:
         self.backend = backend
         self.vs = vectorset
         self.package = package
+        self.refiner = refiner  # optional concept-frozen post-step (steer -> refine)
 
     @classmethod
-    def from_package(cls, package: SteeringPackage, *, backend=None, vectorset=None) -> "SteeringService":
+    def from_package(
+        cls, package: SteeringPackage, *, backend=None, vectorset=None, refiner=None
+    ) -> "SteeringService":
         """Build a live service: load the vector set from disk and (lazily) the HF model.
-        Inject ``backend`` / ``vectorset`` to run offline (tests, custom backends)."""
+        Inject ``backend`` / ``vectorset`` to run offline (tests, custom backends). Pass
+        ``refiner`` to enable the optional steer -> refine post-step."""
         if vectorset is None:
             vectorset = SteeringVectorSet.load(package.vectors_path)
         if backend is None:
@@ -32,7 +43,7 @@ class SteeringService:
             backend = HFBackend(
                 model_id=package.model_id, device=package.device, dtype=package.dtype
             )
-        return cls(backend, vectorset, package)
+        return cls(backend, vectorset, package, refiner=refiner)
 
     def generate(
         self,
@@ -56,8 +67,20 @@ class SteeringService:
             seed=int(seed) if seed is not None else p.seed,
         )
 
+    @property
+    def has_refiner(self) -> bool:
+        return self.refiner is not None
+
+    def refine_text(self, prompt: str, text: str) -> str:
+        """Polish steered candidates via the configured refiner (concept-frozen). Raises if no
+        refiner was wired in."""
+        if self.refiner is None:
+            raise RuntimeError("no refiner configured for this service")
+        return self.refiner.refine(prompt, text)
+
     def info(self) -> dict:
         d = self.package.public()
         d["capture_position"] = self.vs.capture_position
         d["n_layers"] = self.vs.n_layers
+        d["refiner"] = self.refiner.info() if self.refiner is not None else None
         return d

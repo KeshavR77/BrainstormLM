@@ -2,6 +2,7 @@
 
 from creativity_steering.serving.app import create_app
 from creativity_steering.serving.package import SteeringPackage
+from creativity_steering.serving.refiner import OpenAIRefiner
 from creativity_steering.serving.service import SteeringService
 
-__all__ = ["SteeringPackage", "SteeringService", "create_app"]
+__all__ = ["OpenAIRefiner", "SteeringPackage", "SteeringService", "create_app"]

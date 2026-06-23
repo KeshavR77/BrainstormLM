@@ -72,14 +72,50 @@ curl -X POST localhost:8000/compare -H 'content-type: application/json' \
 `/compare` is the formal-testing workhorse: identical prompt + seed, the only difference is the
 injection, so the difference in output is attributable to the steering vector.
 
+## Steer → refine (optional OpenAI refiner)
+
+The steered 14B supplies the **diverse** candidates; an optional frontier-model refiner polishes
+each one for clarity/specificity. It is **concept-frozen** by design — it never changes a concept,
+merges, drops, or reorders ideas, so the steered diversity survives (free rewrite homogenizes; the
+pipeline arch doc forbids per-idea rewrite). This is the "steer → refine" pipeline `RESULTS.md`
+recommends (e.g. `L7 @ α=0.25` steer → refine).
+
+Enable it at launch (uses the `OPENAI_API_KEY` already in your env; install the extra):
+
+```bash
+pip install -e "creativity_steering[hf,serve,refine]"
+PYTHONPATH=creativity_steering \
+STEERING_PACKAGE=creativity_steering/configs/ship_v3_bracket.json \
+REFINER=openai REFINER_MODEL=gpt-4o-mini PORT=8000 \
+python creativity_steering/scripts/serve_steering.py
+```
+
+Then pass `"refine": true` — `/generate` returns a `refined` field next to the raw steered `text`;
+`/compare` becomes a three-way `baseline` vs `steered` vs `refined` (does the refiner add value on
+top of the vector?). `/health` reports the active refiner model.
+
+```bash
+curl -X POST localhost:8000/generate -H 'content-type: application/json' \
+     -d '{"prompt":"Give me 5 unconventional uses for a brick.","variant":"L17","refine":true}'
+curl -X POST localhost:8000/compare  -H 'content-type: application/json' \
+     -d '{"prompt":"Give me 5 unconventional uses for a brick.","refine":true,"seed":0}'
+```
+
+`refine:true` without a refiner configured returns `400`. The refiner is API-based, so it is
+precision-independent (works the same against the FP16 or AWQ model).
+
 ## Programmatic
 
 ```python
 from creativity_steering.serving import SteeringPackage, SteeringService, create_app
-svc = SteeringService.from_package(SteeringPackage.load("…/ship_v3_bracket.json"))
+from creativity_steering.serving.refiner import OpenAIRefiner
+svc = SteeringService.from_package(SteeringPackage.load("…/ship_v3_bracket.json"),
+                                   refiner=OpenAIRefiner(model="gpt-4o-mini"))  # refiner optional
 print(svc.generate("…", variant="L17"))       # default ship pick
 print(svc.generate("…", variant="bracket"))   # all three mid-network layers
 print(svc.generate("…", steered=False))       # baseline
+steered = svc.generate("…", variant="L17")
+print(svc.refine_text("…", steered))          # concept-frozen polish (needs a refiner)
 app = create_app(svc)   # the FastAPI app
 ```
 

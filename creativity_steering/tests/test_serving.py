@@ -135,3 +135,46 @@ def test_service_generate_differs_by_variant():
     bracket = svc.generate("Describe a chair.", variant="bracket", seed=0)
     baseline = svc.generate("Describe a chair.", steered=False, seed=0)
     assert single != baseline and bracket != baseline
+
+
+# --- optional concept-frozen refiner (steer -> refine) ------------------------------------
+
+class _FakeRefiner:
+    model = "fake-refiner"
+
+    def __init__(self):
+        self.calls = []
+
+    def refine(self, prompt, text):
+        self.calls.append((prompt, text))
+        return f"REFINED<<{text}>>"
+
+    def info(self):
+        return {"model": self.model}
+
+
+def test_service_refine_text_delegates_to_refiner():
+    b, vs = _backend_and_vs()
+    ref = _FakeRefiner()
+    svc = SteeringService(b, vs, _pkg(layer=4, alpha=8.0), refiner=ref)
+    steered = svc.generate("Describe a chair.", seed=0)
+    refined = svc.refine_text("Describe a chair.", steered)
+    assert refined == f"REFINED<<{steered}>>"
+    assert ref.calls == [("Describe a chair.", steered)]
+    assert svc.has_refiner is True
+
+
+def test_service_refine_without_refiner_raises():
+    b, vs = _backend_and_vs()
+    svc = SteeringService(b, vs, _pkg(layer=4, alpha=8.0))
+    assert svc.has_refiner is False
+    with pytest.raises(RuntimeError):
+        svc.refine_text("p", "steered text")
+
+
+def test_service_info_reports_refiner():
+    b, vs = _backend_and_vs()
+    info = SteeringService(b, vs, _pkg(layer=4, alpha=8.0), refiner=_FakeRefiner()).info()
+    assert info["refiner"] == {"model": "fake-refiner"}
+    no_ref = SteeringService(b, vs, _pkg(layer=4, alpha=8.0)).info()
+    assert no_ref["refiner"] is None

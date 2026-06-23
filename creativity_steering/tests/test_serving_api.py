@@ -11,12 +11,12 @@ from creativity_steering.serving.package import SteeringPackage
 from creativity_steering.serving.service import SteeringService
 
 
-def _svc(package):
+def _svc(package, refiner=None):
     b = MockBackend(num_layers=24, hidden_dim=128, creative_layer=4, seed=0)
     vs = SteeringVectorSet(vectors=np.asarray(b.creativity_axis, dtype=np.float32),
                            model_id="mock-qwen", capture_position="mean_response",
                            n_positive=10, n_negative=10)
-    return SteeringService(b, vs, package)
+    return SteeringService(b, vs, package, refiner=refiner)
 
 
 def _client():
@@ -87,3 +87,51 @@ def test_generate_can_choose_the_bracket():
 def test_unknown_variant_is_400():
     r = _bracket_client().post("/generate", json={"prompt": "p", "variant": "nope"})
     assert r.status_code == 400
+
+
+# --- optional concept-frozen refiner over the API (steer -> refine) ------------------------
+
+class _FakeRefiner:
+    model = "fake-refiner"
+
+    def refine(self, prompt, text):
+        return f"REFINED<<{text}>>"
+
+    def info(self):
+        return {"model": self.model}
+
+
+def _refiner_client():
+    pkg = SteeringPackage(name="v3-L4-a8", vectors_path="(x)", layer=4, alpha=8.0)
+    return TestClient(create_app(_svc(pkg, refiner=_FakeRefiner())))
+
+
+def test_generate_with_refine_returns_steered_and_refined():
+    j = _refiner_client().post(
+        "/generate", json={"prompt": "Describe a chair.", "refine": True, "seed": 0}
+    ).json()
+    assert j["text"]                                  # the steered candidates
+    assert j["refined"] == f"REFINED<<{j['text']}>>"  # concept-frozen polish on top
+
+
+def test_generate_without_refine_leaves_refined_null():
+    j = _refiner_client().post("/generate", json={"prompt": "Describe a chair."}).json()
+    assert j.get("refined") is None                   # off by default — back-compat
+
+
+def test_generate_refine_without_refiner_is_400():
+    r = _client().post("/generate", json={"prompt": "p", "refine": True})
+    assert r.status_code == 400
+
+
+def test_compare_with_refine_is_three_way():
+    j = _refiner_client().post(
+        "/compare", json={"prompt": "Describe a chair.", "refine": True, "seed": 0}
+    ).json()
+    assert j["baseline"] and j["steered"]
+    assert j["refined"] == f"REFINED<<{j['steered']}>>"  # refine runs on the steered arm
+
+
+def test_health_reports_refiner():
+    assert _refiner_client().get("/health").json()["refiner"] == {"model": "fake-refiner"}
+    assert _client().get("/health").json()["refiner"] is None
