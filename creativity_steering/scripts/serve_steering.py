@@ -5,14 +5,17 @@ Loads Qwen2.5-14B once, applies the package's {vector, layer, alpha} during gene
 exposes /generate and /compare (baseline vs steered for the same prompt). Swap the shipped
 config by pointing STEERING_PACKAGE at a different package JSON — no code change.
 
-  # default ships L17 @ alpha=0.2 (v3 vector):
-  STEERING_PACKAGE=creativity_steering/configs/ship_L17_a0.2.json \
+  # default ships the v3 mid-network package: default variant L17 @ alpha=0.2, plus the
+  # bracket (L14+L16+L17) the caller can choose via the request's "variant" field:
+  STEERING_PACKAGE=creativity_steering/configs/ship_v3_bracket.json \
   PORT=8000 python creativity_steering/scripts/serve_steering.py
 
   # then:
-  curl localhost:8000/health
+  curl localhost:8000/variants                       # list L17 / L14 / L16 / bracket
   curl -X POST localhost:8000/compare -H 'content-type: application/json' \
-       -d '{"prompt":"Give me 5 uses for a brick.","seed":0}'
+       -d '{"prompt":"Give me 5 uses for a brick.","seed":0}'                 # default L17
+  curl -X POST localhost:8000/compare -H 'content-type: application/json' \
+       -d '{"prompt":"Give me 5 uses for a brick.","variant":"bracket","seed":0}'
 """
 import os
 
@@ -25,7 +28,7 @@ from creativity_steering.serving.service import SteeringService
 
 def main() -> None:
     pkg_path = os.environ.get(
-        "STEERING_PACKAGE", "creativity_steering/configs/ship_L17_a0.2.json"
+        "STEERING_PACKAGE", "creativity_steering/configs/ship_v3_bracket.json"
     )
     pkg = SteeringPackage.load(pkg_path)
     print(f"[serve] package '{pkg.name}': layer={pkg.layer} alpha={pkg.alpha} "

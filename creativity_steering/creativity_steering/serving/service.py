@@ -11,10 +11,10 @@ from creativity_steering.serving.package import SteeringPackage
 
 class SteeringService:
     def __init__(self, backend, vectorset: SteeringVectorSet, package: SteeringPackage):
-        if not (0 <= package.layer < vectorset.n_layers):
+        bad = sorted(L for L in package.all_layers() if not (0 <= L < vectorset.n_layers))
+        if bad:
             raise ValueError(
-                f"package layer {package.layer} out of range for a "
-                f"{vectorset.n_layers}-layer vector set"
+                f"package layers {bad} out of range for a {vectorset.n_layers}-layer vector set"
             )
         self.backend = backend
         self.vs = vectorset
@@ -38,6 +38,7 @@ class SteeringService:
         self,
         prompt: str,
         *,
+        variant: str | None = None,
         system: str | None = None,
         steered: bool = True,
         max_new_tokens: int | None = None,
@@ -45,7 +46,7 @@ class SteeringService:
         seed: int | None = None,
     ) -> str:
         p = self.package
-        injections = p.injections(self.vs) if steered else []
+        injections = p.injections(self.vs, variant) if steered else []
         return self.backend.generate_steered(
             prompt,
             injections=injections,

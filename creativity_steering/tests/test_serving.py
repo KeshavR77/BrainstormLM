@@ -73,3 +73,65 @@ def test_service_info_reports_the_shipped_package():
     info = SteeringService(b, vs, _pkg(layer=17, alpha=0.2)).info()
     assert info["layer"] == 17 and info["alpha"] == 0.2
     assert info["capture_position"] == "mean_response" and info["n_layers"] == 24
+
+
+# --- variants: choose just L17 or the bracket ---------------------------------------------
+
+def _bracket_pkg():
+    return SteeringPackage(
+        name="v3-mid", vectors_path="(unused)", default_variant="L4",
+        variants={
+            "L4": [{"layer": 4, "alpha": 8.0}],
+            "bracket": [{"layer": 2, "alpha": 8.0}, {"layer": 4, "alpha": 8.0},
+                        {"layer": 6, "alpha": 8.0}],
+        },
+    )
+
+
+def test_single_layer_package_back_compat():
+    # a top-level layer/alpha package still works and exposes a one-variant set
+    pkg = _pkg(layer=17, alpha=0.2)
+    assert pkg.layer == 17 and pkg.default_variant in pkg.variant_names()
+    _, vs = _backend_and_vs()
+    assert len(pkg.injections(vs)) == 1
+
+
+def test_variant_selection_builds_right_injections():
+    _, vs = _backend_and_vs()
+    pkg = _bracket_pkg()
+    assert set(pkg.variant_names()) == {"L4", "bracket"}
+    assert len(pkg.injections(vs, variant="L4")) == 1
+    bracket = pkg.injections(vs, variant="bracket")
+    assert len(bracket) == 3 and {i.layer for i in bracket} == {2, 4, 6}
+    # each uses its own layer's unit direction
+    assert all(abs(float(np.linalg.norm(i.vector)) - 1.0) < 1e-5 for i in bracket)
+
+
+def test_default_variant_used_when_unspecified():
+    _, vs = _backend_and_vs()
+    pkg = _bracket_pkg()  # default L4
+    assert len(pkg.injections(vs)) == 1  # the default, single layer
+
+
+def test_unknown_variant_raises():
+    _, vs = _backend_and_vs()
+    with pytest.raises(KeyError):
+        _bracket_pkg().injections(vs, variant="nope")
+
+
+def test_service_validates_all_variant_layers():
+    b, vs = _backend_and_vs()  # 24 layers
+    bad = SteeringPackage(name="x", vectors_path="(u)", default_variant="ok",
+                          variants={"ok": [{"layer": 4, "alpha": 1.0}],
+                                    "bad": [{"layer": 99, "alpha": 1.0}]})
+    with pytest.raises(ValueError):
+        SteeringService(b, vs, bad)
+
+
+def test_service_generate_differs_by_variant():
+    b, vs = _backend_and_vs(creative_layer=4)
+    svc = SteeringService(b, vs, _bracket_pkg())
+    single = svc.generate("Describe a chair.", variant="L4", seed=0)
+    bracket = svc.generate("Describe a chair.", variant="bracket", seed=0)
+    baseline = svc.generate("Describe a chair.", steered=False, seed=0)
+    assert single != baseline and bracket != baseline

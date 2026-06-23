@@ -1,0 +1,19 @@
+{
+  "name": "v3-mid-network",
+  "vectors_path": "artifacts/qwen14b_run_v3/vectors/mean_response",
+  "default_variant": "L17",
+  "variants": {
+    "L17": [{"layer": 17, "alpha": 0.2}],
+    "L14": [{"layer": 14, "alpha": 0.2}],
+    "L16": [{"layer": 16, "alpha": 0.2}],
+    "bracket": [{"layer": 14, "alpha": 0.2}, {"layer": 16, "alpha": 0.2}, {"layer": 17, "alpha": 0.2}]
+  },
+  "rescale": true,
+  "model_id": "Qwen/Qwen2.5-14B-Instruct",
+  "device": "cuda",
+  "dtype": "bf16",
+  "system": null,
+  "max_new_tokens": 256,
+  "temperature": 0.9,
+  "seed": 0
+}
