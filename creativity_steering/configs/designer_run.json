@@ -1,0 +1,18 @@
+{
+  "name": "designer-run-v3",
+  "vectors_path": "artifacts/qwen14b_run_v3/vectors/mean_response",
+  "default_variant": "L7",
+  "variants": {
+    "L7": [{"layer": 7, "alpha": 0.25}],
+    "L6": [{"layer": 6, "alpha": 0.25}],
+    "L17": [{"layer": 17, "alpha": 0.2}]
+  },
+  "rescale": true,
+  "model_id": "Qwen/Qwen2.5-14B-Instruct",
+  "device": "cuda",
+  "dtype": "bf16",
+  "system": null,
+  "max_new_tokens": 220,
+  "temperature": 0.9,
+  "seed": 0
+}

@@ -1,0 +1,146 @@
+{
+  "name": "designer_image_briefs_v1",
+  "description": "6 crisp, logo-level visual design briefs for a real steer->refine image-prompt run. Each is a single tight ask ('give me a creative X; three-sentence visual description for an image-gen prompt'). motif_excludes ban the obvious clichés; archetype_seeds are 8 orthogonal lenses rotated across the samples so the SET doesn't mode-collapse (the same anti-collapse device as the canonical logo brief). Spans packaging / product / editorial / identity / art-direction / spatial.",
+  "created": "2026-06-23",
+  "n_outputs_per_prompt": 12,
+  "prompts": [
+    {
+      "id": "perfume-bottle-niche",
+      "category": "packaging",
+      "brief": "Give me a creative bottle-and-packaging design for a niche luxury perfume. I want a three-sentence visual description suitable for an image-generation prompt.",
+      "motif_excludes": [
+        "clear rectangular glass",
+        "gold cap",
+        "serif on white",
+        "crystal stopper",
+        "atomizer with tassel",
+        "generic minimalist flacon"
+      ],
+      "archetype_seeds": [
+        "geology — mineral crystal, eroded stone, sediment layers",
+        "marine biology — shell spiral, deep-sea bioluminescence, coral branching",
+        "architecture — brutalist mass, cantilever, vaulting",
+        "textile — pleating, knotwork, woven mesh",
+        "apothecary — measured glassware, vials, lab instruments",
+        "astronomy — orbit, eclipse, planetary ring",
+        "confectionery — wax seal, blown sugar, hard candy",
+        "machined hardware — milled billet, fastener, hinge"
+      ]
+    },
+    {
+      "id": "desk-lamp-concept",
+      "category": "product",
+      "brief": "Give me a creative desk lamp that could be the signature object of a room. I want a three-sentence visual description suitable for an image-generation prompt.",
+      "motif_excludes": [
+        "articulated arm with dome shade",
+        "exposed Edison bulb",
+        "matte-black minimalism",
+        "ring-light halo",
+        "industrial tripod",
+        "brass mid-century revival"
+      ],
+      "archetype_seeds": [
+        "botany — stem, blossom, phototropism",
+        "origami — folded plane, crease, tessellation",
+        "astronomy — moon phase, eclipse, orbit",
+        "geology — balanced stone, geode, strata",
+        "musical instrument — tuning peg, resonating body, bow",
+        "marine — jellyfish, anglerfish lure, tide",
+        "drafting tools — compass, set-square, counterweight",
+        "textile — woven membrane, pleat, gauze"
+      ]
+    },
+    {
+      "id": "scifi-novel-cover",
+      "category": "editorial",
+      "brief": "Give me a creative cover for a hard science-fiction novel. I want a three-sentence visual description suitable for an image-generation prompt.",
+      "motif_excludes": [
+        "lone astronaut silhouette",
+        "planet over the horizon",
+        "glowing spaceship",
+        "metallic chrome title",
+        "starfield gradient",
+        "wormhole tunnel"
+      ],
+      "archetype_seeds": [
+        "microbiology — cell, virus capsid, microscopy",
+        "cartography — contour map, schematic, blueprint",
+        "botany — alien flora, seed pod, growth ring",
+        "geology — strata, crystal lattice, erosion",
+        "textile — woven signal, embroidery, knot",
+        "archaeology — artifact, relic, inscription",
+        "fluid dynamics — storm system, current, vapor",
+        "typography — the title built from a physical material"
+      ]
+    },
+    {
+      "id": "hotel-brand-identity",
+      "category": "identity",
+      "brief": "Give me a creative brand identity — logo and signage — for a small independent boutique hotel. I want a three-sentence visual description suitable for an image-generation prompt.",
+      "motif_excludes": [
+        "thin gold serif monogram",
+        "marble and brass luxury",
+        "minimalist beige and sans-serif",
+        "palm-leaf tropical motif",
+        "art-deco fan pattern",
+        "generic lifestyle stock photography"
+      ],
+      "archetype_seeds": [
+        "cartography — local map, contour line, coordinate",
+        "ornithology — local bird, feather, flight path",
+        "craft masonry — tilework, joinery, plaster relief",
+        "botany — regional plant, pressed leaf, herbarium",
+        "vintage signage — hand-painted ghost sign, enamel plate",
+        "textile — local weave, stitch, pattern",
+        "geology — local stone, mineral, landform",
+        "language — regional calligraphy, glyph, dialect"
+      ]
+    },
+    {
+      "id": "festival-key-visual",
+      "category": "art-direction",
+      "brief": "Give me a creative key visual and poster for an outdoor electronic-music festival. I want a three-sentence visual description suitable for an image-generation prompt.",
+      "motif_excludes": [
+        "neon gradient blobs",
+        "glowing geometric triangles",
+        "rave purple-and-pink",
+        "festival lineup grid",
+        "laser beams over a crowd",
+        "Y2K chrome text"
+      ],
+      "archetype_seeds": [
+        "geology — salt flat, basalt column, canyon wall",
+        "meteorology — aurora, storm front, mirage",
+        "botany — desert bloom, spore burst, root system",
+        "folk craft — woven banner, block print, embroidery",
+        "cartography — topographic line, isobar, grid",
+        "astronomy — constellation, eclipse, orbit",
+        "land art — monolith, earthwork, sculpture",
+        "typography — type carved or built into the landscape"
+      ]
+    },
+    {
+      "id": "bookstore-cafe-interior",
+      "category": "spatial",
+      "brief": "Give me a creative interior concept for an independent bookstore-café. I want a three-sentence visual description suitable for an image-generation prompt.",
+      "motif_excludes": [
+        "floor-to-ceiling dark wood",
+        "rolling library ladder",
+        "Edison-bulb string lights",
+        "exposed brick and pipes",
+        "mismatched vintage armchairs",
+        "chalkboard menu"
+      ],
+      "archetype_seeds": [
+        "botany — indoor canopy, terrarium, greenhouse",
+        "geology — cave, grotto, stone shelf",
+        "library science — card catalog, spine taxonomy, stacks-as-architecture",
+        "textile — fabric ceiling, woven partition",
+        "paper craft — folded forms, book as structure",
+        "astronomy — domed ceiling, planetarium",
+        "marine — wave-form shelving, tide pool",
+        "market hall — stall, crate, open shelving"
+      ]
+    }
+  ]
+}
