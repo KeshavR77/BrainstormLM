@@ -81,12 +81,3 @@ export type BrainstormEvent =
   | { type: 'MEMORY_UPDATED'; counts: ProjectMemoryCounts }
   | { type: 'ERROR'; message: string }
   | { type: 'RESET' };
-
-// ── Steering Telemetry ────────────────────────────────────────────────
-
-export interface SteeringStep {
-  step: number;
-  creative: number;
-  technical: number;
-  temperature: number;
-}

@@ -14,7 +14,7 @@ import type { NodeProps } from '@xyflow/react';
 import { CheckCircle2, ArrowRight, Zap, Plus, Pencil } from 'lucide-react';
 import { useState } from 'react';
 
-export interface SelectedIdeaNodeData {
+interface SelectedIdeaNodeData {
   summary: string;
   content: string;
   depth: number;

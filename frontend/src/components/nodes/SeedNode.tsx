@@ -7,7 +7,7 @@ import type { NodeProps } from '@xyflow/react';
 import { Sparkles, ArrowRight } from 'lucide-react';
 import { useState } from 'react';
 
-export interface SeedNodeData {
+interface SeedNodeData {
   content: string;
   submitted: boolean;
   onSubmit: (text: string) => void;

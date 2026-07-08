@@ -11,7 +11,7 @@ import type { NodeProps } from '@xyflow/react';
 import { Lightbulb, ChevronRight, Expand, Pencil, Check, X, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 
-export interface IdeaNodeData {
+interface IdeaNodeData {
   summary: string;
   content: string;
   depth: number;

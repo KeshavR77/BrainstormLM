@@ -2,7 +2,7 @@ import { Handle, Position } from '@xyflow/react';
 import type { NodeProps } from '@xyflow/react';
 import { Sparkles } from 'lucide-react';
 
-export interface PreviewNodeData {
+interface PreviewNodeData {
   summary: string;
   content: string;
   [key: string]: unknown;

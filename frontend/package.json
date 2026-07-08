@@ -12,20 +12,14 @@
   "dependencies": {
     "@types/dagre": "^0.7.54",
     "@xyflow/react": "^12.10.1",
-    "axios": "^1.13.6",
-    "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "dagre": "^0.8.5",
     "framer-motion": "^12.38.0",
-    "idb-keyval": "^6.2.2",
-    "immer": "^11.1.8",
     "lucide-react": "^1.8.0",
     "lz-string": "^1.5.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-resizable-panels": "^2.1.9",
-    "tailwind-merge": "^3.5.0",
     "zustand": "^5.0.13"
   },
   "devDependencies": {

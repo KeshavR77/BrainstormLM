@@ -4,7 +4,7 @@ import { mockGeneratePhased } from './mockEngine';
 const BASE = import.meta.env.VITE_API_URL ?? '';
 const USE_MOCK = import.meta.env.VITE_USE_MOCK_DATA === 'true';
 
-export async function generateIdeas(
+async function generateIdeas(
   prompt: string,
   userPrompt?: string,
   nIdeas = 4,
