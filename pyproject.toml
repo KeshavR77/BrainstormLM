@@ -20,10 +20,7 @@ dependencies = [
     "modal",
     "fastapi",
     "uvicorn[standard]",
-
-    "asyncpg",
     "sentence-transformers",
-    "aiohttp",
     "mauve-text>=0.4.0",
     "nltk",
     "vendi-score",
