@@ -2,12 +2,9 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-
 import numpy as np
 import pytest
 
-from brainstormlm import config
 from brainstormlm.eval.diversity import (
     _bigrams,
     distinct_bigrams,
@@ -16,19 +13,6 @@ from brainstormlm.eval.diversity import (
     repetition_index,
     vendi_score,
 )
-
-
-# ---------------------------------------------------------------------------
-# Fixtures
-# ---------------------------------------------------------------------------
-
-
-@pytest.fixture
-def isolated_cache(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
-    monkeypatch.setenv("BRAINSTORMLM_CACHE_DIR", str(tmp_path))
-    config.get_settings.cache_clear()
-    yield tmp_path
-    config.get_settings.cache_clear()
 
 
 def _stub_embed(monkeypatch: pytest.MonkeyPatch, matrix: np.ndarray) -> None:

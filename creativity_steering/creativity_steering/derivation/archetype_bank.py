@@ -138,17 +138,6 @@ class ArchetypeBank:
         """Return all archetype directions unit-normalised, shape ``(k, hidden_dim)``."""
         return unit_normalize(self.vectors)
 
-    def orthonormalized(self) -> np.ndarray:
-        """Return the K directions decorrelated into a mutually-orthonormal set ``(k, hidden_dim)``.
-
-        Plain Gram–Schmidt in the bank's current row order — no distinctness reordering or retention
-        fallback. The guarded X1×X2 policy lives in
-        ``patching.steering.build_orthogonal_archetype_dirs``.
-        """
-        from creativity_steering.patching.orthogonal import orthonormalize_rows
-
-        return orthonormalize_rows(self.vectors)
-
     # ------------------------------------------------------------------ batch assignment
 
     def assign_to_batch(self, batch_size: int) -> np.ndarray:

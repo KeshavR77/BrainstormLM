@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from brainstormlm.eval.self_bleu import self_bleu, self_bleu_corpus
+from brainstormlm.eval.self_bleu import self_bleu
 
 
 def test_self_bleu_identical_texts_is_high() -> None:
@@ -35,16 +35,6 @@ def test_self_bleu_n_smoothing_handles_short_texts() -> None:
     """Short texts (fewer tokens than n) should not crash."""
     texts = ["hi there", "hello world", "good morning"]
     score = self_bleu(texts, n=4)
-    assert 0.0 <= score <= 1.0
-
-
-def test_self_bleu_corpus_aggregates_per_prompt() -> None:
-    """self_bleu_corpus returns mean Self-BLEU across multiple prompts."""
-    per_prompt = [
-        ["the cat sat", "the cat sat", "the cat sat"],  # high
-        ["winter sun", "purple moon", "red ocean"],  # low
-    ]
-    score = self_bleu_corpus(per_prompt, n=4)
     assert 0.0 <= score <= 1.0
 
 

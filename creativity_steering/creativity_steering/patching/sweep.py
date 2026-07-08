@@ -11,8 +11,6 @@ from __future__ import annotations
 from collections.abc import Sequence
 from dataclasses import dataclass
 
-import numpy as np
-
 from creativity_steering.artifacts import SteeringVectorSet
 from creativity_steering.models.backend import ModelBackend
 from creativity_steering.patching.evaluate import DEFAULT_BRIEFS, CellScore, score_briefs
@@ -29,15 +27,6 @@ class SweepResult:
 
     def best_cell(self) -> dict:
         return max(self.cells, key=lambda c: c["composite"])
-
-    def composite_matrix(self) -> np.ndarray:
-        """``(n_layers, n_alphas)`` composite-score grid (rows=layers, cols=alphas)."""
-        m = np.full((len(self.layers), len(self.alphas)), np.nan, dtype=np.float32)
-        li = {L: i for i, L in enumerate(self.layers)}
-        ai = {a: j for j, a in enumerate(self.alphas)}
-        for c in self.cells:
-            m[li[c["layer"]], ai[c["alpha"]]] = c["composite"]
-        return m
 
     def to_dict(self) -> dict:
         return {

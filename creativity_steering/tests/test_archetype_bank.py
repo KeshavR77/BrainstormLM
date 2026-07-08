@@ -173,18 +173,6 @@ class TestArchetypeBankUnitVectors:
 
 
 # ---------------------------------------------------------------------------
-# ArchetypeBank.orthonormalized — plain Gram–Schmidt decorrelation of the bank
-# ---------------------------------------------------------------------------
-
-class TestArchetypeBankOrthonormalized:
-    def test_orthonormal_rows(self):
-        bank = _make_bank(k=4, hidden=16, seed=7)
-        o = bank.orthonormalized()
-        assert o.shape == (4, 16)
-        np.testing.assert_allclose(o @ o.T, np.eye(4), atol=1e-4)
-
-
-# ---------------------------------------------------------------------------
 # ArchetypeBank.assign_to_batch
 # ---------------------------------------------------------------------------
 

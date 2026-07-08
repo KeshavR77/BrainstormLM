@@ -52,11 +52,3 @@ def self_bleu(texts: Sequence[str], *, n: int = 4) -> float:
     if not scores:
         return 0.0
     return float(sum(scores) / len(scores))
-
-
-def self_bleu_corpus(per_prompt_texts: Sequence[Sequence[str]], *, n: int = 4) -> float:
-    """Mean Self-BLEU over a corpus: one Self-BLEU per prompt, averaged."""
-    per_prompt = [self_bleu(texts, n=n) for texts in per_prompt_texts if len(texts) >= 2]
-    if not per_prompt:
-        return 0.0
-    return float(sum(per_prompt) / len(per_prompt))

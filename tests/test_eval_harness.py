@@ -8,7 +8,6 @@ from brainstormlm.eval.harness import (
     ARMS,
     AblationRow,
     format_summary_table,
-    row_to_dict,
     run_ablation,
     summarize,
 )
@@ -135,11 +134,3 @@ def test_format_summary_table_includes_all_rows() -> None:
     text = format_summary_table(summaries)
     assert "base" in text and "trained" in text
     assert "creativity" in text and "logic" in text
-
-
-def test_row_to_dict_round_trip() -> None:
-    r = AblationRow(arm="base", domain="d", prompt="p", response="r", creativity=3, logic=3, total=6)
-    d = row_to_dict(r)
-    assert d["arm"] == "base"
-    assert d["total"] == 6
-    assert d["adapter_path"] is None

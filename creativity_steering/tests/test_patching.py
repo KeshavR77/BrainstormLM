@@ -44,8 +44,6 @@ def test_sweep_finds_planted_layer_with_positive_alpha():
     assert best["alpha"] > 0
     assert abs(best["layer"] - 12) <= 3
     assert best["composite"] > result.baseline.composite
-    # the composite matrix is fully populated
-    assert not np.isnan(result.composite_matrix()).any()
 
 
 def test_negative_alpha_suppresses_creativity():

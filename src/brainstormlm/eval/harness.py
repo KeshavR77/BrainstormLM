@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import random
 from collections.abc import Callable, Sequence
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Protocol
 
@@ -219,11 +219,6 @@ def format_summary_table(summaries: Sequence[AblationSummary]) -> str:
             f"{s.mean_total:>8.3f}{delta:>12}{p:>10}"
         )
     return "\n".join(lines)
-
-
-def row_to_dict(row: AblationRow) -> dict:
-    """JSON-friendly dict for persistence."""
-    return asdict(row)
 
 
 @dataclass
