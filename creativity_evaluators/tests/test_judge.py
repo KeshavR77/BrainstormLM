@@ -148,3 +148,19 @@ def test_default_retries_ride_out_a_throttle_burst(monkeypatch):
     res = j.score("p", "r")
     assert res.scores["Originality"] == 4
     assert j.calls == 6
+
+
+def test_max_retries_zero_still_makes_one_attempt():
+    # max_retries=0 must not crash with AssertionError (range(0) skips the loop); it makes
+    # exactly one attempt.
+    j = ScriptedJudge([VALID], max_retries=0)
+    res = j.score("p", "r")
+    assert res.scores["Originality"] == 4
+    assert j.calls == 1
+
+
+def test_max_retries_zero_raises_real_exception_not_assertion():
+    j = ScriptedJudge([RuntimeError("boom")], max_retries=0)
+    with pytest.raises(RuntimeError):  # the API error, not an AssertionError
+        j.score("p", "r")
+    assert j.calls == 1

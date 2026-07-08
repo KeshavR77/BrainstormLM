@@ -106,3 +106,13 @@ def test_chunking_averages_chunk_scores():
     _, emb = _fake_embed(text)
     manual = np.mean([mean_pairwise_cosine_distance(emb[i : i + 5]) for i in range(0, 20, 5)])
     assert abs(res.score - manual) < 1e-9
+
+
+def test_all_chunks_filtered_falls_back_not_nan():
+    # chunk_size=1 filters every 1-token chunk, leaving chunk_scores empty; the score must
+    # fall back to the whole-response distance rather than np.mean([]) == NaN.
+    text = "a curious otter juggled three luminous river stones at dawn"
+    res = DSIScorer(embed_fn=_fake_embed, chunk_size=1).score(text)
+    assert res.score is not None and not np.isnan(res.score)
+    _, emb = _fake_embed(text)
+    assert abs(res.score - mean_pairwise_cosine_distance(emb)) < 1e-9

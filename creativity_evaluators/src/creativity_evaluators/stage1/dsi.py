@@ -113,8 +113,10 @@ class DSIScorer:
                 for i in range(0, n_tokens, self.chunk_size)
                 if emb[i : i + self.chunk_size].shape[0] >= 2
             ]
-            score = float(np.mean(chunk_scores))
-            n_chunks = len(chunk_scores)
+            # A trailing 1-token chunk can leave chunk_scores empty even though the response
+            # cleared min_tokens; fall back to the whole-response distance rather than mean([])=NaN.
+            score = float(np.mean(chunk_scores)) if chunk_scores else mean_pairwise_cosine_distance(emb)
+            n_chunks = len(chunk_scores) or 1
         else:
             score = mean_pairwise_cosine_distance(emb)
             n_chunks = 1

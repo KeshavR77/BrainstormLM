@@ -158,12 +158,15 @@ class BaseJudge(ABC):
 
     def _call_with_retry(self, system: str, user: str) -> str:
         last_exc: Exception | None = None
-        for attempt in range(self.max_retries):
+        # Always make at least one attempt: max_retries=0 must still call the API once
+        # (range(0) would skip the loop and leave last_exc=None).
+        attempts = max(1, self.max_retries)
+        for attempt in range(attempts):
             try:
                 return self._call(system, user)
             except Exception as exc:  # transient API failures (esp. 429s): back off and retry
                 last_exc = exc
-                if attempt == self.max_retries - 1:
+                if attempt == attempts - 1:
                     break
                 time.sleep(self._backoff_seconds(attempt, exc))
         assert last_exc is not None
@@ -234,7 +237,9 @@ class OpenAIJudge(BaseJudge):
 
 
 class GoogleJudge(BaseJudge):
-    def __init__(self, model: str = "gemini-2.5-pro", *, name: str = "gemini", **kw):
+    # Default matches _default_judges() in types.py. A Flash-class model is required because
+    # _call sets thinking_budget=0, which Gemini Pro cannot do.
+    def __init__(self, model: str = "gemini-2.5-flash", *, name: str = "gemini", **kw):
         super().__init__(name=name, model=model, family="google", **kw)
 
     def _call(self, system: str, user: str) -> str:
