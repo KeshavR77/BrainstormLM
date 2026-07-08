@@ -1,0 +1,37 @@
+{
+  "backend": "hf",
+  "model_id": "Qwen/Qwen2.5-32B-Instruct",
+  "device": "cuda",
+  "dtype": "bf16",
+  "seed": 0,
+  "capture_position": "mean_response",
+  "extra_capture_positions": ["last_response_token", "assistant_start"],
+  "out_dir": "artifacts/qwen32b_run_v1",
+  "topics_file": "creativity_steering/data/v3_topics.json",
+  "save_scored_pool": true,
+  "generation": {
+    "max_new_tokens": 256, "temperature": 0.9, "samples_per_prompt": 1, "seed": 0,
+    "creative_sampling": {"temperature": 1.2, "top_p": 0.95, "top_k": 0, "min_p": 0.02, "repetition_penalty": 1.1},
+    "neutral_sampling": {"temperature": 0.0, "top_p": 1.0, "top_k": 0, "min_p": 0.0, "repetition_penalty": 1.0}
+  },
+  "filtering": {
+    "method": "evaluator_stack",
+    "target_per_class": 100,
+    "topup_chunk_size": 300,
+    "min_per_class": 0,
+    "creative_quantile": 0.9,
+    "neutral_quantile": 0.1,
+    "one_per_prompt": true,
+    "quality_floor": 3.0,
+    "enable_judge": true,
+    "enable_reward": false,
+    "use_reward_fallback": false,
+    "generator_family": "qwen",
+    "stage1_floor_percentile": 90.0,
+    "length_match": false,
+    "length_match_tolerance": 0.5,
+    "scorer": "real"
+  },
+  "patching": {"alphas": [-4.0, -2.0, -1.0, 1.0, 2.0, 4.0], "all_layers_alpha": 0.1, "rescale": true, "eval_samples": 5,
+    "sweep_evaluator": "two_stage", "judge_top_k": 5}
+}
