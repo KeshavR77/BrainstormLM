@@ -12,6 +12,9 @@ data/*
 dist/
 *.egg-info/
 
+# Evaluator judge-response disk cache (regenerable; must not be committed)
+.cache/
+
 # macOS Finder metadata
 .DS_Store
 **/.DS_Store
@@ -20,9 +23,9 @@ dist/
 frontend/node_modules/
 frontend/dist/
 
-# WIC backend
-src/wic/__pycache__/
-src/wic/venv/
+# Per-run generation output (ephemeral; the pod writes here, curated results are
+# promoted to artifacts/<run>/ with only IMAGE_PROMPTS.md / RESULTS.md committed).
+results/
 
 # Conceptial / Corpius 1 demo artifacts: locked exemplars are kept,
 # transient smoke outputs are not.

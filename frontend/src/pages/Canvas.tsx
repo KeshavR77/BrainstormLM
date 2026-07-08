@@ -2,7 +2,7 @@
  * Canvas — Conceptial design workspace.
  *
  * Wraps the React Flow brainstorm canvas in the new ShellLayout
- * (TopBar / LayersPanel / Canvas / InspectorStub / StatusBar) and
+ * (TopBar / LayersPanel / Canvas / PropertiesPanel / StatusBar) and
  * the floating ToolBar pill. Selection + tool state lives in
  * useWorkspaceStore (zustand). Tree state stays in useBrainstorm
  * (migrated to zustand in Phase 4).

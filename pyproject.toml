@@ -58,9 +58,6 @@ extend-exclude = [
     ".venv",
     "node_modules",
     "frontend",
-    # Parked legacy evaluator (formerly vendored in creativity_steering); kept for reference
-    # only, carries its own lint regime — superseded by the top-level creativity_evaluators.
-    "old_creativity_evaluators",
     # Per-run output dumps (throwaway analysis scripts), not maintained source.
     "results",
 ]
@@ -70,5 +67,7 @@ testpaths = ["tests"]
 
 [tool.coverage.run]
 omit = [
-    "src/wic/*",
+    # Legacy 3B steering engine, ported from shrooms-llm; not the shipping path (the
+    # DiffMeans v3 steering lives in creativity_steering/). Excluded from the coverage gate.
+    "src/brainstormlm/conceptial/engine/*",
 ]

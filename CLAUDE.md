@@ -27,7 +27,9 @@ If a change can't be verified by a test, script, or screenshot, flag it
 rather than claiming success.
 
 ## Commands
-- Run all tests:
-- Run one test:
-- Lint:
-- Full local check:
+- Run all tests: `make test` (root suite, `uv run pytest --cov=src --cov-fail-under=35`). The two
+  sub-packages have their own suites: `cd creativity_steering && python -m pytest` and
+  `cd creativity_evaluators && python -m pytest`.
+- Run one test: `uv run pytest tests/test_<name>.py::test_<fn> -q`
+- Lint: `make lint` (`uv run ruff check .`); autofix with `uv run ruff check --fix .`
+- Full local check: `make check` (lint + test)
