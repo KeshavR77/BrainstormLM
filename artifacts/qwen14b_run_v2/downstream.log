@@ -1,116 +1,0 @@
-RESUME_V2_START Sat May 30 02:03:17 UTC 2026
-FINE_LAYERS 4,0,2,1,39 Sat May 30 02:03:17 UTC 2026
-== FINE: top-5 layers, a in [-1,1,2,4], eval=5, judged ==
-two-stage sweep: 20 cells, judges on top-5 (enable_judge=True)
-Fetching 8 files:   0%|          | 0/8 [00:00<?, ?it/s]Fetching 8 files:  12%|█▎        | 1/8 [00:37<04:19, 37.06s/it]Fetching 8 files:  38%|███▊      | 3/8 [00:37<00:48,  9.66s/it]Fetching 8 files:  75%|███████▌  | 6/8 [00:37<00:07,  3.78s/it]Fetching 8 files: 100%|██████████| 8/8 [00:38<00:00,  2.51s/it]Fetching 8 files: 100%|██████████| 8/8 [00:38<00:00,  4.76s/it]
-Loading checkpoint shards:   0%|          | 0/8 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:00<00:00, 87.32it/s]
-`loss_type=None` was set in the config but it is unrecognised.Using the default loss: `ForCausalLMLoss`.
-Fetching 4 files:   0%|          | 0/4 [00:00<?, ?it/s]Fetching 4 files:  25%|██▌       | 1/4 [00:14<00:42, 14.17s/it]Fetching 4 files:  50%|█████     | 2/4 [00:14<00:12,  6.03s/it]Fetching 4 files: 100%|██████████| 4/4 [00:14<00:00,  3.62s/it]
-Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:00<00:01,  1.52it/s]Loading checkpoint shards:  50%|█████     | 2/4 [00:01<00:01,  1.67it/s]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:01<00:00,  1.76it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:01<00:00,  2.26it/s]
-low inter-judge agreement (Spearman=0.408 < 0.50); distrust this score
-low inter-judge agreement (Spearman=-0.250 < 0.50); distrust this score
-low inter-judge agreement (Spearman=0.408 < 0.50); distrust this score
-low inter-judge agreement (Spearman=0.180 < 0.50); distrust this score
-low inter-judge agreement (Spearman=-0.250 < 0.50); distrust this score
-low inter-judge agreement (Spearman=0.347 < 0.50); distrust this score
-low inter-judge agreement (Spearman=0.444 < 0.50); distrust this score
-low inter-judge agreement (Spearman=0.337 < 0.50); distrust this score
-low inter-judge agreement (Spearman=0.083 < 0.50); distrust this score
-low inter-judge agreement (Spearman=0.180 < 0.50); distrust this score
-low inter-judge agreement (Spearman=0.464 < 0.50); distrust this score
-low inter-judge agreement (Spearman=0.408 < 0.50); distrust this score
-low inter-judge agreement (Spearman=0.408 < 0.50); distrust this score
-low inter-judge agreement (Spearman=0.167 < 0.50); distrust this score
-low inter-judge agreement (Spearman=-0.118 < 0.50); distrust this score
-low inter-judge agreement (Spearman=0.304 < 0.50); distrust this score
-baseline composite=0.406  judged=['baseline', 'L4_a1.0', 'L0_a1.0', 'L2_a1.0', 'L1_a1.0', 'L39_a1.0']
-best cell: layer=0 alpha=1.0 composite=0.079 (delta=-0.327, judged=True)
-Saved sweep to artifacts/qwen14b_run_v2/patching/last_response_token
-
-real	82m4.241s
-user	81m18.950s
-sys	1m44.965s
-FINE_DONE Sat May 30 03:25:21 UTC 2026
-== EXP-2: top-5 promising layers, judged ==
-Exp-2 on promising layers [0, 4, 2, 1, 39]: 10 cells, judges on top-5 (enable_judge=True)
-Loading checkpoint shards:   0%|          | 0/8 [00:00<?, ?it/s]Loading checkpoint shards:  62%|██████▎   | 5/8 [00:00<00:00, 46.99it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:00<00:00, 58.72it/s]
-`loss_type=None` was set in the config but it is unrecognised.Using the default loss: `ForCausalLMLoss`.
-Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:00<00:02,  1.21it/s]Loading checkpoint shards:  50%|█████     | 2/4 [00:01<00:01,  1.51it/s]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:01<00:00,  1.71it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:01<00:00,  2.12it/s]
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-baseline composite=0.766  judged=['baseline', 'allL_src0_a0.1', 'allL_src0_a0.2', 'allL_src4_a-0.1', 'allL_src4_a-0.2', 'multi_0-4-2-1-39_a1.0']
-best experiment: allL_src0_a0.1 composite=-0.064 (delta=-0.830, judged=True)
-Saved Exp-2 results to artifacts/qwen14b_run_v2/patching/last_response_token
-
-real	58m24.785s
-user	56m36.327s
-sys	0m17.850s
-EXP2_DONE Sat May 30 04:23:46 UTC 2026
-RESUME_V2_DONE_OK Sat May 30 04:23:46 UTC 2026

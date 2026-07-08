@@ -9,7 +9,7 @@
 #       --top-percentile 10 --bot-percentile 10 \
 #       --out artifacts/qwen14b_run_v3/refiltered/p10
 #
-# Then run downstream_v2.sh-style broad/fine/Exp-2 against the chosen vector set.
+# Then run downstream_v3.sh (broad/fine/Exp-2) against the chosen vector set.
 #
 # Usage (on RunPod):
 #   nohup bash creativity_steering/scripts/derive_only_v3.sh > artifacts/qwen14b_run_v3/derive.log 2>&1 &

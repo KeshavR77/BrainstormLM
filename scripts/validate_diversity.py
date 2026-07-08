@@ -49,7 +49,7 @@ Usage
 
 # Real 14B on RunPod pod:
     uv run python scripts/validate_diversity.py \\
-        --config creativity_steering/configs/runpod_qwen14b_v2.json --layer 17 \\
+        --config creativity_steering/configs/runpod_qwen14b_v3.json --layer 17 \\
         --alphas 1.0,1.5,2.0,2.62 --k 8
 
 """
@@ -1422,7 +1422,7 @@ def main() -> int:
     print("\n14B POD COMMAND (do NOT run without GPU):")
     print(
         "  uv run python scripts/validate_diversity.py \\\n"
-        "      --config creativity_steering/configs/runpod_qwen14b_v2.json \\\n"
+        "      --config creativity_steering/configs/runpod_qwen14b_v3.json \\\n"
         "      --layer 17 --alphas 1.0,1.5,2.0,2.62 --k 8 \\\n"
         "      --out results/validate_14b_L17_sweep.json"
     )

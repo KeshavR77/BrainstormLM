@@ -1,71 +1,0 @@
-DOWNSTREAM_V2_START Fri May 29 10:08:32 UTC 2026
-== DERIVE: score_split, unframed temp=1.15, 1 sample/prompt ==
-Deriving vectors with backend=hf model=Qwen/Qwen2.5-14B-Instruct ...
-Loading checkpoint shards:   0%|          | 0/8 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:00<00:00, 92.00it/s]
-`loss_type=None` was set in the config but it is unrecognised.Using the default loss: `ForCausalLMLoss`.
-low inter-judge agreement (Spearman=-0.275 < 0.50); distrust this score
-low inter-judge agreement (Spearman=0.351 < 0.50); distrust this score
-low inter-judge agreement (Spearman=0.285 < 0.50); distrust this score
-low inter-judge agreement (Spearman=0.050 < 0.50); distrust this score
-low inter-judge agreement (Spearman=0.333 < 0.50); distrust this score
-low inter-judge agreement (Spearman=0.364 < 0.50); distrust this score
-low inter-judge agreement (Spearman=0.271 < 0.50); distrust this score
-[evaluator_filter] composite score distribution (n=150): min=-0.664 p10=-0.176 p25=-0.054 p50=0.067 p75=0.189 p90=0.531 max=1.150
-[evaluator_filter] post-threshold: 76 positives / 73 negatives (of 150 examples)
-{
-  "model_id": "Qwen/Qwen2.5-14B-Instruct",
-  "primary_capture_position": "last_response_token",
-  "positions": [
-    "assistant_start",
-    "last_response_token",
-    "mean_response"
-  ],
-  "n_examples": 150,
-  "n_positive": 76,
-  "n_negative": 73,
-  "n_dropped": 1,
-  "n_layers": 48,
-  "hidden_dim": 5120
-}
-Saved vectors + summary to artifacts/qwen14b_run_v2
-
-real	34m21.047s
-user	37m16.191s
-sys	0m9.248s
-DERIVE_DONE Fri May 29 10:42:53 UTC 2026
-== ANALYZE: norm/cosine/oracle (informational) ==
-[last_response_token] candidate layers: [43, 44, 42, 41, 40]
-  norm top layer=46  cosine band=(17, 44)
-Saved analysis to artifacts/qwen14b_run_v2/analysis/last_response_token
-== BROAD: all 48 layers, a=1, eval=2, judges on top-5 ==
-two-stage sweep: 48 cells, judges on top-10 (enable_judge=True)
-Loading checkpoint shards:   0%|          | 0/8 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:00<00:00, 90.92it/s]
-`loss_type=None` was set in the config but it is unrecognised.Using the default loss: `ForCausalLMLoss`.
-Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:03<00:09,  3.12s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:08<00:08,  4.18s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:13<00:04,  4.65s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:13<00:00,  2.86s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:13<00:00,  3.34s/it]
-low inter-judge agreement (Spearman=0.180 < 0.50); distrust this score
-low inter-judge agreement (Spearman=-0.088 < 0.50); distrust this score
-low inter-judge agreement (Spearman=0.083 < 0.50); distrust this score
-low inter-judge agreement (Spearman=-0.056 < 0.50); distrust this score
-low inter-judge agreement (Spearman=-0.408 < 0.50); distrust this score
-low inter-judge agreement (Spearman=0.424 < 0.50); distrust this score
-low inter-judge agreement (Spearman=0.250 < 0.50); distrust this score
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-low inter-judge agreement (Spearman=0.124 < 0.50); distrust this score
-low inter-judge agreement (Spearman=0.479 < 0.50); distrust this score
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-low inter-judge agreement (Spearman=-0.075 < 0.50); distrust this score
-low inter-judge agreement (Spearman=0.444 < 0.50); distrust this score
-low inter-judge agreement (Spearman=0.325 < 0.50); distrust this score
-judge claude failed and was skipped: Judge claude returned non-JSON: ''
-baseline composite=0.471  judged=['baseline', 'L0_a1.0', 'L1_a1.0', 'L2_a1.0', 'L4_a1.0', 'L36_a1.0', 'L37_a1.0', 'L39_a1.0', 'L41_a1.0', 'L43_a1.0', 'L44_a1.0']
-best cell: layer=4 alpha=1.0 composite=0.212 (delta=-0.259, judged=True)
-Saved sweep to artifacts/qwen14b_run_v2/patching/last_response_token
-
-real	84m23.914s
-user	83m57.458s
-sys	0m16.262s
-BROAD_DONE Fri May 29 12:07:18 UTC 2026
-FINE_LAYERS 4,0,2,1,39 Fri May 29 12:07:18 UTC 2026
-== FINE: top-5 layers, a in [-1,1,2,4], eval=5, judged ==
-two-stage sweep: 20 cells, judges on top-5 (enable_judge=True)
-Loading checkpoint shards:   0%|          | 0/8 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:00<00:00, 92.27it/s]
