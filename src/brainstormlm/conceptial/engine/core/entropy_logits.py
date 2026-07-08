@@ -26,30 +26,6 @@ def topk_shannon_entropy_bits(logits_1d: torch.Tensor, k: int = 50) -> float:
     return float(h.item())
 
 
-def map_entropy_to_gamma(
-    h: float,
-    *,
-    h_low: float = 1.5,
-    h_high: float = 4.0,
-    gamma_at_low_entropy: float = 0.9,
-    gamma_at_high_entropy: float = 0.1,
-) -> float:
-    """
-    Map entropy ``h`` to ghost strength ``gamma`` in ``[0, 1]``.
-
-    Low entropy (confident / cliché-like) → higher ``gamma`` (stronger ghost).
-    High entropy (uncertain) → lower ``gamma`` (preserve grammar).
-    """
-    if h_high <= h_low:
-        return float(gamma_at_low_entropy)
-    if h <= h_low:
-        return float(gamma_at_low_entropy)
-    if h >= h_high:
-        return float(gamma_at_high_entropy)
-    t = (float(h) - float(h_low)) / (float(h_high) - float(h_low))
-    return float(gamma_at_low_entropy + t * (gamma_at_high_entropy - gamma_at_low_entropy))
-
-
 class RollingEntropyGammaCalibrator:
     """
     V3.6 dynamic entropy clutch: keep the last ``maxlen`` entropy readings, then map current ``H``

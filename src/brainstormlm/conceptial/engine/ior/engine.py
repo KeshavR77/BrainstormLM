@@ -120,12 +120,6 @@ class IOREngine:
     _last_ior_effective: float = field(default=0.0, init=False, repr=False)
 
     @property
-    def explored_matrix(self) -> torch.Tensor:
-        if not self._explored:
-            return torch.empty(0, 0)
-        return torch.stack(self._explored, dim=0)
-
-    @property
     def explored_len(self) -> int:
         return len(self._explored)
 
@@ -269,54 +263,6 @@ class IOREngine:
         self._append_explored(h_unit)
 
         return completion, st
-
-    def reset_memory(self) -> None:
-        """Clear orthogonal memory + history (new prompt / checkpoint resume preamble)."""
-        self._explored.clear()
-        self.history.clear()
-        self._last_ior_norm = 0.0
-        self._last_ior_norm_clipped = 0.0
-        self._last_ior_effective = 0.0
-        gc.collect()
-        _device_cache_sweep_after_eviction()
-
-    def last_ior_telemetry(self) -> dict[str, float]:
-        """V8.2.1 telemetry dict for the most recent ``_set_repulsion_steering`` call.
-
-        Keys:
-        - ``ior_norm_raw``       — L2 norm of the repulsion direction before the τ clip.
-        - ``ior_norm_clipped``   — Same after the clip (== raw unless clipped).
-        - ``ior_effective``      — ``repulsion_alpha × ior_norm_clipped``: the actual L2 magnitude
-                                   added per token to the residual stream at ``steering_layer``.
-        - ``ior_tau``            — The active τ (env override or :attr:`repulsion_max_norm`).
-        - ``ior_alpha``          — The active ``repulsion_alpha`` (env override or default).
-        - ``ior_explored_len``   — Current FIFO depth (so the smoke can correlate magnitude with depth).
-        """
-        tau_env = os.environ.get("CONCEPTIAL_IOR_MAX_NORM")
-        alpha_env = os.environ.get("CONCEPTIAL_IOR_REPULSION_ALPHA")
-        return {
-            "ior_norm_raw": float(self._last_ior_norm),
-            "ior_norm_clipped": float(self._last_ior_norm_clipped),
-            "ior_effective": float(self._last_ior_effective),
-            "ior_tau": float(tau_env) if tau_env is not None else float(self.repulsion_max_norm),
-            "ior_alpha": float(alpha_env) if alpha_env is not None else float(self.repulsion_alpha),
-            "ior_explored_len": float(self.explored_len),
-        }
-
-    def replay_hidden_from_completion(self, prompt: str, completion: str) -> None:
-        """
-        Restore explored span without generating text (resume interrupted IOR chains).
-
-        Computes last-token hidden at ``capture_layer`` for tokenizer(prompt)+completion and appends
-        to ``_explored``. Does not append :attr:`history`.
-        """
-        self.engine.load()
-        tokenizer = self.engine.tokenizer
-        model = self.engine.model
-        full_text = _concat_prompt_completion(tokenizer, prompt, completion)
-        h_last = last_token_hidden_at_layer(model, tokenizer, full_text, self.capture_layer)
-        h_unit = normalize_hidden(h_last)
-        self._append_explored(h_unit)
 
     def run(
         self,

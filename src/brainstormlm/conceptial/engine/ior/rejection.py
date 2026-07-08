@@ -25,10 +25,3 @@ def orthogonal_reject(
     wf = w.flatten().float()
     proj = q @ (q.T @ wf)
     return wf - proj
-
-
-def orthonormal_basis_rows(explored_rows: torch.Tensor) -> torch.Tensor:
-    """QR factorization helper for testing — ``q`` with orthonormal columns spanning row(E)."""
-    Et = explored_rows.T.float()
-    q, _ = torch.linalg.qr(Et, mode="reduced")
-    return q

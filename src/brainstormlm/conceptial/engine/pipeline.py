@@ -303,12 +303,6 @@ class SteeringEngine:
         self._steering_vectors = dict(vs)
 
     @property
-    def steering_vector(self) -> torch.Tensor | None:
-        if self._steering_vectors is None or len(self._steering_vectors) != 1:
-            return None
-        return next(iter(self._steering_vectors.values()))
-
-    @property
     def steering_vectors(self) -> dict[int, torch.Tensor] | None:
         return self._steering_vectors
 

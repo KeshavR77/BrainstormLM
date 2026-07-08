@@ -170,47 +170,6 @@ class CloudCorpius:
             )
         return self._engine
 
-    def apply_schedule(
-        self,
-        *,
-        creative_start_alpha: float | None = None,
-        exp_zero_by_step: int | None = None,
-        technical_start_alpha: float | None = None,
-        sigmoid_mid_step: float | None = None,
-        sigmoid_steepness: float | None = None,
-        steering_math: str | None = None,
-    ) -> None:
-        """Hot-swap schedule weights without reloading the base model (vectors unchanged on disk)."""
-        if creative_start_alpha is not None:
-            self.creative_start_alpha = float(creative_start_alpha)
-        if exp_zero_by_step is not None:
-            self.exp_zero_by_step = int(exp_zero_by_step)
-        if technical_start_alpha is not None:
-            self.technical_start_alpha = float(technical_start_alpha)
-        if sigmoid_mid_step is not None:
-            self.sigmoid_mid_step = float(sigmoid_mid_step)
-        if sigmoid_steepness is not None:
-            self.sigmoid_steepness = float(sigmoid_steepness)
-        if steering_math is not None:
-            self.steering_math = str(steering_math)
-        eng = self._engine
-        if eng is None:
-            return
-        apply_v8_idea_forward_phase_shift(
-            eng,
-            self.steering_dir,
-            creative_vector_path=self.creative_vector,
-            technical_vector_path=self.technical_vector,
-            creative_layer=self.creative_layer,
-            technical_layer=self.technical_layer,
-            creative_start_alpha=self.creative_start_alpha,
-            exp_zero_by_step=self.exp_zero_by_step,
-            technical_start_alpha=self.technical_start_alpha,
-            sigmoid_mid_step=self.sigmoid_mid_step,
-            sigmoid_steepness=self.sigmoid_steepness,
-            steering_math=self.steering_math,
-        )
-
     def complete(
         self,
         prompt: str,

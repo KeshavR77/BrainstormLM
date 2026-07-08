@@ -11,11 +11,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-import torch
 
-from brainstormlm.conceptial.engine.pipeline import SteeringEngine, load_steering_checkpoint
+from brainstormlm.conceptial.engine.pipeline import SteeringEngine
 from brainstormlm.conceptial.engine.steering_presets import apply_v10_parametric_preset
-from brainstormlm.conceptial.engine.vector_purify import purify_vector
 
 
 # After the Day-2 consolidation, the module lives at:
@@ -80,24 +78,6 @@ def load_corpius_spec(path: Path = DEFAULT_CORPIUS_CONFIG) -> CorpiusSpec:
         sigmoid_steepness=float(schedule["sigmoid_steepness"]),
         steering_math=str(schedule["steering_math"]),
     )
-
-
-def build_iterative_creative_vector(
-    creative_vector_path: Path,
-    prior_first_token_hiddens: list,
-) -> torch.Tensor:
-    """Orthogonalize the creative steering direction against the mean previous first-token residual.
-
-    ``prior_first_token_hiddens`` are 1D CPU float tensors (hidden dim) captured at the creative
-    layer on the first generated token of prior samples.
-    """
-    c_path = Path(creative_vector_path)
-    bundle = load_steering_checkpoint(c_path, map_location="cpu")
-    v = bundle["vector"]
-    if not prior_first_token_hiddens:
-        return v
-    mean_h = torch.stack([h.float().reshape(-1) for h in prior_first_token_hiddens], dim=0).mean(0)
-    return purify_vector(v, [mean_h])
 
 
 def apply_corpius_1(engine: SteeringEngine, spec: CorpiusSpec | None = None) -> None:

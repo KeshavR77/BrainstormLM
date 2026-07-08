@@ -55,20 +55,3 @@ def current_alpha_for_injection(step: int, inj: dict[str, Any]) -> float:
         k = float(inj.get("sigmoid_steepness", 0.12))
         return float(start * (1.0 / (1.0 + math.exp(-k * (float(step) - mid)))))
     raise ValueError(f"unknown alpha_schedule: {sched!r}")
-
-
-class FadingScheduler:
-    """
-    Per-injection scheduler: fixed ``start_alpha`` and horizon ``decay_tokens``.
-
-    Hooks advance an external step counter; this object only maps step → alpha.
-    """
-
-    __slots__ = ("_start_alpha", "_decay_tokens")
-
-    def __init__(self, start_alpha: float, decay_tokens: int) -> None:
-        self._start_alpha = float(start_alpha)
-        self._decay_tokens = int(decay_tokens)
-
-    def alpha_at_step(self, step: int) -> float:
-        return linear_decay_current_alpha(self._start_alpha, step, self._decay_tokens)
