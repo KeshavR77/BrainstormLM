@@ -74,8 +74,9 @@ scp -r root@<pod-ip>:/workspace/BrainstormLM/data/steering_14b \
 
 ```bash
 uv run python scripts/runpod_batch_14b.py --n 8
-# Full stack: CAA L19/L24 + v17 schedule + iterative anti-mode (L19 first-token
+# Full stack: CAA L17/L24 + v17 schedule + iterative anti-mode (L17 first-token
 # orthogonalization) + prompt-level anti-mode + project memory + min-p sampling.
+# (L17 is the 2026-05-18 sweep winner, Vendi 3.32; it superseded the earlier L19 guess.)
 # 10 prompts × 8 outputs ≈ 12-18 min wall-clock on A100 80GB.
 ```
 

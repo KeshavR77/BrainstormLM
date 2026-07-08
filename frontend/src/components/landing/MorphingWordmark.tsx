@@ -31,6 +31,12 @@ export function MorphingWordmark({
   const opsz = useTransform(scrollYProgress, [0, 1], [18, 144]);
   // Slight letter-spacing scrub
   const tracking = useTransform(scrollYProgress, [0, 1], [-0.03, 0.01]);
+  // Hooks must run unconditionally on every render — compute the combined font-variation string
+  // here, not inside the JSX ternary, then only choose whether to USE it below.
+  const fontVar = useTransform(
+    [wght, opsz],
+    ([w, o]: number[]) => `"wght" ${w}, "opsz" ${o}`,
+  );
 
   return (
     <motion.div ref={ref} className={className}>
@@ -39,10 +45,7 @@ export function MorphingWordmark({
         style={{
           fontVariationSettings: reduced
             ? `"wght" ${staticWeight}, "opsz" 72`
-            : (useTransform(
-                [wght, opsz],
-                ([w, o]: number[]) => `"wght" ${w}, "opsz" ${o}`,
-              ) as unknown as string),
+            : (fontVar as unknown as string),
           letterSpacing: reduced ? '-0.02em' : (tracking as unknown as string),
         }}
       >

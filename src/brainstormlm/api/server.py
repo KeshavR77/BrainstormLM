@@ -230,7 +230,7 @@ def build_app() -> FastAPI:
             total_requests=len(records),
             requests_last_60s=len(recent),
             mean_latency_ms=mean_latency,
-            cache_hit_rate=0.0,
+            cache_hit_rate=None,  # not instrumented; report null rather than a fake 0.0
         )
 
     from brainstormlm.api.streaming import build_streaming_router

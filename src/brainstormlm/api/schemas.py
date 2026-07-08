@@ -28,7 +28,7 @@ class MetricsResponse(BaseModel):
     total_requests: int
     requests_last_60s: int
     mean_latency_ms: float
-    cache_hit_rate: float
+    cache_hit_rate: float | None = None  # None until response caching is instrumented (not faked)
 
 
 class BrainstormRequest(BaseModel):
@@ -37,6 +37,8 @@ class BrainstormRequest(BaseModel):
     prompt: str = Field(max_length=4000)
     context: str | None = Field(default=None, max_length=4000)
     n_ideas: int = Field(default=4, ge=1, le=8)
+    # Reserved: memory is always project-scoped via project_id (this flag is accepted for the
+    # existing client contract but does not currently toggle behaviour).
     use_memory: bool = False
     project_id: str | None = Field(default=None, max_length=128)
     reset_project: bool = False

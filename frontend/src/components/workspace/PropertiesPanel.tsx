@@ -30,10 +30,13 @@ export function PropertiesPanel({ tree, onEditNode, onRegenerate, onFeedback }: 
   const [content, setContent] = useState(node?.content ?? '');
   const saveT = useRef<number | null>(null);
 
+  // Re-seed the editable buffer only when the SELECTED NODE changes — not on every
+  // summary/content change, which would clobber the user's in-progress edits.
   useEffect(() => {
     setSummary(node?.summary ?? '');
     setContent(node?.content ?? '');
-  }, [node?.id, node?.summary, node?.content]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [node?.id]);
 
   const queueSave = (newContent: string, newSummary?: string) => {
     if (!node) return;
