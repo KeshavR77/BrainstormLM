@@ -2,7 +2,9 @@
 
 Open-source brainstorming model with a swappable generator and cached LLM clients.
 
-See [`docs/plans/plan-01-foundation.md`](docs/plans/plan-01-foundation.md) for the Phase 1 spec.
+See [`docs/brainstorm_pipeline_architecture.md`](docs/brainstorm_pipeline_architecture.md) for the
+pipeline architecture and [`docs/steering_lineage.md`](docs/steering_lineage.md) for which steering
+vectors ship.
 
 ## Quickstart
 
