@@ -110,8 +110,8 @@ TDD per repo convention (Red → Green → Refactor). Engine sits behind the
 
 - [ ] `pipeline/contracts.py` — `CreativeBrief`, `IdeaCandidate`,
       `BrainstormGenerator` protocol, `Idea`.
-- [ ] `api/schemas.py` — `BrainstormV1Request` / `BrainstormV1Response` / `Idea`
-      (+ validation: prompt non-empty, `n` in 1..10).
+- [ ] `api/public_schemas.py` — public v1 models. `IdeaV1` / `DiversityScoreV1` exist and
+      are used by `pipeline/select_api.py`; the request/response wrappers were removed as unused.
 - [ ] `api/auth.py` — `require_api_key` dependency: parse `Bearer`, SHA-256
       compare against key store, attach `company_id`; 401 on miss. **Test first.**
 - [ ] `refine.py` — `refine_brief(prompt, context) -> CreativeBrief` via Claude

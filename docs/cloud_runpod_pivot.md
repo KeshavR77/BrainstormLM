@@ -42,21 +42,16 @@ uv sync
 export HF_TOKEN=<your hf token>
 huggingface-cli login --token "$HF_TOKEN"
 
-# Run a smoke. The 14B variant skips v17 steering (which was trained against 3B's hidden
-# dim 2048; 14B has dim 5120). The other innovations (anti-mode, persistent memory,
-# min_p=0.01, brief-aware output modes) work unchanged.
+# Run a smoke generation. The standalone scripts/smoke_14b_antimode.py helper has been
+# retired; use the current batch driver instead (see `scripts/runpod_batch_14b.py --help`
+# and docs/runpod_14b_runbook.md for the up-to-date invocation and flags).
 mkdir -p artifacts/conceptial_14b data
-.venv/bin/python3 scripts/smoke_14b_antimode.py \
-    --prompt "Give me a creative logo for an engineering club at Stanford." \
-    --n 5 --base-temp 0.8 --temp-jitter 0.05 --min-p 0.01 \
-    --output-mode image-prompt \
-    --project-id cloud-14b-logo-S1 --reset-project \
-    --out-md artifacts/conceptial_14b/CLOUD_14B_S1.md
+.venv/bin/python3 scripts/runpod_batch_14b.py --help
 ```
 
-For the 3-shot demo flow, call the smoke 3 times with the same `--project-id` (drop
-`--reset-project` on calls 2 and 3) so the IdeaMemoryStore accumulates exclusions across
-sessions just like the local 3B path.
+Reuse the same `--project-id` across successive runs (dropping any reset flag after the
+first) so the IdeaMemoryStore accumulates exclusions across sessions, just like the local
+3B path.
 
 ## Cost estimate
 

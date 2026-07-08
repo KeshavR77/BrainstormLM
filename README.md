@@ -10,6 +10,6 @@ vectors ship.
 
 ```
 uv sync
-cp .env.example .env  # then fill OPENAI_API_KEY and TOGETHER_API_KEY
-uv run brainstorm ask "name three unusual uses for a stapler"
+cp .env.example .env       # then fill OPENAI_API_KEY / TOGETHER_API_KEY
+uv run brainstorm serve    # start the FastAPI server (POST /brainstorm)
 ```
