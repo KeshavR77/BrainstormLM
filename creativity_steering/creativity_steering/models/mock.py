@@ -198,8 +198,14 @@ class MockBackend(ModelBackend):
         boost = 0.0
         for inj in injections:
             v = np.asarray(inj.vector, dtype=np.float32).reshape(-1)
+            # Match HFBackend: an out-of-range layer is a caller error, not a silent no-op,
+            # so a layer-index bug surfaces here in tests rather than on a paid GPU pod.
+            if not 0 <= inj.layer < self._num_layers:
+                raise ValueError(
+                    f"injection layer {inj.layer} out of range [0, {self._num_layers})"
+                )
             vn = np.linalg.norm(v)
-            if vn < 1e-12 or not 0 <= inj.layer < self._num_layers:
+            if vn < 1e-12:  # a zero direction (e.g. a padding row in a frame) is a valid no-op
                 continue
             cos = float(np.dot(v / vn, self.creativity_axis[inj.layer]))
             # Alignment with the planted axis, weighted by where the layer matters.
