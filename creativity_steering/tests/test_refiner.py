@@ -5,6 +5,8 @@ The refiner polishes steered candidates for clarity/specificity but must stay co
 shape + the guardrails are present, using an injected fake client so nothing hits the network.
 """
 
+import pytest
+
 from creativity_steering.serving.refiner import REFINER_SYSTEM, OpenAIRefiner
 
 
@@ -87,3 +89,40 @@ def test_refiner_info_reports_model():
 def test_refiner_system_default_is_concept_frozen():
     low = REFINER_SYSTEM.lower()
     assert "concept" in low and "merge" in low and "distinct" in low
+
+
+# --- transient-failure retry (a flaky OpenAI call must not lose a sample) ------------------
+
+class _FlakyOpenAI:
+    """Fails the first ``fail_times`` create() calls, then returns valid content."""
+
+    def __init__(self, fail_times):
+        self.calls = []
+        self._fail_times = fail_times
+        outer = self
+
+        class _Completions:
+            def create(self, **kwargs):
+                outer.calls.append(kwargs)
+                if len(outer.calls) <= outer._fail_times:
+                    raise RuntimeError("transient 500")
+                return _FakeResp("REFINED OUTPUT")
+
+        class _Chat:
+            completions = _Completions()
+
+        self.chat = _Chat()
+
+
+def test_refine_retries_transient_failure():
+    fake = _FlakyOpenAI(fail_times=2)
+    out = OpenAIRefiner(client=fake, backoff_base=0.0).refine("p", "1. x")
+    assert out == "REFINED OUTPUT"
+    assert len(fake.calls) == 3  # 2 failures + 1 success
+
+
+def test_refine_raises_after_exhausting_retries():
+    fake = _FlakyOpenAI(fail_times=99)
+    with pytest.raises(RuntimeError):
+        OpenAIRefiner(client=fake, max_retries=2, backoff_base=0.0).refine("p", "1. x")
+    assert len(fake.calls) == 2  # exactly max_retries attempts, then gives up

@@ -89,3 +89,51 @@ def test_run_briefs_resumes_without_duplicates(tmp_path):
     assert summary[0]["made"] == 2  # only the two missing samples were generated
     rows = [json.loads(line) for line in (tmp_path / "b1.jsonl").read_text().splitlines() if line.strip()]
     assert sorted(r["sample"] for r in rows) == [0, 1, 2, 3]  # resumed, no duplicates
+
+
+# --- fault isolation: a bad sample must never abort a long unattended run -----------------
+
+class _FakeService:
+    """Minimal service stand-in that can be told to fail specific samples/steps."""
+
+    def __init__(self, fail_generate_seeds=(), fail_refine=False):
+        self.fail_generate_seeds = set(fail_generate_seeds)
+        self.fail_refine = fail_refine
+
+    def generate(self, prompt, *, variant=None, steered=True, max_new_tokens=None, seed=0):
+        if steered and seed in self.fail_generate_seeds:
+            raise RuntimeError(f"boom seed {seed}")
+        return f"{'STEER' if steered else 'BASE'}-{seed}"
+
+    def refine_text(self, prompt, text):
+        if self.fail_refine:
+            raise RuntimeError("refine boom")
+        return f"R<<{text}>>"
+
+
+def test_refine_failure_keeps_steered(tmp_path):
+    summary = run_briefs(_FakeService(fail_refine=True), BRIEFS[:1], variant="L4", samples=2,
+                         out_dir=str(tmp_path), refine=True)
+    rows = [json.loads(line) for line in (tmp_path / "b1.jsonl").read_text().splitlines() if line.strip()]
+    assert len(rows) == 2
+    assert all(r["steered"] and r["refined"] is None and "refine_error" in r for r in rows)
+    assert summary[0]["made"] == 2 and summary[0]["errors"] == 0  # not a run-level error
+
+
+def test_generation_failure_records_error_and_continues(tmp_path):
+    summary = run_briefs(_FakeService(fail_generate_seeds={1}), BRIEFS[:1], variant="L4",
+                         samples=3, out_dir=str(tmp_path))
+    rows = sorted((json.loads(line) for line in (tmp_path / "b1.jsonl").read_text().splitlines()
+                   if line.strip()), key=lambda r: r["sample"])
+    assert [r["sample"] for r in rows] == [0, 1, 2]        # the run kept going past the failure
+    assert rows[1]["steered"] is None and "error" in rows[1]
+    assert rows[0]["steered"] and rows[2]["steered"]
+    assert summary[0]["errors"] == 1 and summary[0]["made"] == 2
+
+
+def test_error_sample_not_retried_on_resume(tmp_path):
+    run_briefs(_FakeService(fail_generate_seeds={1}), BRIEFS[:1], variant="L4", samples=3,
+               out_dir=str(tmp_path))
+    # the error row recorded sample 1, so a clean resume must NOT loop on the poison sample
+    summary = run_briefs(_FakeService(), BRIEFS[:1], variant="L4", samples=3, out_dir=str(tmp_path))
+    assert summary[0]["made"] == 0

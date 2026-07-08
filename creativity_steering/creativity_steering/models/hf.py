@@ -89,18 +89,30 @@ class HFBackend(ModelBackend):
     def _ensure_loaded(self) -> None:
         if self._model is not None:
             return
+        import os
+
         import torch
         from transformers import AutoModelForCausalLM, AutoTokenizer
 
+        # Authenticate downloads: unauthenticated HF requests are rate-limited, which manifests as
+        # a download that stalls at a fixed byte count (the RunPod-Lessons Xet finalize/rate-limit
+        # hang). A token also unlocks the faster transfer path. HF_HUB_OFFLINE=1 (respected by
+        # transformers) forces cache-only loads once the weights are present.
+        token = os.environ.get("HF_TOKEN") or os.environ.get("HUGGING_FACE_HUB_TOKEN") or None
+        os.environ.setdefault("HF_HUB_DOWNLOAD_TIMEOUT", "60")
+
         self._device = self._resolve_device()
         torch_dtype = getattr(torch, _DTYPES[self._dtype])
-        self._tokenizer = AutoTokenizer.from_pretrained(self._model_id, trust_remote_code=True)
+        self._tokenizer = AutoTokenizer.from_pretrained(
+            self._model_id, trust_remote_code=True, token=token
+        )
         # device_map streams shards straight to the target device (peak CPU RAM ~= one shard),
-        # which a 28GB bf16 14B needs under a constrained container memory cgroup; the old
+        # which a 28GB+ bf16 model needs under a constrained container memory cgroup; the old
         # load-to-CPU-then-.to() pattern OOMs there. `dtype=` (not the deprecated `torch_dtype=`)
         # so the compute dtype is honored on transformers 5.x.
         self._model = AutoModelForCausalLM.from_pretrained(
-            self._model_id, dtype=torch_dtype, trust_remote_code=True, device_map=self._device
+            self._model_id, dtype=torch_dtype, trust_remote_code=True,
+            device_map=self._device, token=token,
         )
         self._model.eval()
 
