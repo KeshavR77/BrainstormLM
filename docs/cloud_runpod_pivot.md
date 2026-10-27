@@ -1,8 +1,6 @@
 # Cloud 14B pivot — RunPod setup guide
 
-You confirmed Vendi parity with documented cloud 14B Harmonic numbers on local 3B (4.03 vs
-4.02). The remaining ~2-3× lift expected on 14B comes from raw per-idea polish, not
-diversity. This guide spins up Qwen2.5-14B-Instruct on RunPod and reuses our entire
+This guide spins up Qwen2.5-14B-Instruct on RunPod and reuses our entire
 anti-mode + persistent-memory stack at the higher model scale.
 
 ## GPU + provisioning
@@ -78,20 +76,6 @@ scp -P <pod-ssh-port> root@<pod-ip>:/workspace/BrainstormLM/artifacts/conceptial
 # Score locally with the same tooling we've been using
 python3 scripts/score_outputs.py --md artifacts/conceptial_14b/CLOUD_14B_S1.md
 ```
-
-## What to expect on 14B vs local 3B
-
-| Axis | Local 3B (current) | Cloud 14B (expected) | Mechanism |
-|---|---|---|---|
-| Vendi (aggregate, 15 outputs) | 4.03 | 4.0-4.3 | Bounded by anti-mode/persistence; we already match docs |
-| Composite quality | 3.83 | **4.3+** | Larger model = better individual ideas |
-| Creativity | 3.60 | **4.0+** | Less mode collapse on hard briefs |
-| Specificity | 3.40 | **4.2+** | More precise visual / strategic vocabulary |
-| Factual accuracy | 3B hallucinates Stanford mascot/colors | 14B knows the Cardinal | Better world knowledge |
-
-The single biggest demo-relevant lift on 14B is **factual specificity** — the 3B's
-incorrect "bulldog mascot" and "yellow and brick red colors" issues should largely
-disappear.
 
 ## What's NOT carried over from 3B
 

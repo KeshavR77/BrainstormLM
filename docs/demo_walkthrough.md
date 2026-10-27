@@ -29,10 +29,8 @@ Confirm three projects appear on the dashboard with seeded counts:
 
 ### Beat 1 — open a project, point at the memory chip (~30 sec)
 
-> "This is Conceptial. It's a brainstorming engine that generates a wider
-> set of distinct ideas than a frontier LLM — not better single answers,
-> wider sets. We use it for the upstream half of creative work — the
-> part before the assets get organised."
+> "This is Conceptial. It's a brainstorming engine built to return a set
+> of distinct ideas rather than one polished answer."
 
 Click into **Cypress & Salt — Brand Identity**.
 
@@ -54,8 +52,8 @@ The memory chip ticks up: `12 seeded · 1 explored`, then `12 seeded · 2`,
 all the way to `12 seeded · 5 explored`.
 
 > "None of those five overlap with the 12 already in the project's memory.
-> The system literally cannot suggest 'Linen Folio' again — the prompt it
-> sends the model includes an exclusion list with every prior direction.
+> Every prior direction, like 'Linen Folio', goes into an exclusion list,
+> and candidates that match it are filtered out.
 > Watch this."
 
 ### Beat 3 — regenerate, prove it doesn't repeat (~45 sec)
@@ -69,11 +67,8 @@ slightly different sub-prompt).
 A second wave of five concept cards streams in. The memory chip reaches
 `12 seeded · 10 explored`.
 
-> "Seventeen distinct directions and counting. A frontier model with
-> the same prompt would have given me three or four real archetypes by
-> now and started repeating itself. That's mode collapse — every aligned
-> LLM has it. Conceptial sidesteps it with project-scoped memory and
-> activation-level intervention."
+> "Every new idea is checked against everything already in this
+> project's memory, so the list keeps growing instead of repeating."
 
 ### Beat 4 — switch projects, prove memory is scoped (~45 sec)
 
@@ -91,21 +86,13 @@ Type:
 A fresh wave of five completely different ideas streams in — packaging-
 specific, refrigerated-case-appropriate.
 
-> "Each project is its own world. A creative director can keep ten
-> projects running in parallel and never confuse them. The next time you
-> come back to one, the memory is still there — it persists across
-> sessions, browser refreshes, machines."
+> "Each project has its own memory, stored in SQLite, so it is still
+> there when you come back to the project."
 
 ### Beat 5 — the close (~30 sec)
 
-> "What we just did would take a creative team a half-day to do
-> by hand — and they'd still converge on the obvious three or four
-> archetypes. Conceptial gives you 20 distinct starting points in 90
-> seconds. Then the team picks the ones worth developing.
->
-> The upstream half of creative work is where most of the option space
-> gets lost. Conceptial doesn't replace the people who do that work —
-> it widens the field they get to choose from."
+> "Conceptial gives the team a wide set of starting points; the team
+> picks the ones worth developing."
 
 ## Resilience
 
@@ -141,13 +128,9 @@ uv run python scripts/seed_idea_memory.py --all
 # (DevTools → Application → Local Storage → clear all)
 ```
 
-## Known caveats (don't surface to the audience)
+## Known caveats
 
-- The streaming source currently uses curated content rather than a live
-  3B/14B model on the demo path. The cloud 14B is validated (see
-  `Conceptial/Locked-Config.md`); we use cached output for demo speed.
-  This is honest engineering — the curated set IS Conceptial output,
-  scored by the same rubric.
-- Re-extracted Harmonic vectors on 14B are not yet built. Activation-
-  level diversity gains are 3B-only. The demo currently shows text-level
-  anti-mode + memory only — which is exactly what scales to any base model.
+- The streaming source uses a hand-authored catalogue
+  (`demo_packs.py`), not a live model, on the demo path. Say so if asked.
+- The demo shows text-level anti-mode + memory only; no activation
+  steering runs on the demo path.

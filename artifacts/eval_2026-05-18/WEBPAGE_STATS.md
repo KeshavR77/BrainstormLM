@@ -2,23 +2,20 @@
 
 Conceptial vs the same model (Qwen2.5-14B-Instruct) unsteered, on a repeated-prompt stress test (5 regenerations × 10 prompts).
 
-## Headline tile values (paste into Corpus1Landing.tsx)
+## Results (from `SUMMARY.json`)
 
-| Value | Label | Note |
-|---|---|---|
-| -85.7% | Fewer repeat answers | Near-duplicate rate 0.010 vs 0.070 baseline (cos ≥ 0.92) |
-| +4.1% | More answer diversity | Vendi score 2.331 vs 2.240 baseline |
-| +0.0% | More correct paths | Pass@5 1.000 vs 1.000 baseline (≥1 of 5 passes gate) |
-| 100% | Quality gate pass | Coherence ≥ 3 AND on-topic ≥ 4 on every judged sample |
+Small sample: 10 prompts × 5 regenerations, one run, no significance tests. Treat as directional.
 
-## New stats (additional credibility tiles)
-
-| Value | Label | Note |
-|---|---|---|
-| +44.4% | Lower n-gram overlap | Self-BLEU-4 0.116 vs 0.080 baseline (Zhu et al. 2018) |
-| 0.042 | Closer to human prose | MAUVE 0.042 vs 0.156 baseline (Pillutla et al. 2021) |
-| 5.52 | EQ-Bench Creative v3 | composite 5.52 vs 5.08 baseline (10-prompt subset, gpt-4o-mini judge) |
-| 10 / 10 | Distinct modes at K=10 | greedy cluster count at cos ≥ 0.85 vs baseline 8/10 |
+| Metric | Conceptial | Baseline | Direction |
+|---|---|---|---|
+| Near-duplicate rate (cos ≥ 0.92) | 0.010 | 0.070 | better (1 vs 7 near-dup pairs) |
+| Vendi score | 2.331 | 2.240 | better (+4.1%) |
+| Pass@5 (≥1 of 5 passes gate) | 1.000 | 1.000 | no change |
+| Quality gate pass rate | 1.000 | 1.000 | no change |
+| Self-BLEU-4 (lower = less n-gram overlap) | 0.116 | 0.080 | **worse** (more overlap) |
+| MAUVE vs human reference (higher = closer) | 0.042 | 0.156 | **worse** (further from human prose) |
+| EQ-Bench Creative v3 composite | 5.52 | 5.08 | better (10-prompt subset, single judge) |
+| Distinct modes at K=10 (one prompt) | 10 / 10 | 8 / 10 | better |
 
 ## Methodology
 

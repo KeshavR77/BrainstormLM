@@ -22,11 +22,6 @@ diversity:    cognitive anti-mode at PROMPT level
               + auto-extracted few-shot exemplars (top-K by composite score, deduped stylistically)
 output mode:  image-prompt | strategy | generic (brief-aware)
 ```
-
-**Measured numbers (local 3B, scored by GPT-4o-mini, 15 outputs per arm):**
-
-- Logo prompt: Vendi 4.03 (matches cloud 14B Harmonic 4.02), composite quality 3.83
-- GTM strategy prompt: Vendi 2.52, composite 3.98, on-topic 4.93 (14/15 on-brief)
 """
 
 from brainstormlm.conceptial.anti_mode import (

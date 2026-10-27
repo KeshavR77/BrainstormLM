@@ -2,31 +2,19 @@
 
 This subpackage is the production home for the Conceptial diverse-ideation engine. It
 combines representation engineering (purified L14 + L18 steering, v17 schedule) with three
-prompt-level innovations to push local 3B Qwen2.5 to **diversity parity with documented cloud
-14B Harmonic numbers** (Vendi 4.03 vs cloud's 4.02) on the logo-brief class.
+prompt-level diversity mechanisms on local 3B Qwen2.5.
 
 ## Locked stack
 
 | Component | Value | Why |
 |---|---|---|
 | Base model | `Qwen/Qwen2.5-3B-Instruct` (MPS / fp16) | Local-runnable, fast iteration |
-| Steering | v17 purified L14 (α=2.62→0 by step 168) + L18 (α=0.86, sigmoid mid=52) | Documented "winning trajectory" from `Corpius-1-Technical-Thesis.md`. **No** IOR-at-L28, ghost decode, or cognitive-route layer — all four broke grammar in V8.x |
-| Sampling | `min_p=0.01`, `base_temp=0.8`, `temp-jitter=0.05` per sample | Wide tail without high-PPL salad |
-| Diversity-1 | Cognitive anti-mode at PROMPT level | Frontier models do this internally; we do it explicitly across samples |
+| Steering | v17 purified L14 (α=2.62→0 by step 168) + L18 (α=0.86, sigmoid mid=52) | Schedule carried over from the legacy repo. **No** IOR-at-L28, ghost decode, or cognitive-route layer (dropped in the legacy repo) |
+| Sampling | `min_p=0.01`, `base_temp=0.8`, `temp-jitter=0.05` per sample | Sampling defaults |
+| Diversity-1 | Cognitive anti-mode at PROMPT level | Each sample sees the earlier samples as an exclusion list |
 | Diversity-2 | Cross-session persistence via `IdeaMemoryStore` (SQLite) | Day-3 infrastructure repurposed for text-level memory |
-| Diversity-3 | Few-shot exemplars (auto-extracted top-K from prior scored runs) | Quality lift +12% creativity, +13% specificity; anti-copy guardrail prevents verbatim |
+| Diversity-3 | Few-shot exemplars (auto-extracted top-K from prior scored runs) | Anti-copy guardrail rejects verbatim copies of exemplars |
 | Brief routing | `--output-mode {image-prompt, strategy, generic}` | Visual prompts vs strategic prompts need different output instructions |
-
-## Measured numbers (15 outputs per arm, scored by GPT-4o-mini)
-
-| Brief class | Vendi | Composite quality | On-topic | Notes |
-|---|---:|---:|---:|---|
-| **Logo** ("creative logo for engineering club at Stanford") | **4.03** | 3.83 | 4.6 | Matches cloud 14B 4.02; 15 distinct visual archetypes |
-| **GTM** ("distinct go-to-market strategies for diverse-AI startup") | 2.52 | **3.98** | **4.93** | 14/15 on-brief with all 4 sections (customer wedge, proof metric, pricing, major risk) |
-
-Comparison points:
-- Baseline (unsteered Qwen2.5-3B): Vendi 1.40, composite 3.60
-- Cloud Corpius-1 Harmonic on Qwen2.5-14B (documented): Vendi 4.02
 
 ## Usage
 
@@ -75,9 +63,9 @@ locked Corpius 1 spec at `BrainstormLM/config/conceptial.json`, Vendi/Prism metr
 `BrainstormLM/creativity_evaluator/` (slim copy — the LiveBench fork stayed in the
 legacy archive). The `shrooms-llm` repo is now reference-only / outdated.
 
-## What's NOT here (and why)
+## What's NOT here
 
-- **V8.x IOR-at-L28**: broke grammar in 4 distinct ways (Conditions A/B/C/D + verbatim Chinese-character bleed). Replaced with cognitive anti-mode at prompt level.
-- **Ghost decode**: contributed to grammatical destabilization at α=0.5 unit-norm. Dropped.
-- **Cognitive prompt rewrite (`format_cognitive_steering_prompt`)**: the V6-era rewrite combined with IOR caused additional drift. Replaced with the simpler instruction-aware prompt in `anti_mode.py`.
-- **Manifold circuit breakers**: built for the V8.x failure modes that no longer occur on this stack. Kept on the FastAPI server side (shrooms-llm) for safety.
+V8.x IOR-at-L28, ghost decode, the V6-era cognitive prompt rewrite
+(`format_cognitive_steering_prompt`), and manifold circuit breakers were tried in the legacy
+`shrooms-llm` repo and dropped in favour of prompt-level anti-mode. The experiments behind those
+decisions are not in this repo.

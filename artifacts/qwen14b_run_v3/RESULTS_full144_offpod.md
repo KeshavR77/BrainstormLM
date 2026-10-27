@@ -14,10 +14,10 @@ overturns the working assumption about *which* layers matter.
 - **The best layers are mid-network (L14–L20, L26–L27), not the early band (L5–8) we'd been
   steering.** Every earlier run gated judging to a handful of layers picked by the cheap novelty
   metric and **missed this entire region**. Judging all 144 cells surfaced it.
-- **Best coherent operating point: L17 @ α=0.2** — wins head-to-head on creativity **~91%** of the
-  time, lifts novelty from the **34th → 71st percentile**, and keeps **~86% of baseline coherence**.
+- **Best coherent operating point: L17 @ α=0.2** — an implied **~91%** win-rate on the quality-gated
+  composite (Φ(d/√2) conversion, not pairwise judging), lifts novelty from the **34th → 71st percentile**, and keeps **~86% of baseline coherence**.
 - **Clean dose-response in α:** α=0.2 is the sweet spot (44/48 layers beat baseline, coherence
-  ≈ baseline); α=0.3 is marginal; α=0.4 breaks coherence.
+  3.94 vs baseline 4.33); α=0.3 is marginal; α=0.4 breaks coherence.
 - **Broad, not cherry-picked:** **87/144 (60%)** of cells beat baseline; **74** are *coherent*
   winners (beat baseline **and** judge-Pragmaticality ≥ 3.5).
 
@@ -139,7 +139,7 @@ Code: `creativity_steering/patching/judge_offpod.py`, `scripts/judge_generations
 | 0.40 | 18 / 48 (38%) | −0.152 | 2.44 (breaking) |
 
 **α=0.2 is the sweet spot across the whole network** — almost every layer beats baseline while
-coherence stays near the unsteered 4.33. By α=0.4 the model is degrading. (This refines the earlier
+coherence stays at ~91% of the unsteered 4.33 (3.94). By α=0.4 the model is degrading. (This refines the earlier
 "0.2/0.3 good, 0.4 bad" into "0.2 is the operating point.")
 
 ### 6b. Top cells by margin over baseline
@@ -152,6 +152,7 @@ coherence stays near the unsteered 4.33. By α=0.4 the model is degrading. (This
 | **L14 @ 0.2** | +1.74 | +0.541 | **3.69** |
 | L16 @ 0.2 | +1.62 | +0.470 | 3.38 |
 | L26 @ 0.2 | +1.62 | +0.427 | 3.51 |
+| L15 @ 0.2 | +1.58 | +0.451 | 3.36 |
 | L5 @ 0.3 | +1.53 | +0.605 | 3.71 |
 
 - **87/144 (60%) beat baseline; 74 are coherent winners** (Δ>0 **and** Pragmaticality ≥ 3.5).
@@ -170,7 +171,8 @@ layers; only exhaustive judging revealed the real frontier. This is the core met
 
 ## 7. Headline (interpretable, defensible) numbers
 
-> **Steering at L17 (α=0.2) beats the unsteered model on creativity ~91% of the time, lifting
+> **Steering at L17 (α=0.2) has an implied ~91% win-rate over the unsteered model on the quality-gated
+> composite (Φ(d/√2) from the within-batch z-gap), lifting
 > outputs from the 34th to the 71st percentile of novelty while retaining ~86% of baseline
 > coherence — and the effect holds across 60% of all 144 layer/strength settings (74 coherent
 > winners).** Best layers are mid-network; the optimal strength is α≈0.2, with coherence collapsing

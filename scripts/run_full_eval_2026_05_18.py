@@ -522,12 +522,6 @@ def phase_metrics(args) -> None:
     _write_webpage_stats(summary)
 
 
-def _pct_change(new: float, baseline: float) -> str:
-    if not baseline:
-        return "—"
-    return f"{(new - baseline) / baseline * 100:+.1f}%"
-
-
 def _write_webpage_stats(summary: dict) -> None:
     """Render artifacts/eval_2026-05-18/WEBPAGE_STATS.md with the eight stats."""
     arms = summary.get("per_arm", {})
@@ -547,23 +541,21 @@ def _write_webpage_stats(summary: dict) -> None:
         f"repeated-prompt stress test ({summary['config']['n_per_prompt']} regenerations × "
         f"{base.get('n_prompts', 0)} prompts).",
         "",
-        "## Headline tile values (paste into Corpus1Landing.tsx)",
+        "## Results (from `SUMMARY.json`)",
         "",
-        "| Value | Label | Note |",
-        "|---|---|---|",
-        f"| {_pct_change(conc['mean_near_dup'], base['mean_near_dup'])} | Fewer repeat answers | Near-duplicate rate {f(conc['mean_near_dup'])} vs {f(base['mean_near_dup'])} baseline (cos ≥ 0.92) |",
-        f"| {_pct_change(conc['mean_vendi'], base['mean_vendi'])} | More answer diversity | Vendi score {f(conc['mean_vendi'])} vs {f(base['mean_vendi'])} baseline |",
-        f"| {_pct_change(conc['pass_at_5_rate'], base['pass_at_5_rate'])} | More correct paths | Pass@5 {f(conc['pass_at_5_rate'])} vs {f(base['pass_at_5_rate'])} baseline (≥1 of {summary['config']['n_per_prompt']} passes gate) |",
-        f"| {f(conc['quality_gate_pass_rate'], '.0%')} | Quality gate pass | Coherence ≥ 3 AND on-topic ≥ 4 on every judged sample |",
+        "Small sample, one run, no significance tests. Labels are neutral on purpose: check each "
+        "metric's direction before quoting it as a gain.",
         "",
-        "## New stats (additional credibility tiles)",
-        "",
-        "| Value | Label | Note |",
-        "|---|---|---|",
-        f"| {_pct_change(conc['mean_self_bleu'], base['mean_self_bleu'])} | Lower n-gram overlap | Self-BLEU-4 {f(conc['mean_self_bleu'])} vs {f(base['mean_self_bleu'])} baseline (Zhu et al. 2018) |",
-        f"| {f(conc.get('mauve'))} | Closer to human prose | MAUVE {f(conc.get('mauve'))} vs {f(base.get('mauve'))} baseline (Pillutla et al. 2021) |",
-        f"| {f(conc['eq_bench_composite'], '.2f')} | EQ-Bench Creative v3 | composite {f(conc['eq_bench_composite'], '.2f')} vs {f(base['eq_bench_composite'], '.2f')} baseline (10-prompt subset, gpt-4o-mini judge) |",
-        f"| {conc['mode_collapse_at_k']['n_clusters']} / {conc['mode_collapse_at_k']['k']} | Distinct modes at K={STRESS_K} | greedy cluster count at cos ≥ 0.85 vs baseline {base['mode_collapse_at_k']['n_clusters']}/{base['mode_collapse_at_k']['k']} |",
+        "| Metric | Conceptial | Baseline | Better when |",
+        "|---|---|---|---|",
+        f"| Near-duplicate rate (cos ≥ 0.92) | {f(conc['mean_near_dup'])} | {f(base['mean_near_dup'])} | lower |",
+        f"| Vendi score | {f(conc['mean_vendi'])} | {f(base['mean_vendi'])} | higher |",
+        f"| Pass@5 (≥1 of {summary['config']['n_per_prompt']} passes gate) | {f(conc['pass_at_5_rate'])} | {f(base['pass_at_5_rate'])} | higher |",
+        f"| Quality gate pass rate | {f(conc['quality_gate_pass_rate'])} | {f(base['quality_gate_pass_rate'])} | higher |",
+        f"| Self-BLEU-4 (n-gram overlap) | {f(conc['mean_self_bleu'])} | {f(base['mean_self_bleu'])} | lower |",
+        f"| MAUVE vs human reference | {f(conc.get('mauve'))} | {f(base.get('mauve'))} | higher |",
+        f"| EQ-Bench Creative v3 composite | {f(conc['eq_bench_composite'], '.2f')} | {f(base['eq_bench_composite'], '.2f')} | higher |",
+        f"| Distinct modes at K={STRESS_K} (one prompt) | {conc['mode_collapse_at_k']['n_clusters']} / {conc['mode_collapse_at_k']['k']} | {base['mode_collapse_at_k']['n_clusters']} / {base['mode_collapse_at_k']['k']} | higher |",
         "",
         "## Methodology",
         "",

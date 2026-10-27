@@ -5,8 +5,9 @@ Runs on a RunPod A100 80GB pod, AFTER ``scripts/extract_14b_vectors.py``.
 Resolved the two open caveats in the 14B port (run 2026-05-18):
 
 1. ``creative_start_alpha`` — sweep selected α₀=1.5 (down from 3B's 2.62).
-2. ``creative_layer`` — sweep selected L17 (depth 0.354), beating the
-   depth-scaled guess of L19 (Vendi 3.32 vs 2.26).
+2. ``creative_layer`` — sweep selected L17 (depth 0.354) over the depth-scaled
+   guess of L19 (Vendi 3.32 vs 3.21 at α=1.5; n=5 on a single brief, so the
+   margin is within noise).
 
 The sweep:
 
