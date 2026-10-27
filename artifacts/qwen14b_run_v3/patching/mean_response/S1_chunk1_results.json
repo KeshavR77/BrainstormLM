@@ -1,0 +1,291 @@
+{
+  "evaluator": "two_stage",
+  "enable_judge": false,
+  "judged_labels": [],
+  "baseline": {
+    "label": "baseline",
+    "composite": -0.22134466374491443,
+    "stage1": -0.22134466374491443,
+    "pragmaticality": null,
+    "judged": false,
+    "n_samples": 15,
+    "delta": 0.0
+  },
+  "best": {
+    "label": "L5_a0.3",
+    "layer": 5,
+    "alpha": 0.3,
+    "composite": 0.6908128887934322,
+    "stage1": 0.6908128887934322,
+    "pragmaticality": null,
+    "judged": false,
+    "n_samples": 15,
+    "delta": 0.9121575525383466
+  },
+  "cells": [
+    {
+      "label": "L0_a0.2",
+      "layer": 0,
+      "alpha": 0.2,
+      "composite": -0.2817251435002051,
+      "stage1": -0.2817251435002051,
+      "pragmaticality": null,
+      "judged": false,
+      "n_samples": 15,
+      "delta": -0.06038047975529068
+    },
+    {
+      "label": "L0_a0.3",
+      "layer": 0,
+      "alpha": 0.3,
+      "composite": -0.24567201105779374,
+      "stage1": -0.24567201105779374,
+      "pragmaticality": null,
+      "judged": false,
+      "n_samples": 15,
+      "delta": -0.024327347312879305
+    },
+    {
+      "label": "L0_a0.4",
+      "layer": 0,
+      "alpha": 0.4,
+      "composite": -0.1372739786235817,
+      "stage1": -0.1372739786235817,
+      "pragmaticality": null,
+      "judged": false,
+      "n_samples": 15,
+      "delta": 0.08407068512133273
+    },
+    {
+      "label": "L1_a0.2",
+      "layer": 1,
+      "alpha": 0.2,
+      "composite": -0.13539916958868786,
+      "stage1": -0.13539916958868786,
+      "pragmaticality": null,
+      "judged": false,
+      "n_samples": 15,
+      "delta": 0.08594549415622657
+    },
+    {
+      "label": "L1_a0.3",
+      "layer": 1,
+      "alpha": 0.3,
+      "composite": -0.21711166495572995,
+      "stage1": -0.21711166495572995,
+      "pragmaticality": null,
+      "judged": false,
+      "n_samples": 15,
+      "delta": 0.004232998789184483
+    },
+    {
+      "label": "L1_a0.4",
+      "layer": 1,
+      "alpha": 0.4,
+      "composite": 0.00866073919565636,
+      "stage1": 0.00866073919565636,
+      "pragmaticality": null,
+      "judged": false,
+      "n_samples": 15,
+      "delta": 0.23000540294057079
+    },
+    {
+      "label": "L2_a0.2",
+      "layer": 2,
+      "alpha": 0.2,
+      "composite": -0.31635873941017384,
+      "stage1": -0.31635873941017384,
+      "pragmaticality": null,
+      "judged": false,
+      "n_samples": 15,
+      "delta": -0.0950140756652594
+    },
+    {
+      "label": "L2_a0.3",
+      "layer": 2,
+      "alpha": 0.3,
+      "composite": -0.1726371491908176,
+      "stage1": -0.1726371491908176,
+      "pragmaticality": null,
+      "judged": false,
+      "n_samples": 15,
+      "delta": 0.04870751455409683
+    },
+    {
+      "label": "L2_a0.4",
+      "layer": 2,
+      "alpha": 0.4,
+      "composite": 0.12091457215201468,
+      "stage1": 0.12091457215201468,
+      "pragmaticality": null,
+      "judged": false,
+      "n_samples": 15,
+      "delta": 0.3422592358969291
+    },
+    {
+      "label": "L3_a0.2",
+      "layer": 3,
+      "alpha": 0.2,
+      "composite": -0.203252144928749,
+      "stage1": -0.203252144928749,
+      "pragmaticality": null,
+      "judged": false,
+      "n_samples": 15,
+      "delta": 0.018092518816165443
+    },
+    {
+      "label": "L3_a0.3",
+      "layer": 3,
+      "alpha": 0.3,
+      "composite": -0.17540448061073693,
+      "stage1": -0.17540448061073693,
+      "pragmaticality": null,
+      "judged": false,
+      "n_samples": 15,
+      "delta": 0.0459401831341775
+    },
+    {
+      "label": "L3_a0.4",
+      "layer": 3,
+      "alpha": 0.4,
+      "composite": -0.009488979194591286,
+      "stage1": -0.009488979194591286,
+      "pragmaticality": null,
+      "judged": false,
+      "n_samples": 15,
+      "delta": 0.21185568455032314
+    },
+    {
+      "label": "L4_a0.2",
+      "layer": 4,
+      "alpha": 0.2,
+      "composite": -0.12223619730224092,
+      "stage1": -0.12223619730224092,
+      "pragmaticality": null,
+      "judged": false,
+      "n_samples": 15,
+      "delta": 0.09910846644267352
+    },
+    {
+      "label": "L4_a0.3",
+      "layer": 4,
+      "alpha": 0.3,
+      "composite": -0.14629712801089303,
+      "stage1": -0.14629712801089303,
+      "pragmaticality": null,
+      "judged": false,
+      "n_samples": 15,
+      "delta": 0.0750475357340214
+    },
+    {
+      "label": "L4_a0.4",
+      "layer": 4,
+      "alpha": 0.4,
+      "composite": 0.0510000349472302,
+      "stage1": 0.0510000349472302,
+      "pragmaticality": null,
+      "judged": false,
+      "n_samples": 15,
+      "delta": 0.2723446986921446
+    },
+    {
+      "label": "L5_a0.2",
+      "layer": 5,
+      "alpha": 0.2,
+      "composite": 0.21700711191947356,
+      "stage1": 0.21700711191947356,
+      "pragmaticality": null,
+      "judged": false,
+      "n_samples": 15,
+      "delta": 0.438351775664388
+    },
+    {
+      "label": "L5_a0.3",
+      "layer": 5,
+      "alpha": 0.3,
+      "composite": 0.6908128887934322,
+      "stage1": 0.6908128887934322,
+      "pragmaticality": null,
+      "judged": false,
+      "n_samples": 15,
+      "delta": 0.9121575525383466
+    },
+    {
+      "label": "L5_a0.4",
+      "layer": 5,
+      "alpha": 0.4,
+      "composite": -0.20751551164135787,
+      "stage1": -0.20751551164135787,
+      "pragmaticality": null,
+      "judged": false,
+      "n_samples": 15,
+      "delta": 0.013829152103556563
+    },
+    {
+      "label": "L6_a0.2",
+      "layer": 6,
+      "alpha": 0.2,
+      "composite": 0.270791593753337,
+      "stage1": 0.270791593753337,
+      "pragmaticality": null,
+      "judged": false,
+      "n_samples": 15,
+      "delta": 0.4921362574982514
+    },
+    {
+      "label": "L6_a0.3",
+      "layer": 6,
+      "alpha": 0.3,
+      "composite": 0.6204703076295247,
+      "stage1": 0.6204703076295247,
+      "pragmaticality": null,
+      "judged": false,
+      "n_samples": 15,
+      "delta": 0.8418149713744392
+    },
+    {
+      "label": "L6_a0.4",
+      "layer": 6,
+      "alpha": 0.4,
+      "composite": -0.2247432396472639,
+      "stage1": -0.2247432396472639,
+      "pragmaticality": null,
+      "judged": false,
+      "n_samples": 15,
+      "delta": -0.00339857590234946
+    },
+    {
+      "label": "L7_a0.2",
+      "layer": 7,
+      "alpha": 0.2,
+      "composite": 0.44549764797531777,
+      "stage1": 0.44549764797531777,
+      "pragmaticality": null,
+      "judged": false,
+      "n_samples": 15,
+      "delta": 0.6668423117202322
+    },
+    {
+      "label": "L7_a0.3",
+      "layer": 7,
+      "alpha": 0.3,
+      "composite": 0.4092049373223206,
+      "stage1": 0.4092049373223206,
+      "pragmaticality": null,
+      "judged": false,
+      "n_samples": 15,
+      "delta": 0.630549601067235
+    },
+    {
+      "label": "L7_a0.4",
+      "layer": 7,
+      "alpha": 0.4,
+      "composite": -0.01789963228057031,
+      "stage1": -0.01789963228057031,
+      "pragmaticality": null,
+      "judged": false,
+      "n_samples": 15,
+      "delta": 0.20344503146434412
+    }
+  ]
+}

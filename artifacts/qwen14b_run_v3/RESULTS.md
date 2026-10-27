@@ -41,9 +41,9 @@ retained**, common-language win-rate **~85 %**.
 
 ### 2. Full 48-layer novelty landscape (144 cells)
 - **118 / 144 (82 %) of steered cells beat baseline novelty.**
-- Mean novelty by α: **0.2 → +0.06, 0.3 → +0.08, 0.4 → −0.08.** α∈{0.2,0.3} is net-positive
-  across the *whole* network; α=0.4 is already net-negative. The small-alpha sweet spot,
-  previously seen on ~9 hand-picked layers, now holds network-wide.
+- Mean novelty by α: **0.2 → +0.06, 0.3 → +0.08, 0.4 → −0.08** (baseline −0.22). Relative to
+  baseline, every α is net-positive on average (Δ +0.28 / +0.30 / +0.14); α=0.4 gives the smallest
+  gain. Novelty only, judge-free; coherence was not scored in this map.
 - **New high-novelty layers the targeted sweeps never tested:** L22, L27, L28, L32, L44, L45
   (mid-to-late band). Top raw novelty is **L32 @ α=0.4 (+0.771)**.
 
@@ -61,9 +61,9 @@ Beyond α≈0.3 on these layers coherence collapses (L22@0.25 → Pragmaticality
 re-confirming the α curve. **For a steer→refine pipeline, L7 @ α=0.25 is the pick** (highest
 novelty among coherent cells); **for a single coherent win, L6 @ α=0.25.**
 
-Artifacts (local, not committed): `patching/mean_response/S1_mean_novelty_results.json` (full map),
-`S2_mean_judged_results.json` (frontier), and `S1_chunk*_/S2_*_generations.jsonl` (2 870 raw
-generations, ready for further off-pod judging).
+Artifacts: `patching/mean_response/S1_mean_novelty_results.json` (full map) and
+`S2_mean_judged_results.json` (frontier) are committed alongside this report; the
+`S1_chunk*_/S2_*_generations.jsonl` raw generations (2 870) stay local.
 
 ---
 
@@ -168,7 +168,7 @@ Sweeping the high-novelty layers at **α ∈ {0.1, 0.25, 0.5}**
 ## Next steps
 1. ~~Clean re-run (cache-assisted) to lock exact numbers.~~ **Done (2026-06-11)** — headline replicated.
 2. ~~Refine α ∈ {0.2, 0.3} on L6/L7/L8 for the precise frontier.~~ **Done** — full 48L × {0.2,0.3,0.4}
-   map + fine-α judged frontier; α∈{0.2,0.3} confirmed net-positive network-wide.
+   map + fine-α judged frontier; α∈{0.2,0.3} give the largest mean novelty gain network-wide.
 3. **Probe the newly-surfaced layers** — L22/L27/L32/L44 were never in the targeted sweeps; judge
    them at α∈{0.15,0.2} to see if any beats L6/L7 on the novelty↔coherence frontier.
 4. `last_response_token` A/B (deferred from the overnight run for time; generations are persisted).

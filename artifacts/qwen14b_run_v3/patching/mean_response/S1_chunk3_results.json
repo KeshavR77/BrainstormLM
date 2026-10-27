@@ -1,0 +1,291 @@
+{
+  "evaluator": "two_stage",
+  "enable_judge": false,
+  "judged_labels": [],
+  "baseline": {
+    "label": "baseline",
+    "composite": -0.53487074491637,
+    "stage1": -0.53487074491637,
+    "pragmaticality": null,
+    "judged": false,
+    "n_samples": 15,
+    "delta": 0.0
+  },
+  "best": {
+    "label": "L22_a0.2",
+    "layer": 22,
+    "alpha": 0.2,
+    "composite": 0.4506669286920551,
+    "stage1": 0.4506669286920551,
+    "pragmaticality": null,
+    "judged": false,
+    "n_samples": 15,
+    "delta": 0.9855376736084251
+  },
+  "cells": [
+    {
+      "label": "L16_a0.2",
+      "layer": 16,
+      "alpha": 0.2,
+      "composite": 0.2817461285315749,
+      "stage1": 0.2817461285315749,
+      "pragmaticality": null,
+      "judged": false,
+      "n_samples": 15,
+      "delta": 0.8166168734479449
+    },
+    {
+      "label": "L16_a0.3",
+      "layer": 16,
+      "alpha": 0.3,
+      "composite": 0.2536942499992506,
+      "stage1": 0.2536942499992506,
+      "pragmaticality": null,
+      "judged": false,
+      "n_samples": 15,
+      "delta": 0.7885649949156206
+    },
+    {
+      "label": "L16_a0.4",
+      "layer": 16,
+      "alpha": 0.4,
+      "composite": -0.22883679408296592,
+      "stage1": -0.22883679408296592,
+      "pragmaticality": null,
+      "judged": false,
+      "n_samples": 15,
+      "delta": 0.30603395083340407
+    },
+    {
+      "label": "L17_a0.2",
+      "layer": 17,
+      "alpha": 0.2,
+      "composite": 0.3665015773555077,
+      "stage1": 0.3665015773555077,
+      "pragmaticality": null,
+      "judged": false,
+      "n_samples": 15,
+      "delta": 0.9013723222718777
+    },
+    {
+      "label": "L17_a0.3",
+      "layer": 17,
+      "alpha": 0.3,
+      "composite": 0.015808876894148102,
+      "stage1": 0.015808876894148102,
+      "pragmaticality": null,
+      "judged": false,
+      "n_samples": 15,
+      "delta": 0.5506796218105181
+    },
+    {
+      "label": "L17_a0.4",
+      "layer": 17,
+      "alpha": 0.4,
+      "composite": -0.13432426069240513,
+      "stage1": -0.13432426069240513,
+      "pragmaticality": null,
+      "judged": false,
+      "n_samples": 15,
+      "delta": 0.4005464842239649
+    },
+    {
+      "label": "L18_a0.2",
+      "layer": 18,
+      "alpha": 0.2,
+      "composite": 0.3542451851137373,
+      "stage1": 0.3542451851137373,
+      "pragmaticality": null,
+      "judged": false,
+      "n_samples": 15,
+      "delta": 0.8891159300301072
+    },
+    {
+      "label": "L18_a0.3",
+      "layer": 18,
+      "alpha": 0.3,
+      "composite": 0.08044986373964168,
+      "stage1": 0.08044986373964168,
+      "pragmaticality": null,
+      "judged": false,
+      "n_samples": 15,
+      "delta": 0.6153206086560117
+    },
+    {
+      "label": "L18_a0.4",
+      "layer": 18,
+      "alpha": 0.4,
+      "composite": -0.06838477523517643,
+      "stage1": -0.06838477523517643,
+      "pragmaticality": null,
+      "judged": false,
+      "n_samples": 15,
+      "delta": 0.46648596968119355
+    },
+    {
+      "label": "L19_a0.2",
+      "layer": 19,
+      "alpha": 0.2,
+      "composite": 0.3188727801787117,
+      "stage1": 0.3188727801787117,
+      "pragmaticality": null,
+      "judged": false,
+      "n_samples": 15,
+      "delta": 0.8537435250950817
+    },
+    {
+      "label": "L19_a0.3",
+      "layer": 19,
+      "alpha": 0.3,
+      "composite": 0.19383827991049396,
+      "stage1": 0.19383827991049396,
+      "pragmaticality": null,
+      "judged": false,
+      "n_samples": 15,
+      "delta": 0.728709024826864
+    },
+    {
+      "label": "L19_a0.4",
+      "layer": 19,
+      "alpha": 0.4,
+      "composite": -0.24737296118066665,
+      "stage1": -0.24737296118066665,
+      "pragmaticality": null,
+      "judged": false,
+      "n_samples": 15,
+      "delta": 0.28749778373570334
+    },
+    {
+      "label": "L20_a0.2",
+      "layer": 20,
+      "alpha": 0.2,
+      "composite": 0.3668485942909251,
+      "stage1": 0.3668485942909251,
+      "pragmaticality": null,
+      "judged": false,
+      "n_samples": 15,
+      "delta": 0.9017193392072951
+    },
+    {
+      "label": "L20_a0.3",
+      "layer": 20,
+      "alpha": 0.3,
+      "composite": 0.14371445127620938,
+      "stage1": 0.14371445127620938,
+      "pragmaticality": null,
+      "judged": false,
+      "n_samples": 15,
+      "delta": 0.6785851961925794
+    },
+    {
+      "label": "L20_a0.4",
+      "layer": 20,
+      "alpha": 0.4,
+      "composite": -0.30361456951394317,
+      "stage1": -0.30361456951394317,
+      "pragmaticality": null,
+      "judged": false,
+      "n_samples": 15,
+      "delta": 0.23125617540242682
+    },
+    {
+      "label": "L21_a0.2",
+      "layer": 21,
+      "alpha": 0.2,
+      "composite": 0.35140445138199783,
+      "stage1": 0.35140445138199783,
+      "pragmaticality": null,
+      "judged": false,
+      "n_samples": 15,
+      "delta": 0.8862751962983678
+    },
+    {
+      "label": "L21_a0.3",
+      "layer": 21,
+      "alpha": 0.3,
+      "composite": 0.23640670011946732,
+      "stage1": 0.23640670011946732,
+      "pragmaticality": null,
+      "judged": false,
+      "n_samples": 15,
+      "delta": 0.7712774450358373
+    },
+    {
+      "label": "L21_a0.4",
+      "layer": 21,
+      "alpha": 0.4,
+      "composite": -0.3895170555299512,
+      "stage1": -0.3895170555299512,
+      "pragmaticality": null,
+      "judged": false,
+      "n_samples": 15,
+      "delta": 0.1453536893864188
+    },
+    {
+      "label": "L22_a0.2",
+      "layer": 22,
+      "alpha": 0.2,
+      "composite": 0.4506669286920551,
+      "stage1": 0.4506669286920551,
+      "pragmaticality": null,
+      "judged": false,
+      "n_samples": 15,
+      "delta": 0.9855376736084251
+    },
+    {
+      "label": "L22_a0.3",
+      "layer": 22,
+      "alpha": 0.3,
+      "composite": -0.04770608247537659,
+      "stage1": -0.04770608247537659,
+      "pragmaticality": null,
+      "judged": false,
+      "n_samples": 15,
+      "delta": 0.4871646624409934
+    },
+    {
+      "label": "L22_a0.4",
+      "layer": 22,
+      "alpha": 0.4,
+      "composite": -0.45992301770984034,
+      "stage1": -0.45992301770984034,
+      "pragmaticality": null,
+      "judged": false,
+      "n_samples": 15,
+      "delta": 0.07494772720652965
+    },
+    {
+      "label": "L23_a0.2",
+      "layer": 23,
+      "alpha": 0.2,
+      "composite": 0.21036621390663343,
+      "stage1": 0.21036621390663343,
+      "pragmaticality": null,
+      "judged": false,
+      "n_samples": 15,
+      "delta": 0.7452369588230034
+    },
+    {
+      "label": "L23_a0.3",
+      "layer": 23,
+      "alpha": 0.3,
+      "composite": -0.216098035274564,
+      "stage1": -0.216098035274564,
+      "pragmaticality": null,
+      "judged": false,
+      "n_samples": 15,
+      "delta": 0.318772709641806
+    },
+    {
+      "label": "L23_a0.4",
+      "layer": 23,
+      "alpha": 0.4,
+      "composite": -0.9939159847790949,
+      "stage1": -0.9939159847790949,
+      "pragmaticality": null,
+      "judged": false,
+      "n_samples": 15,
+      "delta": -0.45904523986272494
+    }
+  ]
+}
