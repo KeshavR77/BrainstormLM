@@ -2,6 +2,10 @@ __pycache__/
 *.pyc
 .venv/
 .env
+.env.*
+!.env.example
+.keys.env
+.keys.env.*
 data/*
 # Ship-with-repo data assets (steering vectors + MAUVE reference set are not runtime state)
 !data/steering_14b/

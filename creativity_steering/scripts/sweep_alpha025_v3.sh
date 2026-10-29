@@ -13,7 +13,8 @@ set -u
 cd /workspace/BrainstormLM
 set -a; . ./.keys.env; set +a
 export HF_HOME=/workspace/.cache/huggingface
-export HF_TOKEN="${HF_TOKEN:-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}"
+# Replace the placeholder or set HF_TOKEN in .keys.env or the environment.
+export HF_TOKEN="${HF_TOKEN:-your_hugging_face_access_token}"
 export TOKENIZERS_PARALLELISM=false
 
 RUN=artifacts/qwen14b_run_v3
